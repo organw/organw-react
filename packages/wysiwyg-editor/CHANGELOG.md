@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.3.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.2.0...@organw/wysiwyg-editor@0.3.0) (2019-08-26)
+
+
+### Features
+
+* **wysiwyg-editor:** add value prop ([43bca09](https://github.com/organw/organw-react/commit/43bca09))
+
+
+
+
+
 # [0.2.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.1.0...@organw/wysiwyg-editor@0.2.0) (2019-08-26)
 
 
