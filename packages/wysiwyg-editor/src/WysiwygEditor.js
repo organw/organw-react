@@ -223,7 +223,7 @@ class WysiwygEditor extends React.Component {
 }
 
 WysiwygEditor.propTypes = {
-  // TODO
+  value: PropTypes.object.isRequired
 }
 
 export default WysiwygEditor;
