@@ -37,7 +37,7 @@ class WysiwygEditor extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className={`${className} organw-editor`}>
         <div>
           {this.renderMarkButton('bold', 'bold')}
           {this.renderMarkButton('italic', 'italic')}
@@ -223,7 +223,8 @@ class WysiwygEditor extends React.Component {
 }
 
 WysiwygEditor.propTypes = {
-  value: PropTypes.object.isRequired
+  value: PropTypes.object.isRequired,
+  className: PropTypes.string
 }
 
 export default WysiwygEditor;
