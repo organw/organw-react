@@ -1,0 +1,103 @@
+{
+  "name": "@organw/organw-react",
+  "description": "React components using Bootstrap 4",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:organw/organw-react.git"
+  },
+  "scripts": {
+    "lerna": "lerna",
+    "release": "lerna publish",
+    "release:ci": "lerna publish --yes",
+    "release:canary": "lerna publish -c"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-decorators": "^7.4.4",
+    "@babel/plugin-proposal-do-expressions": "^7.2.0",
+    "@babel/plugin-proposal-export-default-from": "^7.2.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
+    "@babel/plugin-proposal-function-bind": "^7.2.0",
+    "@babel/plugin-proposal-function-sent": "^7.2.0",
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.2.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.4.4",
+    "@babel/plugin-proposal-numeric-separator": "^7.2.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.2.0",
+    "@babel/plugin-proposal-pipeline-operator": "^7.3.2",
+    "@babel/plugin-proposal-throw-expressions": "^7.2.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-syntax-import-meta": "^7.2.0",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
+    "@commitlint/cli": "^8.0.0",
+    "@commitlint/config-conventional": "^8.1.0",
+    "@commitlint/config-lerna-scopes": "^8.1.0",
+    "@testing-library/react": "^9.1.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^24.8.0",
+    "babel-plugin-dynamic-import-node": "^2.2.0",
+    "codecov": "^3.5.0",
+    "conventional-changelog-cli": "^2.0.11",
+    "conventional-recommended-bump": "^6.0.0",
+    "core-js": "^3.1.2",
+    "husky": "^3.0.1",
+    "jest": "^24.0.0",
+    "jest-environment-jsdom-global": "^1.1.0",
+    "lerna": "^3.6.0",
+    "prop-types": "^15.6.2",
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3",
+    "sass-loader": "^7.1.0"
+  },
+  "license": "MIT",
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional",
+      "@commitlint/config-lerna-scopes"
+    ],
+    "rules": {
+      "header-max-length": [
+        0,
+        "always",
+        100
+      ]
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "jest": {
+    "testURL": "http://localhost/",
+    "transformIgnorePatterns": [
+      "<rootDir>.*(node_modules)(?!.*@organw.*).*$"
+    ],
+    "moduleNameMapper": {
+      ".+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2)$": "identity-obj-proxy"
+    },
+    "setupFiles": [
+      "raf/polyfill"
+    ],
+    "testEnvironment": "jest-environment-jsdom-global"
+  },
+  "contributors": [],
+  "bugs": {
+    "url": "https://github.com/organw/organw-react/issues"
+  },
+  "homepage": "https://github.com/organw/organw-react#readme",
+  "main": "index.js",
+  "keywords": [
+    "organw",
+    "react",
+    "ui"
+  ],
+  "author": "Gergely Nagy <nagy.gergely@zalaszam.hu>"
+}
