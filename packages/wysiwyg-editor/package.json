@@ -1,0 +1,37 @@
+{
+  "name": "@organw/wysiwyg-editor",
+  "version": "0.0.2",
+  "author": "Gergely Nagy <nagy.gergely@zalaszam.hu>",
+  "description": "Rich-text editor powered by React",
+  "main": "index.js",
+  "keywords": [
+    "react",
+    "organw"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/organw/organw-react.git"
+  },
+  "bugs": {
+    "url": "https://github.com/organw/organw-react/issues"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
+  },
+  "peerDependencies": {
+    "react": "^16.9.0"
+  },
+  "dependencies": {
+    "classnames": "^2.2.6",
+    "immutable": "^4.0.0-rc.12",
+    "is-hotkey": "^0.1.4",
+    "prop-types": "^15.7.2",
+    "slate": "^0.47.7",
+    "slate-react": "^0.22.7"
+  }
+}
