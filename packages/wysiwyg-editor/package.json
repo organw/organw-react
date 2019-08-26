@@ -33,5 +33,6 @@
     "prop-types": "^15.7.2",
     "slate": "^0.47.7",
     "slate-react": "^0.22.7"
-  }
+  },
+  "gitHead": "7002dea122f69153de9f873378adc5ee4d4b3929"
 }

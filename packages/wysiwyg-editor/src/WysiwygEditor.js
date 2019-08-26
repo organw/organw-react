@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 
 import { Editor as SlateEditor } from 'slate-react'
 import { Value } from 'slate'
@@ -32,7 +33,7 @@ class WysiwygEditor extends React.Component {
   ref = editor => {
     this.editor = editor
   }
-  
+
 
   render() {
     return (
@@ -219,6 +220,10 @@ class WysiwygEditor extends React.Component {
       }
     }
   }
+}
+
+WysiwygEditor.propTypes = {
+  // TODO
 }
 
 export default WysiwygEditor;
