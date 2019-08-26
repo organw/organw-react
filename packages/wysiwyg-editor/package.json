@@ -1,6 +1,6 @@
 {
   "name": "@organw/wysiwyg-editor",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Gergely Nagy <nagy.gergely@zalaszam.hu>",
   "description": "Rich-text editor powered by React",
   "main": "index.js",
