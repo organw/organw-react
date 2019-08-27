@@ -224,7 +224,8 @@ class WysiwygEditor extends React.Component {
 
 WysiwygEditor.propTypes = {
   value: PropTypes.object.isRequired,
-  className: PropTypes.string
+  className: PropTypes.string,
+  hasToolbar: PropTypes.bool
 }
 
 export default WysiwygEditor;
