@@ -7,6 +7,7 @@
   },
   "scripts": {
     "lerna": "lerna",
+    "bootstrap": "lerna bootstrap --no-package-locks",
     "release": "lerna publish",
     "release:ci": "lerna publish --yes",
     "release:canary": "lerna publish -c"
