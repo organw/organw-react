@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.4.0...@organw/wysiwyg-editor@0.5.0) (2019-08-27)
+
+
+### Features
+
+* **WysiwygEditor:** add hasToolbar prop ([a20b34b](https://github.com/organw/organw-react/commit/a20b34b))
+
+
+
+
+
 # [0.4.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.3.0...@organw/wysiwyg-editor@0.4.0) (2019-08-26)
 
 
