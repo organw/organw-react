@@ -7,8 +7,7 @@
   },
   "scripts": {
     "lerna": "lerna",
-    "build": "lerna run --parallel build -- --env",
-    "buildprod": "lerna run --parallel build -- --env production",
+    "build": "lerna run --parallel build -- --env production",
     "bootstrap": "lerna bootstrap --no-package-locks",
     "release": "lerna publish",
     "release:ci": "lerna publish --yes",

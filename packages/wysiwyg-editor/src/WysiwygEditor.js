@@ -34,10 +34,9 @@ class WysiwygEditor extends React.Component {
     this.editor = editor
   }
 
-
   render() {
     return (
-      <div className={`${className} organw-editor`}>
+      <div className={`${this.props.className} organw-editor`}>
         <div>
           {this.renderMarkButton('bold', 'bold')}
           {this.renderMarkButton('italic', 'italic')}

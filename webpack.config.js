@@ -3,14 +3,11 @@ const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const fs = require('fs');
 
-// A list of languages we support syntax highlighting for.
-// This whitelist is used to omit the inclusion of languages we don't
-// support in order to keep the bundle smaller.
 const hljsSupportedLanguages = [
   'javascript',
   'typescript',
-  'csp', // C#
-  'cpp', // C++
+  'csp',
+  'cpp',
   'go',
   'java',
   'perl',
@@ -30,15 +27,12 @@ function getAllPackages(dir) {
   return dirList.map(function(subDir) {
     subDir = path.resolve(dir, subDir);
     const json = require(`${subDir}/package.json`);
-    console.log('LOGGGGG', json.name)
     return json.name;
   });
 }
 
-// Base Webpack configuration, used by all other configurations for common settings
 module.exports = function(env = 'production') {
   const isProduction = env === 'production';
-    console.log(getAllPackages('../../packages'))
   return {
     mode: env,
     entry: './src/index',
@@ -74,7 +68,6 @@ module.exports = function(env = 'production') {
           use: {
             loader: 'babel-loader',
             options: {
-              // Makes Babel treat the directory containing babel.config.js as the project root
               rootMode: 'upward',
             },
           },
@@ -97,23 +90,14 @@ module.exports = function(env = 'production') {
     },
 
     plugins: (function() {
-      // Removes the dist directory when building
       const CleanWebpackPluginInstance = new CleanWebpackPlugin([
         path.resolve(process.cwd(), 'dist'),
       ]);
 
-      // Defines global variables
       const DefinePluginInstance = new webpack.DefinePlugin({
         __DEV__: JSON.stringify((!isProduction).toString()),
       });
 
-      // Intercepts non-whitelisted modules from Highlight.js
-      //
-      // Previously, Highlight.js would import every language it supports,
-      // regardless of whether or not we were using it.
-      //
-      // This cuts the bundle size for the syntax component down to around
-      // 1/20th of the size that it would otherwise be.
       const ContextReplacementPluginInstance = new webpack.ContextReplacementPlugin(
         /highlight\.js\/lib\/languages$/,
         new RegExp(`^./(${hljsSupportedLanguages.join('|')})$`),
