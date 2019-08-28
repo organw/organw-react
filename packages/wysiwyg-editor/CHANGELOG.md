@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.5.0...@organw/wysiwyg-editor@0.6.0) (2019-08-28)
+
+
+### Features
+
+* **wysiwyg-editor:** work on webpack ([e2418d0](https://github.com/organw/organw-react/commit/e2418d0))
+
+
+
+
+
 # [0.5.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.4.0...@organw/wysiwyg-editor@0.5.0) (2019-08-27)
 
 
