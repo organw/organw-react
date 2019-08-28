@@ -3,7 +3,7 @@
   "version": "0.5.0",
   "author": "Gergely Nagy <nagy.gergely@zalaszam.hu>",
   "description": "Rich-text editor powered by React",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "keywords": [
     "react",
     "organw"
@@ -16,6 +16,9 @@
     "url": "https://github.com/organw/organw-react/issues"
   },
   "license": "MIT",
+  "scripts": {
+    "build": "../../node_modules/.bin/webpack --config ../../webpack.config.js"
+  },
   "publishConfig": {
     "access": "public"
   },
