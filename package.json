@@ -6,6 +6,9 @@
     "url": "git+ssh://git@github.com:organw/organw-react.git"
   },
   "scripts": {
+    "start": "start-storybook -p 9001 -c storybook -s ./storybook/static",
+    "build:storybook": "build-storybook -c storybook -o ./storybook/public -s ./storybook/static",
+    "release:site": "gh-pages --dist storybook/public",
     "lerna": "lerna",
     "build": "lerna run --parallel build -- --env production",
     "bootstrap": "lerna bootstrap --no-package-locks",
@@ -54,7 +57,17 @@
     "sass-loader": "^7.1.0",
     "webpack": "4.26.0",
     "webpack-cli": "3.1.2",
-    "clean-webpack-plugin": "1.0.0"
+    "clean-webpack-plugin": "1.0.0",
+    "@storybook/addon-knobs": "^5.1.1",
+    "@storybook/react": "^5.1.1",
+    "@storybook/theming": "^5.1.1",
+    "@types/storybook__addon-knobs": "^5.0.0",
+    "@types/storybook__react": "^4.0.1",
+    "babel-plugin-emotion": "9.2.11",
+    "create-emotion": "^10.0.7",
+    "emotion": "^10.0.7",
+    "@emotion/core": "^10.0.10",
+    "@emotion/styled": "^10.0.11"
   },
   "license": "MIT",
   "lint-staged": {
@@ -109,5 +122,8 @@
       "packages/*"
     ]
   },
-  "author": "Gergely Nagy <nagy.gergely@zalaszam.hu>"
+  "author": "Gergely Nagy <nagy.gergely@zalaszam.hu>",
+  "dependencies": {
+    "react-emotion": "^10.0.0"
+  }
 }
