@@ -15,7 +15,7 @@
     "release:canary": "lerna publish -c"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
+    "@babel/core": "7.4.3",
     "babel-loader": "8.0.4",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
     "@babel/plugin-proposal-decorators": "^7.4.4",
@@ -48,7 +48,7 @@
     "husky": "^3.0.1",
     "jest": "^24.0.0",
     "jest-environment-jsdom-global": "^1.1.0",
-    "lerna": "^3.6.0",
+    "lerna": "3.4.3",
     "prop-types": "^15.6.2",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",

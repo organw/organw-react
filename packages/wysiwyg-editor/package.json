@@ -22,13 +22,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0"
-  },
-  "peerDependencies": {
-    "react": "^16.9.0"
-  },
   "dependencies": {
     "classnames": "^2.2.6",
     "immutable": "^4.0.0-rc.12",
