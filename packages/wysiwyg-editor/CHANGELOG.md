@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.6.1...@organw/wysiwyg-editor@0.7.0) (2019-09-02)
+
+
+### Bug Fixes
+
+* **wysiwyg-editor:** fix component reference ([706754c](https://github.com/organw/organw-react/commit/706754c))
+* **wysiwyg-editor:** fix Editor classnames ([f9f532c](https://github.com/organw/organw-react/commit/f9f532c))
+
+
+### Features
+
+* **wysiwyg-editor:** refactor logic ([59fbad9](https://github.com/organw/organw-react/commit/59fbad9))
+
+
+
+
+
 ## [0.6.1](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.6.0...@organw/wysiwyg-editor@0.6.1) (2019-08-28)
 
 
