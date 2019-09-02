@@ -46,7 +46,13 @@ class Editor extends React.Component {
     render() {
         const { as: Component, className, role, children, ...props } = this.props;
       return (
-          <div className={`${this.props.className} organw-editor`}>
+          <div
+            className={
+              classNames(
+                className,
+                'ow-wysiwyg-editor',
+            )}
+          >
             <SharedAppConsumer>
               {props => {
                 return  <SlateEditor
