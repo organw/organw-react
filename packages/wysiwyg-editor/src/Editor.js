@@ -8,6 +8,8 @@ import { Value } from 'slate'
 import initialValue from './defaultValue.json'
 import { isKeyHotkey } from 'is-hotkey'
 
+import { SharedAppConsumer } from './App'
+
 const DEFAULT_NODE = 'paragraph'
 
 const isBoldHotkey = isKeyHotkey('mod+b')
@@ -41,26 +43,26 @@ class Editor extends React.Component {
       return value.blocks.some(node => node.type === type)
     }
   
-    ref = editor => {
-      this.editor = editor
-    }
-  
     render() {
         const { as: Component, className, role, children, ...props } = this.props;
       return (
-        <div className={`${this.props.className} organw-editor`}>
-          <SlateEditor
-            spellCheck
-            autoFocus
-            placeholder="Kezdj el gépelni..."
-            ref={this.ref}
-            value={this.state.value}
-            onChange={this.onChange}
-            onKeyDown={this.onKeyDown}
-            renderBlock={this.renderBlock}
-            renderMark={this.renderMark}
-          />
-        </div>
+          <div className={`${this.props.className} organw-editor`}>
+            <SharedAppConsumer>
+              {props => {
+                return  <SlateEditor
+                  spellCheck
+                  autoFocus
+                  placeholder="Kezdj el gépelni..."
+                  ref={props.ref}
+                  value={props.value}
+                  onChange={props.onChange}
+                  onKeyDown={this.onKeyDown}
+                  renderBlock={this.renderBlock}
+                  renderMark={this.renderMark}
+                />
+              }}
+              </SharedAppConsumer>
+          </div>
       )
     }
   
@@ -143,10 +145,6 @@ class Editor extends React.Component {
         default:
           return next()
       }
-    }
-  
-    onChange = ({ value }) => {
-      this.setState({ value })
     }
   
     onKeyDown = (event, editor, next) => {

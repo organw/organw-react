@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Value } from 'slate'
+import initialValue from './defaultValue.json'
 
 const propTypes = {
     className: PropTypes.string,
@@ -16,29 +18,22 @@ const defaultProps = {
 
 const SharedAppContext = React.createContext();
 
-class App extends Component {
+class App extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            isOpen: false,
-            message: '',
+            value: Value.fromJSON(initialValue)
         };
     }
 
-    openSnackbar = message => {
-        this.setState({
-            message,
-            isOpen: true,
-        });
-    };
+    ref = editor => {
+        this.editor = editor
+    }
 
-    closeSnackbar = () => {
-        this.setState({
-            message: '',
-            isOpen: false,
-        });
-    };
+    onChange = ({ value }) => {
+        this.setState({ value })
+    }
 
     render() {
         const { as: Component, className, role, children, ...props } = this.props;
@@ -54,10 +49,9 @@ class App extends Component {
             >
                 <SharedAppContext.Provider
                     value={{
-                        openSnackbar: this.openSnackbar,
-                        closeSnackbar: this.closeSnackbar,
-                        snackbarIsOpen: this.state.isOpen,
-                        message: this.state.message,
+                        value: this.state.value,
+                        ref: this.ref,
+                        onChange: this.onChange
                     }}
                 >
                     {children}
