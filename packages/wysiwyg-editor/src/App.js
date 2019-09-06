@@ -15,10 +15,12 @@ const propTypes = {
   as: PropTypes.elementType,
   role: PropTypes.string,
   children: PropTypes.node,
+  value: PropTypes.string.isRequired,
 };
 
 const defaultProps = {
   as: 'div',
+  value: '',
   role: 'application',
 };
 
@@ -118,7 +120,8 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      value: Value.fromJSON(initialValue),
+      value: Plain.deserialize(props.value),
+      wordCount: null,
     };
   }
 
@@ -170,6 +173,16 @@ class App extends React.Component {
 
   onChange = ({ value }) => {
     this.setState({ value });
+    // const { document } = value;
+
+    // for (const [node] of document.blocks({ onlyLeaves: true })) {
+    //   const words = node.text.trim().split(/\s+/);
+    //   this.setState(prevState => ({
+    //     wordCount: prevState.wordCount + words.length,
+    //   }));
+    // }
+    // console.log(this.state.wordCount);
+    // return this.state.wordCount;
   };
 
   onKeyDown = (event, editor, next) => {
@@ -191,6 +204,22 @@ class App extends React.Component {
     editor.toggleMark(mark);
   };
 
+  wordCount = (props, editor, next) => {
+    const { value } = editor;
+    const { document } = value;
+    const children = next();
+    console.log('-----');
+    console.log(props, editor, next);
+    let wordCount = 0;
+
+    for (const [node] of document.blocks({ onlyLeaves: true })) {
+      const words = node.text.trim().split(/\s+/);
+      wordCount += words.length;
+    }
+    console.log(wordCount);
+    return wordCount;
+  };
+
   renderEditor = (props, editor, next) => {
     const children = next();
     return (
@@ -203,7 +232,7 @@ class App extends React.Component {
 
   renderBlock = (props, editor, next) => {
     const { attributes, children, node, isFocused } = props;
-    console.log(attributes);
+
     switch (node.type) {
       case 'block-quote':
         return <blockquote {...attributes}>{children}</blockquote>;
@@ -603,7 +632,8 @@ class App extends React.Component {
             renderInline: this.renderInline,
             onClickLink: this.onClickLink,
             onClickImage: this.onClickImage,
-            // renderEditor: this.renderEditor,
+            renderEditor: this.renderEditor,
+            wordCount: this.state.wordCount,
           }}
         >
           {children}
@@ -615,6 +645,5 @@ class App extends React.Component {
 
 App.propTypes = propTypes;
 App.defaultProps = defaultProps;
-
 export const SharedAppConsumer = SharedAppContext.Consumer;
 export default App;

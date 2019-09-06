@@ -13,11 +13,19 @@ import {
   Statusbar,
 } from './index';
 
-function Default() {
-  const [open, setOpen] = useState(false);
+class Default extends React.Component {
 
+  state = {
+    value: '<div>div</div>',
+  };
+
+  onChange = ({ value }) => {
+    this.setState({value})
+  }
+
+  render () {
   return (
-    <App>
+    <App value={} onChange={this.onChange}>
       <Menubar>
         <MenuItem>File</MenuItem>
         <MenuItem>Help</MenuItem>
@@ -90,6 +98,7 @@ function Default() {
       <Statusbar />
     </App>
   );
+  }
 }
 
 storiesOf('App', module).add('default', () => <Default />);

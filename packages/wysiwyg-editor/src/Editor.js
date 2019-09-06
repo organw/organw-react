@@ -40,7 +40,7 @@ class Editor extends React.Component {
   };
 
   render() {
-    const { as: Component, className, role, children } = this.props;
+    const { as: Component, className, role, children, text } = this.props;
     return (
       <div className={classNames(className, 'ow-wysiwyg-editor')}>
         <SharedAppConsumer>
@@ -63,6 +63,7 @@ class Editor extends React.Component {
                 // onClickBlock={props.onClickBlock}
                 // onClickImage={props.onClickImage}
                 // renderEditor={props.renderEditor}
+                wordCount={props.wordCount}
               />
             );
           }}
