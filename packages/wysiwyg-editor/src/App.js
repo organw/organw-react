@@ -20,13 +20,14 @@ const propTypes = {
 
 const defaultProps = {
   as: 'div',
-  value: '',
+  value: '<span> </span>',
   role: 'application',
 };
 
 const DEFAULT_NODE = 'span';
 
 const SharedAppContext = React.createContext();
+
 const isBoldHotkey = isKeyHotkey('mod+b');
 const isItalicHotkey = isKeyHotkey('mod+i');
 const isUnderlinedHotkey = isKeyHotkey('mod+u');
@@ -611,7 +612,7 @@ class App extends React.Component {
       >
         <SharedAppContext.Provider
           value={{
-            value: this.state.value,
+            value: this.props.value,
             ref: this.ref,
             onChange: this.onChange,
             onKeyDown: this.onKeyDown,
@@ -645,5 +646,7 @@ class App extends React.Component {
 
 App.propTypes = propTypes;
 App.defaultProps = defaultProps;
+
 export const SharedAppConsumer = SharedAppContext.Consumer;
+
 export default App;

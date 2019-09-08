@@ -30,6 +30,7 @@
     "is-hotkey": "^0.1.4",
     "prop-types": "^15.7.2",
     "slate": "^0.47.7",
+    "slate-html-serializer": "^0.8.10",
     "slate-react": "^0.22.7"
   },
   "gitHead": "f38e6b9f8533af428b20bb90b4c6cc031e5d6f43"

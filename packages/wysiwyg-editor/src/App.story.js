@@ -16,16 +16,17 @@ import {
 class Default extends React.Component {
 
   state = {
-    value: '<div>div</div>',
+    value: '<div>Teszt div</div>',
   };
 
   onChange = ({ value }) => {
+    console.log(value)
     this.setState({value})
   }
 
   render () {
   return (
-    <App value={} onChange={this.onChange}>
+    <App value={this.state.value} onChange={this.onChange}>
       <Menubar>
         <MenuItem>File</MenuItem>
         <MenuItem>Help</MenuItem>
