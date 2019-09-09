@@ -8,7 +8,8 @@ const propTypes = {
   className: PropTypes.string,
   as: PropTypes.elementType,
   children: PropTypes.node.isRequired,
-  type: PropTypes.oneOf(['block', 'mark', 'table', 'link', 'image']).isRequired,
+  type: PropTypes.oneOf(['block', 'mark', 'table', 'link', 'image', 'text'])
+    .isRequired,
   name: PropTypes.string,
   tag: PropTypes.string,
 };
@@ -20,7 +21,7 @@ const defaultProps = {
 
 const ToolbarItem = ({
   as: Component,
-  tag: Tag,
+  tag,
   name,
   className,
   children,
@@ -43,10 +44,11 @@ const ToolbarItem = ({
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
+                console.log('mark');
                 propss.onClickMark(event, name);
               }}
             >
-              <Tag> {children}</Tag>
+              {children}
             </Component>
           );
         }}
@@ -62,6 +64,7 @@ const ToolbarItem = ({
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
+                console.log('block');
                 propss.onClickBlock(event, name);
               }}
             >
@@ -81,6 +84,7 @@ const ToolbarItem = ({
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
+                console.log('image');
                 propss.onClickImage(event, name);
               }}
             >
@@ -101,6 +105,7 @@ const ToolbarItem = ({
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
+                console.log('TABLE');
                 propss.onClickBlock(event, name);
               }}
             >
@@ -121,7 +126,8 @@ const ToolbarItem = ({
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
-                propss.onClickLink(event, name);
+                console.log('link');
+                propss.onClickBlock(event, name);
               }}
             >
               {children}
@@ -132,7 +138,11 @@ const ToolbarItem = ({
     );
   }
 
-  if (name === 'list-item' || 'bulleted-list || numbered-list') {
+  if (
+    name === 'list-item' ||
+    name === 'bulleted-list' ||
+    name === 'numbered-list'
+  ) {
     console.log('link');
     return (
       <SharedAppConsumer>
@@ -141,7 +151,27 @@ const ToolbarItem = ({
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
+                console.log('link');
                 propss.onClickBlock(event, name);
+              }}
+            >
+              {children}
+            </Component>
+          );
+        }}
+      </SharedAppConsumer>
+    );
+  }
+
+  if (type === 'text') {
+    return (
+      <SharedAppConsumer>
+        {propss => {
+          return (
+            <Component
+              className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+              onMouseDown={event => {
+                propss.onClickBlock(event, type, name, tag);
               }}
             >
               {children}

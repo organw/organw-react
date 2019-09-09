@@ -3,8 +3,9 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Value } from 'slate';
+import Html from 'slate-html-serializer';
 import { getEventTransfer } from 'slate-react';
-import initialValue from './defaultValue.json';
+// import initialValue from './defaultValue.json';
 import { isKeyHotkey } from 'is-hotkey';
 import Plain from 'slate-plain-serializer';
 import { Button, Icon, Menu } from './components';
@@ -20,12 +21,11 @@ const propTypes = {
 
 const defaultProps = {
   as: 'div',
-  value: '<span> </span>',
   role: 'application',
 };
 
 const DEFAULT_NODE = 'span';
-
+const initialValue = '<span></span>';
 const SharedAppContext = React.createContext();
 
 const isBoldHotkey = isKeyHotkey('mod+b');
@@ -116,21 +116,264 @@ function getExtension(url) {
   return new URL(url).pathname.split('.').pop();
 }
 
+const BLOCK_TAGS = {
+  span: 'span',
+  p: 'paragraph',
+  li: 'list-item',
+  ul: 'bulleted-list',
+  ol: 'numbered-list',
+  blockquote: 'quote',
+  pre: 'code',
+  h1: 'heading-one',
+  h2: 'heading-two',
+  h3: 'heading-three',
+  h4: 'heading-four',
+  h5: 'heading-five',
+  h6: 'heading-six',
+};
+
+const MARK_TAGS = {
+  strong: 'bold',
+  em: 'italic',
+  u: 'underline',
+  s: 'strikethrough',
+  code: 'code',
+};
+
+const RULES = [
+  {
+    deserialize(el, next) {
+      const block = BLOCK_TAGS[el.tagName.toLowerCase()];
+
+      if (block) {
+        return {
+          object: 'block',
+          type: block,
+          data: {
+            className: el.getAttribute('class'),
+          },
+          nodes: next(el.childNodes),
+        };
+      }
+    },
+    serialize(obj, children, next, attributes, isFocused) {
+      console.log('OBJ', obj.object);
+      if (obj.object == 'block') {
+        switch (obj.type) {
+          case 'code':
+            return (
+              <pre>
+                <code>{children}</code>
+              </pre>
+            );
+          case 'span':
+            return (
+              <span className={obj.data.get('className')}>{children}</span>
+            );
+          case 'paragraph':
+            return <p className={obj.data.get('className')}>{children}</p>;
+          case 'quote':
+            return <blockquote>{children}</blockquote>;
+          case 'heading-one':
+            return <h1 className={obj.data.get('className')}>{children}</h1>;
+          case 'heading-two':
+            return <h2 className={obj.data.get('className')}>{children}</h2>;
+          case 'heading-three':
+            return <h3>{children}</h3>;
+          case 'heading-four':
+            return <h4>{children}</h4>;
+          case 'heading-five':
+            return <h5>{children}</h5>;
+          case 'heading-six':
+            return <h6>{children}</h6>;
+          case 'list-item':
+            return <li>{children}</li>;
+          case 'numbered-list':
+            return <ol>{children}</ol>;
+          case 'image': {
+            const src = obj.data.get('src');
+            return (
+              <img
+                src={src}
+                className={css`
+                  display: block;
+                  max-width: 100%;
+                  max-height: 20em;
+                  box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+                `}
+              />
+            );
+          }
+          default:
+            return <span {...attributes}>{children}</span>;
+        }
+      }
+      if (obj.type === 'inline') {
+        switch (obj.type) {
+          case 'table':
+            return (
+              <table className="table-striped">
+                <tbody>
+                  <tr>
+                    <td>{children}</td>
+                  </tr>
+                </tbody>
+              </table>
+            );
+          case 'table-row':
+            return <tr>{children}</tr>;
+          case 'table-cell':
+            return <td>{children}</td>;
+          case 'link': {
+            const { data } = obj;
+            const href = data.get('href');
+            console.log(data);
+            return (
+              <a {...attributes} href={href}>
+                {children}
+              </a>
+            );
+          }
+
+          default:
+            return <span {...attributes}>{children}</span>;
+        }
+      }
+      if (obj.object == 'mark') {
+        switch (obj.object) {
+          case 'bold':
+            return <strong {...attributes}>{children}</strong>;
+          case 'code':
+            return <code {...attributes}>{children}</code>;
+          case 'italic':
+            return <em {...attributes}>{children}</em>;
+          case 'underlined':
+            return <u {...attributes}>{children}</u>;
+          default:
+            return <span {...attributes}>{children}</span>;
+        }
+      }
+    },
+  },
+  {
+    // deserialize(el, next) {
+    //   const mark = MARK_TAGS[el.tagName.toLowerCase()];
+    //   if (mark) {
+    //     return {
+    //       object: 'mark',
+    //       type: mark,
+    //       nodes: next(el.childNodes),
+    //     };
+    //   }
+    // },
+    // serialize(obj, children, attributes) {
+    //   if (obj.object == 'mark') {
+    //     switch (mark.type) {
+    //       case 'bold':
+    //         return <strong {...attributes}>{children}</strong>;
+    //       case 'code':
+    //         return <code {...attributes}>{children}</code>;
+    //       case 'italic':
+    //         return <em {...attributes}>{children}</em>;
+    //       case 'underlined':
+    //         return <u {...attributes}>{children}</u>;
+    //       default:
+    //         return <span {...attributes}>{children}</span>;
+    //     }
+    //   }
+    // },
+  },
+  {
+    // Special case for code blocks, which need to grab the nested childNodes.
+    deserialize(el, next) {
+      if (el.tagName.toLowerCase() === 'pre') {
+        const code = el.childNodes[0];
+        const childNodes =
+          code && code.tagName.toLowerCase() === 'code'
+            ? code.childNodes
+            : el.childNodes;
+
+        return {
+          object: 'block',
+          type: 'code',
+          nodes: next(childNodes),
+        };
+      }
+    },
+  },
+  {
+    // Special case for images, to grab their src.
+    deserialize(el, next) {
+      if (el.tagName.toLowerCase() === 'img') {
+        return {
+          object: 'block',
+          type: 'image',
+          nodes: next(el.childNodes),
+          data: {
+            src: el.getAttribute('src'),
+          },
+        };
+      }
+    },
+    serialize(obj, children) {
+      console.log(obj.object);
+      if (obj.object == 'image') {
+        switch (obj.object) {
+          case 'image': {
+            const { data } = obj;
+            const href = data.get('href');
+            return (
+              <a {...attributes} href={href}>
+                {children}
+              </a>
+            );
+          }
+        }
+      }
+    },
+  },
+  {
+    // Special case for links, to grab their href.
+    deserialize(el, next) {
+      if (el.tagName.toLowerCase() === 'a') {
+        return {
+          object: 'inline',
+          type: 'link',
+          nodes: next(el.childNodes),
+          data: {
+            href: el.getAttribute('href'),
+          },
+        };
+      }
+    },
+    serialize(obj, children) {
+      console.log('OBJ:', obj);
+      if (obj.object === 'inline') {
+        switch (obj.type) {
+          case 'link': {
+            const { data } = obj;
+            const href = data.get('href');
+            return <a href={href}>{children}</a>;
+          }
+        }
+      }
+    },
+  },
+];
+
+export const serializer = new Html({ rules: RULES });
+
 class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      value: Plain.deserialize(props.value),
+      value: serializer.deserialize(initialValue),
       wordCount: null,
     };
   }
 
   menuRef = React.createRef();
-
-  /**
-   * On update, update the menu.
-   */
 
   componentDidMount = () => {
     this.updateMenu();
@@ -139,10 +382,6 @@ class App extends React.Component {
   componentDidUpdate = () => {
     this.updateMenu();
   };
-
-  /**
-   * Update the menu's absolute position.
-   */
 
   updateMenu = () => {
     const menu = this.menuRef.current;
@@ -173,17 +412,13 @@ class App extends React.Component {
   };
 
   onChange = ({ value }) => {
-    this.setState({ value });
-    // const { document } = value;
+    // When the document changes, save the serialized HTML to Local Storage.
+    if (value.document != this.state.value.document) {
+      const string = serializer.serialize(value);
+      localStorage.setItem('content', string);
+    }
 
-    // for (const [node] of document.blocks({ onlyLeaves: true })) {
-    //   const words = node.text.trim().split(/\s+/);
-    //   this.setState(prevState => ({
-    //     wordCount: prevState.wordCount + words.length,
-    //   }));
-    // }
-    // console.log(this.state.wordCount);
-    // return this.state.wordCount;
+    this.setState({ value });
   };
 
   onKeyDown = (event, editor, next) => {
@@ -209,15 +444,12 @@ class App extends React.Component {
     const { value } = editor;
     const { document } = value;
     const children = next();
-    console.log('-----');
-    console.log(props, editor, next);
     let wordCount = 0;
 
     for (const [node] of document.blocks({ onlyLeaves: true })) {
       const words = node.text.trim().split(/\s+/);
       wordCount += words.length;
     }
-    console.log(wordCount);
     return wordCount;
   };
 
@@ -235,6 +467,8 @@ class App extends React.Component {
     const { attributes, children, node, isFocused } = props;
 
     switch (node.type) {
+      case 'span':
+        return <span {...attributes}>{children}</span>;
       case 'block-quote':
         return <blockquote {...attributes}>{children}</blockquote>;
       case 'bulleted-list':
@@ -256,7 +490,6 @@ class App extends React.Component {
       case 'numbered-list':
         return <ol {...attributes}>{children}</ol>;
       case 'table':
-        console.log(children);
         return (
           <table className="table-striped">
             <tbody {...attributes}>
@@ -285,43 +518,91 @@ class App extends React.Component {
           />
         );
       }
+      case 'link': {
+        const { data } = node;
+        const href = data.get('href');
+        return (
+          <a {...attributes} href={href}>
+            {children}
+          </a>
+        );
+      }
       default:
         return next();
     }
   };
 
-  renderMark = (props, editor, next) => {
-    const { children, mark, attributes } = props;
+  // renderMark = (props, editor, next) => {
+  //   const { children, mark, attributes } = props;
 
-    switch (mark.type) {
-      case 'bold':
-        return <strong {...attributes}>{children}</strong>;
-      case 'code':
-        return <code {...attributes}>{children}</code>;
-      case 'italic':
-        return <em {...attributes}>{children}</em>;
-      case 'underlined':
-        return <u {...attributes}>{children}</u>;
-      default:
-        return next();
-    }
-  };
+  //   switch (mark.type) {
+  //     case 'bold':
+  //       return <strong {...attributes}>{children}</strong>;
+  //     case 'code':
+  //       return <code {...attributes}>{children}</code>;
+  //     case 'italic':
+  //       return <em {...attributes}>{children}</em>;
+  //     case 'underlined':
+  //       return <u {...attributes}>{children}</u>;
+  //     default:
+  //       return next();
+  //   }
+  // };
 
-  onClickBlock = (event, type, name) => {
+  onClickText = (event, type, tag) => {
     event.preventDefault();
-    console.log('block megnyomva', type);
+    const { editor } = this;
+    const { value } = editor;
+    const { document } = value;
+    editor.insertText(tag);
+  };
+
+  onClickBlock = (event, type, name, tag) => {
+    event.preventDefault();
 
     const { editor } = this;
     const { value } = editor;
     const { document } = value;
 
+    if (type === 'text') editor.insertText(tag);
+
+    if (type === 'link') {
+      const hasLinks = this.hasLinks();
+
+      if (hasLinks) {
+        editor.command(unwrapLink);
+      } else if (value.selection.isExpanded) {
+        const href = window.prompt('Írja be az URL címet:');
+
+        if (href == null) {
+          return;
+        }
+
+        editor.command(wrapLink, href);
+      } else {
+        const href = window.prompt('Írja be az URL címet:');
+
+        if (href == null) {
+          return;
+        }
+
+        const text = window.prompt('Írja be a linkhez megjelenő szöveget:');
+
+        if (text == null) {
+          return;
+        }
+
+        editor
+          .insertText(text)
+          .moveFocusBackward(text.length)
+          .command(wrapLink, href);
+      }
+    }
+
     // Handle everything but list buttons.
     if (type !== 'bulleted-list' && type !== 'numbered-list') {
       const isActive = this.hasBlock(type);
       const isList = this.hasBlock('list-item');
-      console.log(isList);
-      console.log(isActive);
-
       if (isList) {
         editor
           .setBlocks(isActive ? DEFAULT_NODE : type)
@@ -356,96 +637,9 @@ class App extends React.Component {
     }
   };
 
-  renderMarkButton = (type, icon) => {
-    const isActive = this.hasMark(type);
-
-    return (
-      <button
-        active={isActive}
-        onMouseDown={event => this.onClickMark(event, type)}
-      >
-        <i className={'fa fa-' + icon} aria-hidden="true" />
-      </button>
-    );
-  };
-
-  renderBlockButton = (type, icon, text) => {
-    let isActive = this.hasBlock(type);
-
-    if (['numbered-list', 'bulleted-list', 'list-item'].includes(type)) {
-      const {
-        value: { document, blocks },
-      } = this.state;
-
-      if (blocks.size > 0) {
-        const parent = document.getParent(blocks.first().key);
-        isActive = this.hasBlock('list-item') && parent && parent.type === type;
-      }
-    }
-
-    return <button active={isActive}>{text}</button>;
-  };
-
-  renderInline = (props, editor, next) => {
-    const { attributes, children, node } = props;
-
-    switch (node.type) {
-      case 'link': {
-        const { data } = node;
-        const href = data.get('href');
-        return (
-          <a {...attributes} href={href}>
-            {children}
-          </a>
-        );
-      }
-
-      default: {
-        return next();
-      }
-    }
-  };
-
-  onClickLink = event => {
-    event.preventDefault();
-
-    const { editor } = this;
-    const { value } = editor;
-    const hasLinks = this.hasLinks();
-
-    if (hasLinks) {
-      editor.command(unwrapLink);
-    } else if (value.selection.isExpanded) {
-      const href = window.prompt('Írja be az URL címet:');
-
-      if (href == null) {
-        return;
-      }
-
-      editor.command(wrapLink, href);
-    } else {
-      const href = window.prompt('Írja be az URL címet:');
-
-      if (href == null) {
-        return;
-      }
-
-      const text = window.prompt('Írja be a linkhez megjelenő szöveget:');
-
-      if (text == null) {
-        return;
-      }
-
-      editor
-        .insertText(text)
-        .moveFocusBackward(text.length)
-        .command(wrapLink, href);
-    }
-  };
-
   onClickImage = event => {
     event.preventDefault();
-    const src = window.prompt('Enter the URL of the image:');
+    const src = window.prompt('Írja be a kép URL címét!');
     if (!src) return;
     this.editor.command(insertImage, src);
   };
@@ -527,7 +721,7 @@ class App extends React.Component {
   onDropOrPaste = (event, editor, name, next) => {
     // if (editor.value.selection.isCollapsed) return next();
     const transfer = getEventTransfer(event);
-    const { type, text = '' } = transfer;
+    const { text = '' } = transfer;
     const { value } = editor;
     if (value.startBlock.type !== 'table-cell') {
       return next();
@@ -612,7 +806,7 @@ class App extends React.Component {
       >
         <SharedAppContext.Provider
           value={{
-            value: this.props.value,
+            value: this.state.value,
             ref: this.ref,
             onChange: this.onChange,
             onKeyDown: this.onKeyDown,
@@ -623,18 +817,14 @@ class App extends React.Component {
             isUnderlinedHotkey: isUnderlinedHotkey,
             isCodeHotkey: isCodeHotkey,
             onClickBlock: this.onClickBlock,
-            renderMarkButton: this.renderMarkButton,
-            renderBlockButton: this.renderBlockButton,
             onClickMark: this.onClickMark,
-            hasBlock: this.hasBlock,
-            hasMark: this.hasMark,
             onDrop: this.onDropOrPasteImg,
             onPaste: this.onPaste,
-            renderInline: this.renderInline,
             onClickLink: this.onClickLink,
+            onClickText: this.onClickText,
             onClickImage: this.onClickImage,
-            renderEditor: this.renderEditor,
-            wordCount: this.state.wordCount,
+            // renderEditor: this.renderEditor,
+            // wordCount: this.state.wordCount,
           }}
         >
           {children}
