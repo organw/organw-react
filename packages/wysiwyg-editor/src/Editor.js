@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Editor as SlateEditor } from 'slate-react';
-import { SharedAppConsumer } from './App';
+import { SharedAppConsumer, serializer } from './App';
 
 const propTypes = {
   className: PropTypes.string,
@@ -30,26 +30,30 @@ class Editor extends React.Component {
         <SharedAppConsumer>
           {props => {
             return (
-              <SlateEditor
-                spellCheck
-                autoFocus
-                placeholder="Kezdj el gépelni..."
-                ref={props.ref}
-                value={props.value}
-                onChange={props.onChange}
-                schema={schema}
-                onKeyDown={props.onKeyDown}
-                renderBlock={props.renderBlock}
-                renderMark={props.renderMark}
-                onDrop={props.onDrop}
-                onPaste={props.onPaste}
-                renderInline={props.renderInline}
-                hasLink={props.hasLink}
-                onClickBlock={props.onClickBlock}
-                // onClickImage={props.onClickImage}
-                // renderEditor={props.renderEditor}
-                wordCount={props.wordCount}
-              />
+              <React.Fragment>
+                <SlateEditor
+                  spellCheck
+                  autoFocus
+                  placeholder="Kezdj el gépelni..."
+                  ref={props.ref}
+                  value={props.value}
+                  onChange={props.onChange}
+                  schema={schema}
+                  onKeyDown={props.onKeyDown}
+                  renderBlock={props.renderBlock}
+                  renderMark={props.renderMark}
+                  onDrop={props.onDrop}
+                  onPaste={props.onPaste}
+                  renderInline={props.renderInline}
+                  hasLinks={props.hasLinks}
+                  onClickBlock={props.onClickBlock}
+                  onDropOrPaste={props.onDropOrPaste}
+                  // onClickImage={props.onClickImage}
+                  // renderEditor={props.renderEditor}
+                  wordCount={props.wordCount}
+                />
+                <div>{serializer.serialize(props.value)}</div>
+              </React.Fragment>
             );
           }}
         </SharedAppConsumer>

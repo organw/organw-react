@@ -106,7 +106,7 @@ const ToolbarItem = ({
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
                 console.log('TABLE');
-                propss.onClickBlock(event, name);
+                propss.onDropOrPaste(event, name);
               }}
             >
               {children}
@@ -127,7 +127,7 @@ const ToolbarItem = ({
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
                 console.log('link');
-                propss.onClickBlock(event, name);
+                propss.onClickLink(event, name);
               }}
             >
               {children}

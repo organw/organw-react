@@ -24,8 +24,8 @@ const defaultProps = {
   role: 'application',
 };
 
-const DEFAULT_NODE = 'span';
-const initialValue = '<span></span>';
+const DEFAULT_NODE = '';
+const initialValue = '<div></div>';
 const SharedAppContext = React.createContext();
 
 const isBoldHotkey = isKeyHotkey('mod+b');
@@ -157,7 +157,6 @@ const RULES = [
       }
     },
     serialize(obj, children, next, attributes, isFocused) {
-      console.log('OBJ', obj.object);
       if (obj.object == 'block') {
         switch (obj.type) {
           case 'code':
@@ -172,7 +171,7 @@ const RULES = [
             );
           case 'paragraph':
             return <p className={obj.data.get('className')}>{children}</p>;
-          case 'quote':
+          case 'block-quote':
             return <blockquote>{children}</blockquote>;
           case 'heading-one':
             return <h1 className={obj.data.get('className')}>{children}</h1>;
@@ -188,6 +187,8 @@ const RULES = [
             return <h6>{children}</h6>;
           case 'list-item':
             return <li>{children}</li>;
+          case 'bulleted-list':
+            return <ul>{children}</ul>;
           case 'numbered-list':
             return <ol>{children}</ol>;
           case 'image': {
@@ -205,10 +206,11 @@ const RULES = [
             );
           }
           default:
-            return <span {...attributes}>{children}</span>;
+            return <p {...attributes}>{children}</p>;
         }
       }
       if (obj.type === 'inline') {
+        console.log(obj.type);
         switch (obj.type) {
           case 'table':
             return (
@@ -236,11 +238,11 @@ const RULES = [
           }
 
           default:
-            return <span {...attributes}>{children}</span>;
+            return <p {...attributes}>{children}</p>;
         }
       }
       if (obj.object == 'mark') {
-        switch (obj.object) {
+        switch (obj.type) {
           case 'bold':
             return <strong {...attributes}>{children}</strong>;
           case 'code':
@@ -250,7 +252,7 @@ const RULES = [
           case 'underlined':
             return <u {...attributes}>{children}</u>;
           default:
-            return <span {...attributes}>{children}</span>;
+            return <p {...attributes}>{children}</p>;
         }
       }
     },
@@ -532,22 +534,22 @@ class App extends React.Component {
     }
   };
 
-  // renderMark = (props, editor, next) => {
-  //   const { children, mark, attributes } = props;
+  renderMark = (props, editor, next) => {
+    const { children, mark, attributes } = props;
 
-  //   switch (mark.type) {
-  //     case 'bold':
-  //       return <strong {...attributes}>{children}</strong>;
-  //     case 'code':
-  //       return <code {...attributes}>{children}</code>;
-  //     case 'italic':
-  //       return <em {...attributes}>{children}</em>;
-  //     case 'underlined':
-  //       return <u {...attributes}>{children}</u>;
-  //     default:
-  //       return next();
-  //   }
-  // };
+    switch (mark.type) {
+      case 'bold':
+        return <strong {...attributes}>{children}</strong>;
+      case 'code':
+        return <code {...attributes}>{children}</code>;
+      case 'italic':
+        return <em {...attributes}>{children}</em>;
+      case 'underlined':
+        return <u {...attributes}>{children}</u>;
+      default:
+        return next();
+    }
+  };
 
   onClickText = (event, type, tag) => {
     event.preventDefault();
@@ -563,6 +565,8 @@ class App extends React.Component {
     const { editor } = this;
     const { value } = editor;
     const { document } = value;
+
+    // if (type === 'table' || type === 'table-row' ||)
 
     if (type === 'text') editor.insertText(tag);
 
@@ -691,6 +695,43 @@ class App extends React.Component {
     editor.command(wrapLink, text);
   };
 
+  onClickLink = event => {
+    event.preventDefault();
+
+    const { editor } = this;
+    const { value } = editor;
+    const hasLinks = this.hasLinks();
+
+    if (hasLinks) {
+      editor.command(unwrapLink);
+    } else if (value.selection.isExpanded) {
+      const href = window.prompt('Enter the URL of the link:');
+
+      if (href == null) {
+        return;
+      }
+
+      editor.command(wrapLink, href);
+    } else {
+      const href = window.prompt('Enter the URL of the link:');
+
+      if (href == null) {
+        return;
+      }
+
+      const text = window.prompt('Enter the text for the link:');
+
+      if (text == null) {
+        return;
+      }
+
+      editor
+        .insertText(text)
+        .moveFocusBackward(text.length)
+        .command(wrapLink, href);
+    }
+  };
+
   onClickMark = (event, type) => {
     console.log(event, type);
     if (type === 'table') {
@@ -718,7 +759,7 @@ class App extends React.Component {
     return value.inlines.some(inline => inline.type === 'link');
   };
 
-  onDropOrPaste = (event, editor, name, next) => {
+  onDropOrPaste = (event, editor, next) => {
     // if (editor.value.selection.isCollapsed) return next();
     const transfer = getEventTransfer(event);
     const { text = '' } = transfer;
@@ -795,6 +836,26 @@ class App extends React.Component {
     event.preventDefault();
   };
 
+  renderInline = (props, editor, next) => {
+    const { attributes, children, node } = props;
+
+    switch (node.type) {
+      case 'link': {
+        const { data } = node;
+        const href = data.get('href');
+        return (
+          <a {...attributes} href={href}>
+            {children}
+          </a>
+        );
+      }
+
+      default: {
+        return next();
+      }
+    }
+  };
+
   render() {
     const { as: Component, className, role, children, ...props } = this.props;
 
@@ -818,11 +879,13 @@ class App extends React.Component {
             isCodeHotkey: isCodeHotkey,
             onClickBlock: this.onClickBlock,
             onClickMark: this.onClickMark,
+            onDropOrPaste: this.onDropOrPaste,
             onDrop: this.onDropOrPasteImg,
             onPaste: this.onPaste,
             onClickLink: this.onClickLink,
             onClickText: this.onClickText,
             onClickImage: this.onClickImage,
+            renderInline: this.renderInline,
             // renderEditor: this.renderEditor,
             // wordCount: this.state.wordCount,
           }}
