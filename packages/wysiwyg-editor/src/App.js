@@ -566,7 +566,39 @@ class App extends React.Component {
     const { value } = editor;
     const { document } = value;
 
-    // if (type === 'table' || type === 'table-row' ||)
+    if (name === 'table') {
+      editor.insertBlock({
+        type: 'table',
+        data: {},
+      });
+      if (name === 'table-row') {
+        editor.insertBlock({
+          type: 'table-row',
+          data: {},
+        });
+      }
+      if (name === 'table-cell') {
+        editor.insertBlock({
+          type: 'table-cell',
+          data: {},
+        });
+      }
+      // editor.setBlocks(
+      //   <table>
+      //     <tbody>
+      //       <tr>
+      //         <td></td>
+      //         <td></td>
+      //       </tr>
+      //       <tr>
+      //         <td></td>
+      //         <td></td>
+      //       </tr>
+      //     </tbody>
+      //   </table>
+      // );
+      // wrapBlock('table-cell');
+    }
 
     if (type === 'text') editor.insertText(tag);
 

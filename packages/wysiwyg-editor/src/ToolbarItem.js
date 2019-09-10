@@ -96,7 +96,7 @@ const ToolbarItem = ({
     );
   }
 
-  if (type === 'table') {
+  if (name === 'table') {
     console.log('TABLE');
     return (
       <SharedAppConsumer>

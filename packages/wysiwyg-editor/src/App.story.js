@@ -75,13 +75,13 @@ class Default extends React.Component {
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
-            <ToolbarItem type="table" tag="table" name="table">
+            <ToolbarItem type="block" tag="table" name="table">
               Add table
             </ToolbarItem>
-            <ToolbarItem type="table" tag="tr" name="table-row">
+            <ToolbarItem type="block" tag="tr" name="table-row">
               Add row
             </ToolbarItem>
-            <ToolbarItem type="table" tag="td" name="table-cell">
+            <ToolbarItem type="block" tag="td" name="table-cell">
               Add cell
             </ToolbarItem>
           </ToolbarGroup>
