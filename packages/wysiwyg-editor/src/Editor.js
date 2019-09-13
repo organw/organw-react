@@ -32,9 +32,10 @@ class Editor extends React.Component {
             return (
               <React.Fragment>
                 <SlateEditor
+                  style={{ width: '100%' }}
                   spellCheck
                   autoFocus
-                  placeholder="Kezdj el gépelni..."
+                  placeholder="Enter some text..."
                   ref={props.ref}
                   value={props.value}
                   onChange={props.onChange}
@@ -52,7 +53,6 @@ class Editor extends React.Component {
                   // renderEditor={props.renderEditor}
                   wordCount={props.wordCount}
                 />
-                <div>{serializer.serialize(props.value)}</div>
               </React.Fragment>
             );
           }}

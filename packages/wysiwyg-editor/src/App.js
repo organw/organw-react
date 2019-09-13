@@ -2,14 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Value } from 'slate';
 import Html from 'slate-html-serializer';
 import { getEventTransfer } from 'slate-react';
-// import initialValue from './defaultValue.json';
 import { isKeyHotkey } from 'is-hotkey';
-import Plain from 'slate-plain-serializer';
 import { Button, Icon, Menu } from './components';
 import { css } from 'emotion';
+// import { AlignmentPlugin } from '@slate-editor/alignment-plugin';
+
+// import { insertColumn, insertRow, insertTable } from './table';
 
 const propTypes = {
   className: PropTypes.string,
@@ -26,7 +26,7 @@ const defaultProps = {
 
 const DEFAULT_NODE = '';
 const initialValue = '<div></div>';
-const SharedAppContext = React.createContext();
+const SharedAppContext = React.createContext({});
 
 const isBoldHotkey = isKeyHotkey('mod+b');
 const isItalicHotkey = isKeyHotkey('mod+i');
@@ -50,6 +50,48 @@ function wrapLink(editor, href) {
 
 function unwrapLink(editor) {
   editor.unwrapInline('link');
+}
+
+// ALIGN CENTER
+
+function wrapAlignCenter(editor) {
+  editor.wrapBlock({
+    type: 'align-center',
+    data: { editor },
+  });
+
+  editor.moveToEnd();
+}
+
+function unwrapAlignCenter(editor) {
+  editor.unwrapBlock('align-right', 'align-left', 'align-center');
+}
+
+// ALIGN LEFT
+
+function wrapAlignLeft(editor, type) {
+  editor.wrapBlock(type);
+}
+
+function unwrapAlignLeft(editor) {
+  editor.unwrapBlock('align-left');
+
+  console.log('unwrappolva');
+}
+
+// ALIGN RIGHT
+
+function wrapAlignRight(editor) {
+  editor.wrapBlock({
+    type: 'align-right',
+    data: { editor },
+  });
+
+  editor.moveToEnd();
+}
+
+function unwrapAlignRight(editor) {
+  editor.unwrapBlock('align-right', 'align-left', 'align-center');
 }
 
 const MarkButton = ({ editor, type, icon }) => {
@@ -130,6 +172,10 @@ const BLOCK_TAGS = {
   h4: 'heading-four',
   h5: 'heading-five',
   h6: 'heading-six',
+  table: 'table',
+  tr: 'table-row',
+  td: 'table-cell',
+  a: 'link',
 };
 
 const MARK_TAGS = {
@@ -205,35 +251,66 @@ const RULES = [
               />
             );
           }
+          case 'align-left':
+            return (
+              <p align="left" {...attributes}>
+                {children}
+              </p>
+            );
+          case 'align-center':
+            return (
+              <p align="center" {...attributes}>
+                {children}
+              </p>
+            );
+          case 'align-right':
+            return (
+              <p align="right" {...attributes}>
+                {children}
+              </p>
+            );
           default:
             return <p {...attributes}>{children}</p>;
         }
       }
       if (obj.type === 'inline') {
-        console.log(obj.type);
         switch (obj.type) {
-          case 'table':
-            return (
-              <table className="table-striped">
-                <tbody>
-                  <tr>
-                    <td>{children}</td>
-                  </tr>
-                </tbody>
-              </table>
-            );
-          case 'table-row':
-            return <tr>{children}</tr>;
-          case 'table-cell':
-            return <td>{children}</td>;
           case 'link': {
             const { data } = obj;
             const href = data.get('href');
-            console.log(data);
             return (
               <a {...attributes} href={href}>
                 {children}
               </a>
+            );
+          }
+
+          default:
+            return <p {...attributes}>{children}</p>;
+        }
+      }
+      if (obj.type === 'align') {
+        console.log(obj.type);
+        switch (obj.type) {
+          case 'align-center': {
+            return (
+              <p align="center" {...attributes} href={href}>
+                {children}
+              </p>
+            );
+          }
+          case 'align-left': {
+            return (
+              <p align="left" {...attributes} href={href}>
+                {children}
+              </p>
+            );
+          }
+          case 'align-right': {
+            return (
+              <p align="right" {...attributes} href={href}>
+                {children}
+              </p>
             );
           }
 
@@ -253,56 +330,29 @@ const RULES = [
             return <u {...attributes}>{children}</u>;
           default:
             return <p {...attributes}>{children}</p>;
+          case 'align-left':
+            return (
+              <p align="left" {...attributes}>
+                {children}
+              </p>
+            );
+          case 'align-center':
+            return (
+              <p align="center" {...attributes}>
+                {children}
+              </p>
+            );
+          case 'align-right':
+            return (
+              <p align="right" {...attributes}>
+                {children}
+              </p>
+            );
         }
       }
     },
   },
-  {
-    // deserialize(el, next) {
-    //   const mark = MARK_TAGS[el.tagName.toLowerCase()];
-    //   if (mark) {
-    //     return {
-    //       object: 'mark',
-    //       type: mark,
-    //       nodes: next(el.childNodes),
-    //     };
-    //   }
-    // },
-    // serialize(obj, children, attributes) {
-    //   if (obj.object == 'mark') {
-    //     switch (mark.type) {
-    //       case 'bold':
-    //         return <strong {...attributes}>{children}</strong>;
-    //       case 'code':
-    //         return <code {...attributes}>{children}</code>;
-    //       case 'italic':
-    //         return <em {...attributes}>{children}</em>;
-    //       case 'underlined':
-    //         return <u {...attributes}>{children}</u>;
-    //       default:
-    //         return <span {...attributes}>{children}</span>;
-    //     }
-    //   }
-    // },
-  },
-  {
-    // Special case for code blocks, which need to grab the nested childNodes.
-    deserialize(el, next) {
-      if (el.tagName.toLowerCase() === 'pre') {
-        const code = el.childNodes[0];
-        const childNodes =
-          code && code.tagName.toLowerCase() === 'code'
-            ? code.childNodes
-            : el.childNodes;
 
-        return {
-          object: 'block',
-          type: 'code',
-          nodes: next(childNodes),
-        };
-      }
-    },
-  },
   {
     // Special case for images, to grab their src.
     deserialize(el, next) {
@@ -318,7 +368,6 @@ const RULES = [
       }
     },
     serialize(obj, children) {
-      console.log(obj.object);
       if (obj.object == 'image') {
         switch (obj.object) {
           case 'image': {
@@ -334,6 +383,7 @@ const RULES = [
       }
     },
   },
+
   {
     // Special case for links, to grab their href.
     deserialize(el, next) {
@@ -349,7 +399,6 @@ const RULES = [
       }
     },
     serialize(obj, children) {
-      console.log('OBJ:', obj);
       if (obj.object === 'inline') {
         switch (obj.type) {
           case 'link': {
@@ -411,6 +460,33 @@ class App extends React.Component {
 
   ref = editor => {
     this.editor = editor;
+  };
+
+  onInsertTable = () => {
+    insertTable();
+  };
+  onInsertColumn = () => {
+    insertColumn();
+  };
+
+  onInsertRow = () => {
+    insertRow();
+  };
+
+  onRemoveColumn = () => {
+    this.editor.removeColumn();
+  };
+
+  onRemoveRow = () => {
+    this.editor.removeRow();
+  };
+
+  onRemoveTable = () => {
+    this.editor.removeTable();
+  };
+
+  onToggleHeaders = () => {
+    this.editor.toggleTableHeaders();
   };
 
   onChange = ({ value }) => {
@@ -491,20 +567,6 @@ class App extends React.Component {
         return <li {...attributes}>{children}</li>;
       case 'numbered-list':
         return <ol {...attributes}>{children}</ol>;
-      case 'table':
-        return (
-          <table className="table-striped">
-            <tbody {...attributes}>
-              <tr>
-                <td>{children}</td>
-              </tr>
-            </tbody>
-          </table>
-        );
-      case 'table-row':
-        return <tr {...attributes}>{children}</tr>;
-      case 'table-cell':
-        return <td {...attributes}>{children}</td>;
       case 'image': {
         const src = node.data.get('src');
         return (
@@ -529,6 +591,24 @@ class App extends React.Component {
           </a>
         );
       }
+      case 'align-left':
+        return (
+          <p align="left" {...attributes}>
+            {children}
+          </p>
+        );
+      case 'align-center':
+        return (
+          <p align="center" {...attributes}>
+            {children}
+          </p>
+        );
+      case 'align-right':
+        return (
+          <p align="right" {...attributes}>
+            {children}
+          </p>
+        );
       default:
         return next();
     }
@@ -546,6 +626,36 @@ class App extends React.Component {
         return <em {...attributes}>{children}</em>;
       case 'underlined':
         return <u {...attributes}>{children}</u>;
+      case 'align-left':
+        return (
+          <p align="left" {...attributes}>
+            {children}
+          </p>
+        );
+      case 'align-center':
+        return (
+          <p align="center" {...attributes}>
+            {children}
+          </p>
+        );
+      case 'align-right':
+        return (
+          <p align="right" {...attributes}>
+            {children}
+          </p>
+        );
+      case 'heading-one':
+        return <h1 {...attributes}>{children}</h1>;
+      case 'heading-two':
+        return <h2 {...attributes}>{children}</h2>;
+      case 'heading-three':
+        return <h3 {...attributes}>{children}</h3>;
+      case 'heading-four':
+        return <h4 {...attributes}>{children}</h4>;
+      case 'heading-five':
+        return <h5 {...attributes}>{children}</h5>;
+      case 'heading-six':
+        return <h6 {...attributes}>{children}</h6>;
       default:
         return next();
     }
@@ -565,79 +675,13 @@ class App extends React.Component {
     const { editor } = this;
     const { value } = editor;
     const { document } = value;
-
-    if (name === 'table') {
-      editor.insertBlock({
-        type: 'table',
-        data: {},
-      });
-      if (name === 'table-row') {
-        editor.insertBlock({
-          type: 'table-row',
-          data: {},
-        });
-      }
-      if (name === 'table-cell') {
-        editor.insertBlock({
-          type: 'table-cell',
-          data: {},
-        });
-      }
-      // editor.setBlocks(
-      //   <table>
-      //     <tbody>
-      //       <tr>
-      //         <td></td>
-      //         <td></td>
-      //       </tr>
-      //       <tr>
-      //         <td></td>
-      //         <td></td>
-      //       </tr>
-      //     </tbody>
-      //   </table>
-      // );
-      // wrapBlock('table-cell');
-    }
+    let { isAligned } = 'undefined';
 
     if (type === 'text') editor.insertText(tag);
 
-    if (type === 'link') {
-      const hasLinks = this.hasLinks();
-
-      if (hasLinks) {
-        editor.command(unwrapLink);
-      } else if (value.selection.isExpanded) {
-        const href = window.prompt('Írja be az URL címet:');
-
-        if (href == null) {
-          return;
-        }
-
-        editor.command(wrapLink, href);
-      } else {
-        const href = window.prompt('Írja be az URL címet:');
-
-        if (href == null) {
-          return;
-        }
-
-        const text = window.prompt('Írja be a linkhez megjelenő szöveget:');
-
-        if (text == null) {
-          return;
-        }
-
-        editor
-          .insertText(text)
-          .moveFocusBackward(text.length)
-          .command(wrapLink, href);
-      }
-    }
-
     // Handle everything but list buttons.
     if (type !== 'bulleted-list' && type !== 'numbered-list') {
-      const isActive = this.hasBlock(type);
+      const isActive = this.hasBlock(name);
       const isList = this.hasBlock('list-item');
       if (isList) {
         editor
@@ -646,31 +690,103 @@ class App extends React.Component {
           .unwrapBlock('numbered-list')
           .unwrapBlock('list-item');
       } else {
-        editor.setBlocks(isActive ? DEFAULT_NODE : type);
-      }
-    } else {
-      // Handle the extra wrapping required for list buttons.
-      const isList = this.hasBlock('list-item');
-      const isType = value.blocks.some(block => {
-        return !!document.getClosest(block.key, parent => parent.type === type);
-      });
+        isAligned = value.blocks.some(block => {
+          if (
+            block.type === 'align-left' ||
+            block.type === 'align-right' ||
+            block.type === 'align-center'
+          ) {
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.unwrapBlock('align-center');
+            if (
+              name === 'align-left' ||
+              name === 'align-right' ||
+              name === 'align-center'
+            ) {
+              editor.setBlocks(name);
+            } else {
+              editor.setBlocks(name);
+              editor.wrapBlock(block.type);
+            }
+          }
+          if (
+            block.type === 'heading-one' ||
+            block.type === 'heading-two' ||
+            block.type === 'heading-three' ||
+            block.type === 'heading-four' ||
+            block.type === 'heading-five' ||
+            block.type === 'heading-six'
+          ) {
+            if (
+              name === 'heading-one' ||
+              name === 'heading-two' ||
+              name === 'heading-three' ||
+              name === 'heading-four' ||
+              name === 'heading-five' ||
+              name === 'heading-six'
+            ) {
+              editor.unwrapBlock('heading-one');
+              editor.unwrapBlock('heading-two');
+              editor.unwrapBlock('heading-three');
+              editor.unwrapBlock('heading-four');
+              editor.unwrapBlock('heading-five');
+              editor.unwrapBlock('heading-six');
+              editor.setBlocks(name);
+              if (name === block.type) {
+                editor.unwrapBlock('heading-one');
+                editor.unwrapBlock('heading-two');
+                editor.unwrapBlock('heading-three');
+                editor.unwrapBlock('heading-four');
+                editor.unwrapBlock('heading-five');
+                editor.unwrapBlock('heading-six');
 
-      if (isList && isType) {
-        editor
-          .setBlocks(DEFAULT_NODE)
-          .unwrapBlock('bulleted-list')
-          .unwrapBlock('numbered-list')
-          .unwrapBlock('list-item');
-      } else if (isList) {
-        editor
-          .unwrapBlock(
-            type === 'bulleted-list' ? 'numbered-list' : 'bulleted-list'
-          )
-          .wrapBlock(type);
-      } else {
-        editor.setBlocks('list-item').wrapBlock(type);
+                editor.setBlocks('paragraph');
+              } else {
+                editor.setBlocks(name);
+              }
+            } else {
+              editor.unwrapBlock('heading-one');
+              editor.unwrapBlock('heading-two');
+              editor.unwrapBlock('heading-three');
+              editor.unwrapBlock('heading-four');
+              editor.unwrapBlock('heading-five');
+              editor.unwrapBlock('heading-six');
+              editor.unwrapBlock('align-left');
+              editor.unwrapBlock('align-right');
+              editor.unwrapBlock('align-center');
+              editor.setBlocks(block.type);
+              editor.wrapBlock(name);
+            }
+          } else {
+            if (block.type === 'paragraph') {
+              
+              editor.unwrapBlock('align-left');
+              editor.unwrapBlock('align-right');
+              editor.unwrapBlock('align-center');
+              editor.unwrapBlock('paragraph');
+              editor.setBlocks(name);
+              editor.wrapBlock(block.type);
+              editor.unwrapBlock('paragraph');
+            }
+            if (name === block.type) {
+              editor.unwrapBlock('align-left');
+              editor.unwrapBlock('align-right');
+              editor.unwrapBlock('align-center');
+              editor.unwrapBlock('heading-one');
+              editor.unwrapBlock('heading-two');
+              editor.unwrapBlock('heading-three');
+              editor.unwrapBlock('heading-four');
+              editor.unwrapBlock('heading-five');
+              editor.unwrapBlock('heading-six');
+              editor.setBlocks(name);
+            } else editor.setBlocks(isActive ? DEFAULT_NODE : name);
+          }
+        });
       }
     }
+
+    return isAligned;
   };
 
   onClickImage = event => {
@@ -678,6 +794,7 @@ class App extends React.Component {
     const src = window.prompt('Írja be a kép URL címét!');
     if (!src) return;
     this.editor.command(insertImage, src);
+    this.editor.wrapBlock('paragraph');
   };
 
   onDropOrPasteImg = (event, editor, next) => {
@@ -718,7 +835,6 @@ class App extends React.Component {
     const transfer = getEventTransfer(event);
     const { type, text } = transfer;
     if (type !== 'text' && type !== 'html') return next();
-    if (!isUrl(text)) return next();
 
     if (this.hasLinks()) {
       editor.command(unwrapLink);
@@ -764,14 +880,10 @@ class App extends React.Component {
     }
   };
 
-  onClickMark = (event, type) => {
-    console.log(event, type);
-    if (type === 'table') {
-      this.onDropOrPaste();
-    } else {
-      event.preventDefault();
-      this.editor.toggleMark(type);
-    }
+  onClickMark = (event, type, name) => {
+    event.preventDefault();
+    console.log('TYPE2', type);
+    this.editor.toggleMark(type);
   };
 
   hasMark = type => {
@@ -789,29 +901,6 @@ class App extends React.Component {
   hasLinks = () => {
     const { value } = this.state;
     return value.inlines.some(inline => inline.type === 'link');
-  };
-
-  onDropOrPaste = (event, editor, next) => {
-    // if (editor.value.selection.isCollapsed) return next();
-    const transfer = getEventTransfer(event);
-    const { text = '' } = transfer;
-    const { value } = editor;
-    if (value.startBlock.type !== 'table-cell') {
-      return next();
-    }
-
-    if (!text) {
-      return next();
-    }
-
-    const lines = text.split('\n');
-    const { document } = Plain.deserialize(lines[0] || '');
-    console.log(document);
-    editor.insertFragment(document);
-  };
-
-  onEnter = (event, editor, next) => {
-    event.preventDefault();
   };
 
   onKeyDown = (event, editor, next) => {
@@ -854,6 +943,10 @@ class App extends React.Component {
     }
   };
 
+  onEnter = (event, editor, next) => {
+    editor.insertBlock('paragraph');
+  };
+
   onDelete = (event, editor, next) => {
     const { value } = editor;
     const { selection } = value;
@@ -864,6 +957,7 @@ class App extends React.Component {
   onBackspace = (event, editor, next) => {
     const { value } = editor;
     const { selection } = value;
+    clg(selection.start.offset);
     if (selection.start.offset !== 0) return next();
     event.preventDefault();
   };
@@ -901,23 +995,27 @@ class App extends React.Component {
           value={{
             value: this.state.value,
             ref: this.ref,
+            editor: this.editor,
             onChange: this.onChange,
             onKeyDown: this.onKeyDown,
             renderBlock: this.renderBlock,
             renderMark: this.renderMark,
-            isBoldHotkey: isBoldHotkey,
-            isItalicHotkey: isBoldHotkey,
-            isUnderlinedHotkey: isUnderlinedHotkey,
-            isCodeHotkey: isCodeHotkey,
+            // isBoldHotkey: this.isBoldHotkey,
+            // isItalicHotkey: this.isBoldHotkey,
+            // isUnderlinedHotkey: this.isUnderlinedHotkey,
+            // isCodeHotkey: this.dsCodeHotkey,
+            hasLinks: this.hasLinks,
             onClickBlock: this.onClickBlock,
             onClickMark: this.onClickMark,
-            onDropOrPaste: this.onDropOrPaste,
             onDrop: this.onDropOrPasteImg,
             onPaste: this.onPaste,
             onClickLink: this.onClickLink,
             onClickText: this.onClickText,
             onClickImage: this.onClickImage,
             renderInline: this.renderInline,
+            // onInsertTable: this.onInsertTable,
+            // onInsertRow: this.onInsertRow,
+            // onInsertColumn: this.onInsertColumn,
             // renderEditor: this.renderEditor,
             // wordCount: this.state.wordCount,
           }}
