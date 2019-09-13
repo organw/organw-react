@@ -1,32 +1,41 @@
-import React from 'react'
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { SharedAppConsumer } from './App';
 
 const propTypes = {
-    className: PropTypes.string,
-    as: PropTypes.elementType,
-    children: PropTypes.node
-  };
-  
-const defaultProps = {
-    as: 'div',
+  className: PropTypes.string,
+  as: PropTypes.elementType,
+  children: PropTypes.node,
+  countWords: PropTypes.string,
 };
 
-const Statusbar = ({ as: Component, className, children, ...props }) => {
-    return (
-        <Component
-            {...props}
-            className={classNames(
-                className,
-                'ow-wysiwyg-statusbar',
-            )}
-        >
-            Statusbar
-        </Component>
-    );
+const defaultProps = {
+  as: 'div',
+};
+
+const Statusbar = ({ as: Component, className, children }) => {
+  return (
+    <SharedAppConsumer>
+      {props => {
+        // console.log(props.wordCount);
+        return (
+          <Component>
+            <Component>Statusbar</Component>
+            {children}
+
+            <Component>
+              {' '}
+              <span className="word-count">{props.wordCount}</span>
+            </Component>
+          </Component>
+        );
+      }}
+    </SharedAppConsumer>
+  );
 };
 
 Statusbar.propTypes = propTypes;
 Statusbar.defaultProps = defaultProps;
 
-export default Statusbar
+export default Statusbar;
