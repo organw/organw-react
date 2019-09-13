@@ -760,7 +760,6 @@ class App extends React.Component {
             }
           } else {
             if (block.type === 'paragraph') {
-              
               editor.unwrapBlock('align-left');
               editor.unwrapBlock('align-right');
               editor.unwrapBlock('align-center');
@@ -780,6 +779,16 @@ class App extends React.Component {
               editor.unwrapBlock('heading-five');
               editor.unwrapBlock('heading-six');
               editor.setBlocks(name);
+            }
+            if (block.type === 'image') {
+              if (
+                name === 'align-center' ||
+                name === 'align-left' ||
+                name === 'align-right'
+              ) {
+                editor.setBlocks(block.type);
+                editor.wrapBlock(name);
+              }
             } else editor.setBlocks(isActive ? DEFAULT_NODE : name);
           }
         });

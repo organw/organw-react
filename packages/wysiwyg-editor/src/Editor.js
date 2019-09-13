@@ -46,12 +46,12 @@ class Editor extends React.Component {
                   onDrop={props.onDrop}
                   onPaste={props.onPaste}
                   renderInline={props.renderInline}
-                  hasLinks={props.hasLinks}
-                  onClickBlock={props.onClickBlock}
-                  onDropOrPaste={props.onDropOrPaste}
+                  // hasLinks={props.hasLinks}
+                  // onClickBlock={props.onClickBlock}
+                  // onDropOrPaste={props.onDropOrPaste}
                   // onClickImage={props.onClickImage}
                   // renderEditor={props.renderEditor}
-                  wordCount={props.wordCount}
+                  // wordCount={props.wordCount}
                 />
               </React.Fragment>
             );
