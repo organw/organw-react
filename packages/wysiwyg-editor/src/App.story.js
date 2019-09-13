@@ -23,7 +23,6 @@ class Default extends React.Component {
   };
 
   render() {
-    console.log(this.state.value);
     return (
       <App value={this.state.value} onChange={this.onChange}>
         <Menubar>
@@ -75,13 +74,24 @@ class Default extends React.Component {
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
-            <ToolbarItem type="block" tag="table" name="table">
+            <ToolbarItem type="align" tag="left" name="align-left">
+              Align-left
+            </ToolbarItem>
+            <ToolbarItem type="align" tag="center" name="align-center">
+              Align-center
+            </ToolbarItem>
+            <ToolbarItem type="align" tag="rignt" name="align-right">
+              Align-right
+            </ToolbarItem>
+          </ToolbarGroup>
+          <ToolbarGroup>
+            <ToolbarItem type="table" tag="table" name="table">
               Add table
             </ToolbarItem>
-            <ToolbarItem type="block" tag="tr" name="table-row">
+            <ToolbarItem type="table" tag="tr" name="table-row">
               Add row
             </ToolbarItem>
-            <ToolbarItem type="block" tag="td" name="table-cell">
+            <ToolbarItem type="table" tag="td" name="table-cell">
               Add cell
             </ToolbarItem>
           </ToolbarGroup>

@@ -758,9 +758,18 @@ class App extends React.Component {
               editor.setBlocks(block.type);
               editor.wrapBlock(name);
             }
+          }
+          if (block.type === 'image') {
+            if (
+              name === 'align-center' ||
+              name === 'align-left' ||
+              name === 'align-right'
+            ) {
+              editor.setBlocks(block.type);
+              editor.wrapBlock(name);
+            }
           } else {
             if (block.type === 'paragraph') {
-              
               editor.unwrapBlock('align-left');
               editor.unwrapBlock('align-right');
               editor.unwrapBlock('align-center');
@@ -794,7 +803,6 @@ class App extends React.Component {
     const src = window.prompt('Írja be a kép URL címét!');
     if (!src) return;
     this.editor.command(insertImage, src);
-    this.editor.wrapBlock('paragraph');
   };
 
   onDropOrPasteImg = (event, editor, next) => {
@@ -1004,7 +1012,7 @@ class App extends React.Component {
             // isItalicHotkey: this.isBoldHotkey,
             // isUnderlinedHotkey: this.isUnderlinedHotkey,
             // isCodeHotkey: this.dsCodeHotkey,
-            hasLinks: this.hasLinks,
+            // hasLinks: this.hasLinks,
             onClickBlock: this.onClickBlock,
             onClickMark: this.onClickMark,
             onDrop: this.onDropOrPasteImg,
