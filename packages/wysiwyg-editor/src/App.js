@@ -16,7 +16,7 @@ const propTypes = {
   as: PropTypes.elementType,
   role: PropTypes.string,
   children: PropTypes.node,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
@@ -489,15 +489,15 @@ class App extends React.Component {
     this.editor.toggleTableHeaders();
   };
 
-  onChange = ({ value }) => {
-    // When the document changes, save the serialized HTML to Local Storage.
-    if (value.document != this.state.value.document) {
-      const string = serializer.serialize(value);
-      localStorage.setItem('content', string);
-    }
+  // onChange = ({ value }) => {
+  //   // When the document changes, save the serialized HTML to Local Storage.
+  //   if (value.document != this.state.value.document) {
+  //     const string = serializer.serialize(value);
+  //     localStorage.setItem('content', string);
+  //   }
 
-    this.setState({ value });
-  };
+  //   this.setState({ value });
+  // };
 
   onKeyDown = (event, editor, next) => {
     let mark;
@@ -676,126 +676,256 @@ class App extends React.Component {
     const { value } = editor;
     const { document } = value;
     let { isAligned } = 'undefined';
+    let { listTrue } = 'undefined';
 
     if (type === 'text') editor.insertText(tag);
 
-    // Handle everything but list buttons.
     if (type !== 'bulleted-list' && type !== 'numbered-list') {
       const isActive = this.hasBlock(name);
       const isList = this.hasBlock('list-item');
+      console.log(isActive);
       if (isList) {
-        editor
-          .setBlocks(isActive ? DEFAULT_NODE : type)
-          .unwrapBlock('bulleted-list')
-          .unwrapBlock('numbered-list')
-          .unwrapBlock('list-item');
-      } else {
-        isAligned = value.blocks.some(block => {
-          if (
-            block.type === 'align-left' ||
-            block.type === 'align-right' ||
-            block.type === 'align-center'
-          ) {
-            editor.unwrapBlock('align-left');
-            editor.unwrapBlock('align-right');
-            editor.unwrapBlock('align-center');
-            if (
-              name === 'align-left' ||
-              name === 'align-right' ||
-              name === 'align-center'
-            ) {
-              editor.setBlocks(name);
-            } else {
-              editor.setBlocks(name);
-              editor.wrapBlock(block.type);
-            }
-          }
-          if (
-            block.type === 'heading-one' ||
-            block.type === 'heading-two' ||
-            block.type === 'heading-three' ||
-            block.type === 'heading-four' ||
-            block.type === 'heading-five' ||
-            block.type === 'heading-six'
-          ) {
-            if (
-              name === 'heading-one' ||
-              name === 'heading-two' ||
-              name === 'heading-three' ||
-              name === 'heading-four' ||
-              name === 'heading-five' ||
-              name === 'heading-six'
-            ) {
-              editor.unwrapBlock('heading-one');
-              editor.unwrapBlock('heading-two');
-              editor.unwrapBlock('heading-three');
-              editor.unwrapBlock('heading-four');
-              editor.unwrapBlock('heading-five');
-              editor.unwrapBlock('heading-six');
-              editor.setBlocks(name);
-              if (name === block.type) {
-                editor.unwrapBlock('heading-one');
-                editor.unwrapBlock('heading-two');
-                editor.unwrapBlock('heading-three');
-                editor.unwrapBlock('heading-four');
-                editor.unwrapBlock('heading-five');
-                editor.unwrapBlock('heading-six');
+        if (name === 'list-item') {
+          editor
 
-                editor.setBlocks('paragraph');
-              } else {
-                editor.setBlocks(name);
-              }
-            } else {
-              editor.unwrapBlock('heading-one');
-              editor.unwrapBlock('heading-two');
-              editor.unwrapBlock('heading-three');
-              editor.unwrapBlock('heading-four');
-              editor.unwrapBlock('heading-five');
-              editor.unwrapBlock('heading-six');
-              editor.unwrapBlock('align-left');
-              editor.unwrapBlock('align-right');
-              editor.unwrapBlock('align-center');
-              editor.setBlocks(block.type);
-              editor.wrapBlock(name);
-            }
-          } else {
-            if (block.type === 'paragraph') {
-              editor.unwrapBlock('align-left');
-              editor.unwrapBlock('align-right');
-              editor.unwrapBlock('align-center');
-              editor.unwrapBlock('paragraph');
-              editor.setBlocks(name);
-              editor.wrapBlock(block.type);
-              editor.unwrapBlock('paragraph');
-            }
-            if (name === block.type) {
-              editor.unwrapBlock('align-left');
-              editor.unwrapBlock('align-right');
-              editor.unwrapBlock('align-center');
-              editor.unwrapBlock('heading-one');
-              editor.unwrapBlock('heading-two');
-              editor.unwrapBlock('heading-three');
-              editor.unwrapBlock('heading-four');
-              editor.unwrapBlock('heading-five');
-              editor.unwrapBlock('heading-six');
-              editor.setBlocks(name);
-            }
-            if (block.type === 'image') {
-              if (
-                name === 'align-center' ||
-                name === 'align-left' ||
-                name === 'align-right'
-              ) {
-                editor.setBlocks(block.type);
-                editor.wrapBlock(name);
-              }
-            } else editor.setBlocks(isActive ? DEFAULT_NODE : name);
-          }
-        });
+            .unwrapBlock('bulleted-list')
+            .unwrapBlock('numbered-list')
+            .setBlocks(name);
+        } else {
+          console.log('...................');
+          editor
+            .setBlocks(isActive ? DEFAULT_NODE : 'list-item')
+            .unwrapBlock('bulleted-list')
+            .unwrapBlock('numbered-list')
+            .wrapBlock(name);
+        }
+      } else {
+        editor.setBlocks(isActive ? DEFAULT_NODE : name);
+      }
+    } else {
+      // Handle the extra wrapping required for list buttons.
+      const isList = this.hasBlock('list-item');
+      const isType = value.blocks.some(block => {
+        return !!document.getClosest(block.key, parent => parent.type === name);
+      });
+      console.log('isType : ', isType);
+      if (isList && isType) {
+        editor
+          .setBlocks(DEFAULT_NODE)
+          .unwrapBlock('bulleted-list')
+          .unwrapBlock('numbered-list');
+      } else if (isList) {
+        editor
+          .unwrapBlock(
+            type === 'bulleted-list' ? 'numbered-list' : 'bulleted-list'
+          )
+          .wrapBlock(name);
+      } else {
+        editor
+          .setBlocks('list-item')
+          .unwrapBlock('align-center')
+          .unwrapBlock('align-left')
+          .unwrapBlock('align-right')
+          .wrapBlock(name);
       }
     }
 
-    return isAligned;
+    // Handle everything but list buttons.
+    // if (type !== 'bulleted-list' && type !== 'numbered-list') {
+    //   const isActive = () => {
+    //     // editor.unwrapBlock('list-item');
+    //     this.hasBlock(name);
+    //   };
+    //   const isList = this.hasBlock('list-item');
+    //   const isType = value.blocks.some(block => {
+    //     editor.setBlocks(type);
+    //     console.log(block);
+    //     return block.type === name;
+    //   });
+    //   console.log('isType: ', isType);
+    //   console.log('isList: ', isList);
+    //   listTrue = value.blocks.some(block => {
+    //     if (isList && isType) {
+    //       if (name === 'list-item' && isType) {
+    //         editor.unwrapBlock('list-item');
+    //         editor.unwrapBlock('bulleted-list');
+    //         editor.unwrapBlock('numbered-list');
+    //         editor.setBlocks(DEFAULT_NODE);
+    //       } else {
+    //         editor.unwrapBlock('list-item');
+    //         editor.unwrapBlock('bulleted-list');
+    //         editor.unwrapBlock('numbered-list');
+    //         editor.wrapBlock(name);
+    //       }
+    //     }
+    //     if (isList) {
+    //       editor.unwrapBlock('list-item');
+    //       if (isType) {
+    //         console.log('isType 2: ', isType);
+    //         editor.unwrapBlock('list-item');
+    //         editor.unwrapBlock('bulleted-list');
+    //         editor.unwrapBlock('numbered-list');
+    //         editor.setBlocks(DEFAULT_NODE);
+    //       } else {
+    //         editor.unwrapBlock('list-item');
+    //         editor.unwrapBlock('bulleted-list');
+    //         editor.unwrapBlock('numbered-list');
+    //         editor.setBlocks('list-item');
+    //         editor.wrapBlock(name);
+    //       }
+    //     } else {
+    //       editor.unwrapBlock('list-item');
+    //       editor.unwrapBlock('bulleted-list');
+    //       editor.unwrapBlock('numbered-list');
+    //       editor.setBlocks(name || DEFAULT_NODE);
+    //     }
+    //     // if (isList && name !== 'list-item') {
+    //     //   editor.setBlocks(name);
+    //     //   editor.wrapBlock('list-item');
+    //     // }
+    //     // if (isType) {
+    //     //   console.log('isList && isType');
+    //     //   editor
+    //     //     .unwrapBlock('bulleted-list')
+    //     //     .unwrapBlock('numbered-list')
+    //     //     .unwrapBlock('list-item')
+    //     //     .setBlocks(DEFAULT_NODE);
+    //     // }
+    //     // console.log(block.type, name);
+
+    //     // if (isType === false) {
+    //     //   console.log('isList');
+    //     //   editor.unwrapBlock('bulleted-list').unwrapBlock('numbered-list');
+    //     //   if (block.type === name) {
+    //     //     editor.setBlocks(DEFAULT_NODE);
+    //     //   } else {
+    //     //     editor.setBlocks('list-item');
+    //     //     editor.wrapBlock(name);
+    //     //   }
+    //     // } else {
+    //     //   editor.unwrapBlock('list-item');
+    //     //   if (block.type === name) {
+    //     //     editor
+    //     //       // .unwrapBlock('numbered-list')
+    //     //       // .unwrapBlock('bulleted-list')
+    //     //       .unwrapBlock('list-item');
+    //     //     editor.setBlocks(DEFAULT_NODE);
+    //     //   } else {
+    //     //     console.log('elseelse');
+    //     //     editor
+    //     //       .unwrapBlock('bulleted-list')
+    //     //       .unwrapBlock('numbered-list')
+    //     //       .unwrapBlock('list-item');
+    //     //     editor.setBlocks(name || DEFAULT_NODE);
+    //     //   }
+
+    //     return listTrue;
+    //   });
+    // }
+
+    isAligned = value.blocks.some(block => {
+      if (
+        block.type === 'align-left' ||
+        block.type === 'align-right' ||
+        block.type === 'align-center'
+      ) {
+        editor.unwrapBlock('align-left');
+        editor.unwrapBlock('align-right');
+        editor.unwrapBlock('align-center');
+        if (
+          name === 'align-left' ||
+          name === 'align-right' ||
+          name === 'align-center'
+        ) {
+          editor.setBlocks(name);
+        } else {
+          editor.setBlocks(name);
+          editor.wrapBlock(block.type);
+        }
+      }
+      if (
+        block.type === 'heading-one' ||
+        block.type === 'heading-two' ||
+        block.type === 'heading-three' ||
+        block.type === 'heading-four' ||
+        block.type === 'heading-five' ||
+        block.type === 'heading-six'
+      ) {
+        if (
+          name === 'heading-one' ||
+          name === 'heading-two' ||
+          name === 'heading-three' ||
+          name === 'heading-four' ||
+          name === 'heading-five' ||
+          name === 'heading-six'
+        ) {
+          editor.unwrapBlock('heading-one');
+          editor.unwrapBlock('heading-two');
+          editor.unwrapBlock('heading-three');
+          editor.unwrapBlock('heading-four');
+          editor.unwrapBlock('heading-five');
+          editor.unwrapBlock('heading-six');
+          editor.setBlocks(name);
+          if (name === block.type) {
+            editor.unwrapBlock('heading-one');
+            editor.unwrapBlock('heading-two');
+            editor.unwrapBlock('heading-three');
+            editor.unwrapBlock('heading-four');
+            editor.unwrapBlock('heading-five');
+            editor.unwrapBlock('heading-six');
+
+            editor.setBlocks('paragraph');
+          } else {
+            editor.setBlocks(name);
+          }
+        } else {
+          editor.unwrapBlock('heading-one');
+          editor.unwrapBlock('heading-two');
+          editor.unwrapBlock('heading-three');
+          editor.unwrapBlock('heading-four');
+          editor.unwrapBlock('heading-five');
+          editor.unwrapBlock('heading-six');
+          editor.unwrapBlock('align-left');
+          editor.unwrapBlock('align-right');
+          editor.unwrapBlock('align-center');
+          editor.setBlocks(block.type);
+          editor.wrapBlock(name);
+        }
+      } else {
+        if (block.type === 'paragraph') {
+          editor.unwrapBlock('align-left');
+          editor.unwrapBlock('align-right');
+          editor.unwrapBlock('align-center');
+          editor.unwrapBlock('paragraph');
+          editor.setBlocks(name);
+          editor.wrapBlock(block.type);
+          editor.unwrapBlock('paragraph');
+        }
+        if (name === block.type) {
+          editor.unwrapBlock('align-left');
+          editor.unwrapBlock('align-right');
+          editor.unwrapBlock('align-center');
+          editor.unwrapBlock('heading-one');
+          editor.unwrapBlock('heading-two');
+          editor.unwrapBlock('heading-three');
+          editor.unwrapBlock('heading-four');
+          editor.unwrapBlock('heading-five');
+          editor.unwrapBlock('heading-six');
+          editor.setBlocks(name);
+        }
+        if (block.type === 'image') {
+          if (
+            name === 'align-center' ||
+            name === 'align-left' ||
+            name === 'align-right'
+          ) {
+            editor.setBlocks(block.type);
+            editor.wrapBlock(name);
+          }
+        }
+      }
+      return isAligned;
+    });
   };
 
   onClickImage = event => {
@@ -991,6 +1121,11 @@ class App extends React.Component {
     }
   };
 
+  hasBlock = name => {
+    const { value } = this.state;
+    return value.blocks.some(node => node.type === name);
+  };
+
   render() {
     const { as: Component, className, role, children, ...props } = this.props;
 
@@ -1002,10 +1137,10 @@ class App extends React.Component {
       >
         <SharedAppContext.Provider
           value={{
-            value: this.state.value,
+            value: props.value,
             ref: this.ref,
             editor: this.editor,
-            onChange: this.onChange,
+            onChange: props.onChange,
             onKeyDown: this.onKeyDown,
             renderBlock: this.renderBlock,
             renderMark: this.renderMark,
@@ -1013,6 +1148,7 @@ class App extends React.Component {
             // isItalicHotkey: this.isBoldHotkey,
             // isUnderlinedHotkey: this.isUnderlinedHotkey,
             // isCodeHotkey: this.dsCodeHotkey,
+            hasBlock: this.hasBlock,
             hasLinks: this.hasLinks,
             onClickBlock: this.onClickBlock,
             onClickMark: this.onClickMark,

@@ -53,6 +53,7 @@ class Editor extends React.Component {
                   // renderEditor={props.renderEditor}
                   // wordCount={props.wordCount}
                 />
+                {serializer.serialize(props.value)}
               </React.Fragment>
             );
           }}
