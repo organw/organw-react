@@ -16,23 +16,36 @@ import {
 class Default extends React.Component {
   state = {
     value: serializer.deserialize('<div></div>'),
+    offset: '',
   };
 
   onChange = ({ value }) => {
-    this.setState({ value });
+    const off = value.selection.anchor.offset;
+    this.setState({ offset: off, value });
+    let range = new Range();
+    const point = {
+      key: 'p',
+      path: List,
+      offset: off,
+    };
+    let p = <p />;
+    range.setStart(point, 0);
+    range.setEnd(off);
 
-    const selection = window.getSelection();
-    if (
-      selection.focusNode.textContent.length === null ||
-      selection.focusNode.textContent.length === undefined ||
-      selection.focusNode.textContent.length === 19
-    ) {
-      selection.focusNode.textContent.length =
-        selection.focusNode.textContent.length + 1;
-      selection.anchorOffset(selection.focusNode.textContent.length + 1);
-    }
-    // selection.anchorOffset = selection.focusNode.textContent.length;
-    console.log(selection.focusNode.textContent.length);
+    alert(range); // ample: italic and bol
+
+    // const selection = window.getSelection();
+    // if (
+    //   selection.focusNode.textContent.length === null ||
+    //   selection.focusNode.textContent.length === undefined ||
+    //   selection.focusNode.textContent.length === 19
+    // ) {
+    //   selection.focusNode.textContent.length =
+    //     selection.focusNode.textContent.length + 1;
+    //   selection.anchorOffset(selection.focusNode.textContent.length + 1);
+    // }
+    // // selection.anchorOffset = selection.focusNode.textContent.length;
+    // console.log(selection.focusNode.textContent.length);
   };
 
   render() {
