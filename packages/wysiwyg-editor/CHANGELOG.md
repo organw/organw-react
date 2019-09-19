@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.9.0...@organw/wysiwyg-editor@0.9.1) (2019-09-19)
+
+
+### Bug Fixes
+
+* **wysiwyg-editor:** fix serializer export ([0c96640](https://github.com/organw/organw-react/commit/0c96640))
+
+
+
+
+
 # [0.9.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.8.0...@organw/wysiwyg-editor@0.9.0) (2019-09-19)
 
 
