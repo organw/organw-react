@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { select, boolean } from '@storybook/addon-knobs';
-
+import { serializer, SharedAppConsumer } from './App';
 import {
   App,
   Menubar,
@@ -15,7 +15,7 @@ import {
 
 class Default extends React.Component {
   state = {
-    value: '<div>Teszt div</div>',
+    value: serializer.deserialize('<div></div>'),
   };
 
   onChange = ({ value }) => {
@@ -23,7 +23,6 @@ class Default extends React.Component {
   };
 
   render() {
-    console.log(this.state.value);
     return (
       <App value={this.state.value} onChange={this.onChange}>
         <Menubar>
@@ -75,14 +74,14 @@ class Default extends React.Component {
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
-            <ToolbarItem type="block" tag="table" name="table">
-              Add table
+            <ToolbarItem type="align" tag="left" name="align-left">
+              Align-left
             </ToolbarItem>
-            <ToolbarItem type="block" tag="tr" name="table-row">
-              Add row
+            <ToolbarItem type="align" tag="center" name="align-center">
+              Align-center
             </ToolbarItem>
-            <ToolbarItem type="block" tag="td" name="table-cell">
-              Add cell
+            <ToolbarItem type="align" tag="rignt" name="align-right">
+              Align-right
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>

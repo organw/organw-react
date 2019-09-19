@@ -55,12 +55,14 @@ const ToolbarItem = ({
     return (
       <SharedAppConsumer>
         {propss => {
+          const isActive = propss.hasBlock(name);
+
           return (
             <Component
+              active={toString(isActive)}
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
                 propss.onClickBlock(event, type, name);
-                console.log(type);
               }}
             >
               {children}
