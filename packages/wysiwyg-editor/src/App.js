@@ -1158,7 +1158,6 @@ class App extends React.Component {
             onClickText: this.onClickText,
             onClickImage: this.onClickImage,
             renderInline: this.renderInline,
-
             // onInsertTable: this.onInsertTable,
             // onInsertRow: this.onInsertRow,
             // onInsertColumn: this.onInsertColumn,

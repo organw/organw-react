@@ -16,36 +16,10 @@ import {
 class Default extends React.Component {
   state = {
     value: serializer.deserialize('<div></div>'),
-    offset: '',
   };
 
   onChange = ({ value }) => {
-    const off = value.selection.anchor.offset;
-    this.setState({ offset: off, value });
-    let range = new Range();
-    const point = {
-      key: 'p',
-      path: List,
-      offset: off,
-    };
-    let p = <p />;
-    range.setStart(point, 0);
-    range.setEnd(off);
-
-    alert(range); // ample: italic and bol
-
-    // const selection = window.getSelection();
-    // if (
-    //   selection.focusNode.textContent.length === null ||
-    //   selection.focusNode.textContent.length === undefined ||
-    //   selection.focusNode.textContent.length === 19
-    // ) {
-    //   selection.focusNode.textContent.length =
-    //     selection.focusNode.textContent.length + 1;
-    //   selection.anchorOffset(selection.focusNode.textContent.length + 1);
-    // }
-    // // selection.anchorOffset = selection.focusNode.textContent.length;
-    // console.log(selection.focusNode.textContent.length);
+    this.setState({ value: value });
   };
 
   render() {
@@ -108,17 +82,6 @@ class Default extends React.Component {
             </ToolbarItem>
             <ToolbarItem type="align" tag="rignt" name="align-right">
               Align-right
-            </ToolbarItem>
-          </ToolbarGroup>
-          <ToolbarGroup>
-            <ToolbarItem type="table" tag="table" name="table">
-              Add table
-            </ToolbarItem>
-            <ToolbarItem type="table" tag="tr" name="table-row">
-              Add row
-            </ToolbarItem>
-            <ToolbarItem type="table" tag="td" name="table-cell">
-              Add cell
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
