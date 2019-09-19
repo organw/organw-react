@@ -6,7 +6,7 @@
     "url": "git+ssh://git@github.com:organw/organw-react.git"
   },
   "scripts": {
-    "start": "start-storybook -c storybook -s ./storybook/static",
+    "start": "start-storybook -h 192.168.2.179 -p 8999 -c storybook -s ./storybook/static",
     "build:storybook": "build-storybook -c storybook -o ./storybook/public -s ./storybook/static",
     "release:site": "gh-pages --dist storybook/public",
     "lerna": "lerna",
