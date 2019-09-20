@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
 import { select, boolean } from '@storybook/addon-knobs';
-
+import { serializer, SharedAppConsumer } from './App';
 import {
   App,
   Menubar,
@@ -15,11 +15,35 @@ import {
 
 class Default extends React.Component {
   state = {
-    value: '<div>Teszt div</div>',
+    value: serializer.deserialize('<div></div>'),
+    offset: '',
   };
 
   onChange = ({ value }) => {
-    this.setState({ value: value });
+    const off = value.selection.anchor.offset;
+    this.setState({ offset: off, value });
+    () => {
+      <SharedAppConsumer>
+        {props => {
+          props.offsetSet;
+        }}
+      </SharedAppConsumer>;
+    };
+
+    // ample: italic and bol
+
+    // const selection = window.getSelection();
+    // if (
+    //   selection.focusNode.textContent.length === null ||
+    //   selection.focusNode.textContent.length === undefined ||
+    //   selection.focusNode.textContent.length === 19
+    // ) {
+    //   selection.focusNode.textContent.length =
+    //     selection.focusNode.textContent.length + 1;
+    //   selection.anchorOffset(selection.focusNode.textContent.length + 1);
+    // }
+    // // selection.anchorOffset = selection.focusNode.textContent.length;
+    // console.log(selection.focusNode.textContent.length);
   };
 
   render() {

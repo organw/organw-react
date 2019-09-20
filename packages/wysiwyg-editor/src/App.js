@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Html from 'slate-html-serializer';
-import { getEventTransfer } from 'slate-react';
+import { getEventTransfer, findDOMNode } from 'slate-react';
 import { isKeyHotkey } from 'is-hotkey';
 import { Button, Icon, Menu } from './components';
 import { css } from 'emotion';
+import { Block } from 'slate';
+import { notDeepEqual } from 'assert';
 // import { AlignmentPlugin } from '@slate-editor/alignment-plugin';
 
 // import { insertColumn, insertRow, insertTable } from './table';
@@ -16,7 +18,7 @@ const propTypes = {
   as: PropTypes.elementType,
   role: PropTypes.string,
   children: PropTypes.node,
-  value: PropTypes.string.isRequired,
+  value: PropTypes.object.isRequired,
 };
 
 const defaultProps = {
@@ -234,9 +236,19 @@ const RULES = [
           case 'list-item':
             return <li>{children}</li>;
           case 'bulleted-list':
-            return <ul>{children}</ul>;
+            return (
+              <ul>
+                <li>{children}</li>
+              </ul>
+            );
           case 'numbered-list':
-            return <ol>{children}</ol>;
+            return (
+              <ol>
+                <li>{children}</li>
+              </ol>
+            );
+          case 'line-break':
+            return <br />;
           case 'image': {
             const src = obj.data.get('src');
             return (
@@ -328,6 +340,8 @@ const RULES = [
             return <em {...attributes}>{children}</em>;
           case 'underlined':
             return <u {...attributes}>{children}</u>;
+          case 'line-break':
+            return <br />;
           default:
             return <p {...attributes}>{children}</p>;
           case 'align-left':
@@ -489,34 +503,34 @@ class App extends React.Component {
     this.editor.toggleTableHeaders();
   };
 
-  onChange = ({ value }) => {
-    // When the document changes, save the serialized HTML to Local Storage.
-    if (value.document != this.state.value.document) {
-      const string = serializer.serialize(value);
-      localStorage.setItem('content', string);
-    }
+  // onChange = ({ value }) => {
+  //   // When the document changes, save the serialized HTML to Local Storage.
+  //   if (value.document != this.state.value.document) {
+  //     const string = serializer.serialize(value);
+  //     localStorage.setItem('content', string);
+  //   }
 
-    this.setState({ value });
-  };
+  //   this.setState({ value });
+  // };
 
-  onKeyDown = (event, editor, next) => {
-    let mark;
+  // onKeyDown = (event, editor, next) => {
+  //   let mark;
 
-    if (isBoldHotkey(event)) {
-      mark = 'bold';
-    } else if (isItalicHotkey(event)) {
-      mark = 'italic';
-    } else if (isUnderlinedHotkey(event)) {
-      mark = 'underlined';
-    } else if (isCodeHotkey(event)) {
-      mark = 'code';
-    } else {
-      return next();
-    }
+  //   if (isBoldHotkey(event)) {
+  //     mark = 'bold';
+  //   } else if (isItalicHotkey(event)) {
+  //     mark = 'italic';
+  //   } else if (isUnderlinedHotkey(event)) {
+  //     mark = 'underlined';
+  //   } else if (isCodeHotkey(event)) {
+  //     mark = 'code';
+  //   } else {
+  //     return next();
+  //   }
 
-    event.preventDefault();
-    editor.toggleMark(mark);
-  };
+  //   event.preventDefault();
+  //   editor.toggleMark(mark);
+  // };
 
   wordCount = (props, editor, next) => {
     const { value } = editor;
@@ -550,7 +564,11 @@ class App extends React.Component {
       case 'block-quote':
         return <blockquote {...attributes}>{children}</blockquote>;
       case 'bulleted-list':
-        return <ul {...attributes}>{children}</ul>;
+        return (
+          <ul {...attributes}>
+            <li>{children}</li>
+          </ul>
+        );
       case 'heading-one':
         return <h1 {...attributes}>{children}</h1>;
       case 'heading-two':
@@ -566,7 +584,13 @@ class App extends React.Component {
       case 'list-item':
         return <li {...attributes}>{children}</li>;
       case 'numbered-list':
-        return <ol {...attributes}>{children}</ol>;
+        return (
+          <ol {...attributes}>
+            <li>{children}</li>
+          </ol>
+        );
+      case 'line-break':
+        return <br />;
       case 'image': {
         const src = node.data.get('src');
         return (
@@ -656,6 +680,8 @@ class App extends React.Component {
         return <h5 {...attributes}>{children}</h5>;
       case 'heading-six':
         return <h6 {...attributes}>{children}</h6>;
+      case 'line-break':
+        return <br />;
       default:
         return next();
     }
@@ -676,126 +702,155 @@ class App extends React.Component {
     const { value } = editor;
     const { document } = value;
     let { isAligned } = 'undefined';
+    let { listTrue } = 'undefined';
 
     if (type === 'text') editor.insertText(tag);
 
-    // Handle everything but list buttons.
     if (type !== 'bulleted-list' && type !== 'numbered-list') {
-      const isActive = this.hasBlock(name);
-      const isList = this.hasBlock('list-item');
-      if (isList) {
-        editor
-          .setBlocks(isActive ? DEFAULT_NODE : type)
-          .unwrapBlock('bulleted-list')
-          .unwrapBlock('numbered-list')
-          .unwrapBlock('list-item');
-      } else {
-        isAligned = value.blocks.some(block => {
+      const isList = value.blocks.some(block => {
+        editor.unwrapBlock('bulleted-list');
+        editor.unwrapBlock('numbered-list');
+        return block.type === 'list-item';
+      });
+
+      const isType = value.blocks.some(block => {
+        return block.type === name;
+      });
+      listTrue = value.blocks.some(block => {
+        if (
+          block.type === 'align-left' ||
+          block.type === 'align-right' ||
+          block.type === 'align-center'
+        ) {
           if (
-            block.type === 'align-left' ||
-            block.type === 'align-right' ||
-            block.type === 'align-center'
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
           ) {
+            console.log('1-es if ág');
             editor.unwrapBlock('align-left');
             editor.unwrapBlock('align-right');
             editor.unwrapBlock('align-center');
-            if (
-              name === 'align-left' ||
-              name === 'align-right' ||
-              name === 'align-center'
-            ) {
-              editor.setBlocks(name);
-            } else {
-              editor.setBlocks(name);
-              editor.wrapBlock(block.type);
-            }
+            editor.setBlocks('paragraph');
+          } else {
+            console.log('1-es else ág');
+            editor.setBlocks(name);
+            editor.wrapBlock(block.type);
+          }
+        }
+        if (
+          block.type === 'heading-one' ||
+          block.type === 'heading-two' ||
+          block.type === 'heading-three' ||
+          block.type === 'heading-four' ||
+          block.type === 'heading-five'
+        ) {
+          if (
+            name === 'heading-one' ||
+            name === 'heading-two' ||
+            name === 'heading-three' ||
+            name === 'heading-four' ||
+            name === 'heading-five'
+          ) {
+            console.log('2-es if ág');
+            editor
+              .unwrapBlock('align-center')
+              .unwrapBlock('align-left')
+              .unwrapBlock('align-right')
+              .unwrapBlock('heading-one')
+              .unwrapBlock('heading-two')
+              .unwrapBlock('heading-three')
+              .unwrapBlock('heading-four')
+              .unwrapBlock('heading-five')
+              .setBlocks('paragraph');
           }
           if (
-            block.type === 'heading-one' ||
-            block.type === 'heading-two' ||
-            block.type === 'heading-three' ||
-            block.type === 'heading-four' ||
-            block.type === 'heading-five' ||
-            block.type === 'heading-six'
+            name === 'align-center' ||
+            name === 'align-right' ||
+            name === 'align-left'
           ) {
-            if (
-              name === 'heading-one' ||
-              name === 'heading-two' ||
-              name === 'heading-three' ||
-              name === 'heading-four' ||
-              name === 'heading-five' ||
-              name === 'heading-six'
-            ) {
-              editor.unwrapBlock('heading-one');
-              editor.unwrapBlock('heading-two');
-              editor.unwrapBlock('heading-three');
-              editor.unwrapBlock('heading-four');
-              editor.unwrapBlock('heading-five');
-              editor.unwrapBlock('heading-six');
-              editor.setBlocks(name);
-              if (name === block.type) {
-                editor.unwrapBlock('heading-one');
-                editor.unwrapBlock('heading-two');
-                editor.unwrapBlock('heading-three');
-                editor.unwrapBlock('heading-four');
-                editor.unwrapBlock('heading-five');
-                editor.unwrapBlock('heading-six');
-
-                editor.setBlocks('paragraph');
-              } else {
-                editor.setBlocks(name);
-              }
-            } else {
-              editor.unwrapBlock('heading-one');
-              editor.unwrapBlock('heading-two');
-              editor.unwrapBlock('heading-three');
-              editor.unwrapBlock('heading-four');
-              editor.unwrapBlock('heading-five');
-              editor.unwrapBlock('heading-six');
-              editor.unwrapBlock('align-left');
-              editor.unwrapBlock('align-right');
-              editor.unwrapBlock('align-center');
-              editor.setBlocks(block.type);
-              editor.wrapBlock(name);
-            }
+            console.log('2.2-es if ág');
+            editor.unwrapBlock('align-center');
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.setBlocks(block.type);
+            editor.wrapBlock(name);
           }
-          if (block.type === 'image') {
-            if (
-              name === 'align-center' ||
-              name === 'align-left' ||
-              name === 'align-right'
-            ) {
-              editor.setBlocks(block.type);
-              editor.wrapBlock(name);
-            }
+        }
+        if (
+          block.type === 'bulleted-list' ||
+          block.type === 'numbered-list' ||
+          block.type === 'list-item'
+        ) {
+          if (
+            name === 'bulleted-list' ||
+            name === 'numbered-list' ||
+            name === 'list-item'
+          ) {
+            console.log('3-as if ág');
+            console.log('Blocktype: ', block.type);
+            console.log('Name: ', name);
+            editor.unwrapBlock('bulleted-list');
+            editor.unwrapBlock('numbered-list');
+            editor.unwrapBlock('list-item');
+            editor.setBlocks('paragraph');
+          }
+          if (
+            name === 'align-center' ||
+            name === 'align-left' ||
+            name === 'align-right'
+          ) {
+            console.log('Blocktype: ', block.type);
+            console.log('Name: ', name);
+            editor.unwrapBlock('align-center');
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.setBlocks(block.type);
+            editor.wrapBlock(name);
           } else {
-            if (block.type === 'paragraph') {
-              editor.unwrapBlock('align-left');
-              editor.unwrapBlock('align-right');
-              editor.unwrapBlock('align-center');
-              editor.unwrapBlock('paragraph');
-              editor.setBlocks(name);
-              editor.wrapBlock(block.type);
-              editor.unwrapBlock('paragraph');
-            }
-            if (name === block.type) {
-              editor.unwrapBlock('align-left');
-              editor.unwrapBlock('align-right');
-              editor.unwrapBlock('align-center');
-              editor.unwrapBlock('heading-one');
-              editor.unwrapBlock('heading-two');
-              editor.unwrapBlock('heading-three');
-              editor.unwrapBlock('heading-four');
-              editor.unwrapBlock('heading-five');
-              editor.unwrapBlock('heading-six');
-              editor.setBlocks(name);
-            } else editor.setBlocks(isActive ? DEFAULT_NODE : name);
+            console.log('3-as else ág');
+            console.log('Blocktype: ', block.type);
+            console.log('Name: ', name);
+            editor.unwrapBlock('bulleted-list');
+            editor.unwrapBlock('numbered-list');
+            editor.unwrapBlock('list-item');
+            editor.setBlocks('paragraph');
           }
-        });
-      }
-    }
+        }
+        if (block.type === 'paragraph') {
+          console.log('paragraph if ág');
+          editor.unwrapBlock('heading-one');
+          editor.unwrapBlock('heading-two');
+          editor.unwrapBlock('heading-three');
+          editor.unwrapBlock('heading-four');
+          editor.unwrapBlock('heading-five');
+          editor.unwrapBlock('align-center');
+          editor.unwrapBlock('align-left');
+          editor.unwrapBlock('align-right');
+          editor.unwrapBlock('bulleted-list');
+          editor.unwrapBlock('numbered-list');
+          editor.unwrapBlock('list-item');
+          editor.setBlocks(name);
+        }
+        if (block.type === 'image') {
+          if (
+            name === 'align-center' ||
+            name === 'align-left' ||
+            name === 'align-right'
+          ) {
+            console.log('5-es if ág');
+            editor.setBlocks(block.type);
+            editor.unwrapBlock('align-center');
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.wrapBlock(name);
+          }
+         
+        }
 
-    return isAligned;
+        return listTrue;
+      });
+    }
   };
 
   onClickImage = event => {
@@ -803,6 +858,7 @@ class App extends React.Component {
     const src = window.prompt('Írja be a kép URL címét!');
     if (!src) return;
     this.editor.command(insertImage, src);
+    this.editor.wrapBlock('paragraph');
   };
 
   onDropOrPasteImg = (event, editor, next) => {
@@ -903,7 +959,7 @@ class App extends React.Component {
 
   hasBlock = type => {
     const { value } = this.state;
-    return value.blocks.some(node => node.type === type);
+    return props.value.blocks.some(node => node.type === type);
   };
 
   hasLinks = () => {
@@ -912,32 +968,11 @@ class App extends React.Component {
   };
 
   onKeyDown = (event, editor, next) => {
+    console.log('KEy: ', event.key);
     const { value } = editor;
     const { document, selection } = value;
     const { start, isCollapsed } = selection;
     const startNode = document.getDescendant(start.key);
-
-    if (isCollapsed && start.isAtStartOfNode(startNode)) {
-      const previous = document.getPreviousText(startNode.key);
-
-      if (!previous) {
-        return next();
-      }
-
-      const prevBlock = document.getClosestBlock(previous.key);
-
-      if (prevBlock.type === 'table-cell') {
-        if (['Backspace', 'Delete', 'Enter'].includes(event.key)) {
-          event.preventDefault();
-        } else {
-          return next();
-        }
-      }
-    }
-
-    if (value.startBlock.type !== 'table-cell') {
-      return next();
-    }
 
     switch (event.key) {
       case 'Backspace':
@@ -951,8 +986,32 @@ class App extends React.Component {
     }
   };
 
-  onEnter = (event, editor, next) => {
-    editor.insertBlock('paragraph');
+  listTrue = () => {
+    const { editor } = this.editor;
+    const { value } = editor;
+    // return value.blocks.some(node => {
+    //   if (
+    //     node.type === 'bulleted-list' ||
+    //     node.type === 'numbered-list' ||
+    //     notDeepEqual.type === 'list-item'
+    //   ) {
+    //     console.log(node.type);
+    //     // editor.unwrapBlock('bulleted-list');
+    //     // editor.unwrapBlock('numbered-list');
+    //     // editor.unwrapBlock('list-item');
+    //     // editor.moveFocusBackward(1);
+    //     editor.insertBlock('list-item');
+    //   } else {
+    //     console.log('nem list enter');
+    //     editor.insertBlock('paragraph');
+    //     editor.unwrapBlock('line-break');
+    //   }
+    // });
+  };
+
+  onEnter = (event, editor, node, next, type) => {
+    const { value } = editor;
+    // this.listTrue();
   };
 
   onDelete = (event, editor, next) => {
@@ -965,9 +1024,9 @@ class App extends React.Component {
   onBackspace = (event, editor, next) => {
     const { value } = editor;
     const { selection } = value;
-    clg(selection.start.offset);
     if (selection.start.offset !== 0) return next();
     event.preventDefault();
+    editor.delete();
   };
 
   renderInline = (props, editor, next) => {
@@ -990,6 +1049,32 @@ class App extends React.Component {
     }
   };
 
+  hasBlock = name => {
+    const { value } = this.state;
+    return value.blocks.some(node => node.type === name);
+  };
+
+  // offsetSet = () => {
+  //   console.log(this.editor.value.selection.anchor.offset);
+
+  //   const selection = window.getSelection();
+  //   const parentNode = document.getElementsByClassName('ow-wysiwyg-editor');
+  //   if (parentNode[0].children[0].innerText === 'Enter some text...') {
+  //     parentNode[0].children[0].innerText.length === 0;
+  //   }
+  //   console.log(parentNode[0].children[0].innerText);
+  //   console.log(parentNode[0].children[0].innerText.length);
+  //   const range = document.createRange();
+  //   console.log(this.editor.value.selection.anchor.offset);
+  //   range.setStart(
+  //     parentNode[0].children[0],
+  //     toString(this.editor.value.selection.anchor.offset)
+  //   );
+  //   range.setEnd(parentNode[0].children[0], 1);
+
+  //   selection.addRange(range);
+  // };
+
   render() {
     const { as: Component, className, role, children, ...props } = this.props;
 
@@ -1001,10 +1086,10 @@ class App extends React.Component {
       >
         <SharedAppContext.Provider
           value={{
-            value: this.state.value,
+            value: props.value,
             ref: this.ref,
             editor: this.editor,
-            onChange: this.onChange,
+            onChange: props.onChange,
             onKeyDown: this.onKeyDown,
             renderBlock: this.renderBlock,
             renderMark: this.renderMark,
@@ -1012,7 +1097,8 @@ class App extends React.Component {
             // isItalicHotkey: this.isBoldHotkey,
             // isUnderlinedHotkey: this.isUnderlinedHotkey,
             // isCodeHotkey: this.dsCodeHotkey,
-            // hasLinks: this.hasLinks,
+            hasBlock: this.hasBlock,
+            hasLinks: this.hasLinks,
             onClickBlock: this.onClickBlock,
             onClickMark: this.onClickMark,
             onDrop: this.onDropOrPasteImg,
@@ -1021,6 +1107,8 @@ class App extends React.Component {
             onClickText: this.onClickText,
             onClickImage: this.onClickImage,
             renderInline: this.renderInline,
+            offsetSet: this.offsetSet,
+
             // onInsertTable: this.onInsertTable,
             // onInsertRow: this.onInsertRow,
             // onInsertColumn: this.onInsertColumn,

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { AlignmentButtonBar } from '@slate-editor/alignment-plugin';
 import { SharedAppConsumer } from './App';
 
 const propTypes = {
@@ -56,12 +55,14 @@ const ToolbarItem = ({
     return (
       <SharedAppConsumer>
         {propss => {
+          const isActive = propss.hasBlock(name);
+
           return (
             <Component
+              active={toString(isActive)}
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
                 propss.onClickBlock(event, type, name);
-                console.log(type);
               }}
             >
               {children}
