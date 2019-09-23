@@ -54,48 +54,6 @@ function unwrapLink(editor) {
   editor.unwrapInline('link');
 }
 
-// ALIGN CENTER
-
-function wrapAlignCenter(editor) {
-  editor.wrapBlock({
-    type: 'align-center',
-    data: { editor },
-  });
-
-  editor.moveToEnd();
-}
-
-function unwrapAlignCenter(editor) {
-  editor.unwrapBlock('align-right', 'align-left', 'align-center');
-}
-
-// ALIGN LEFT
-
-function wrapAlignLeft(editor, type) {
-  editor.wrapBlock(type);
-}
-
-function unwrapAlignLeft(editor) {
-  editor.unwrapBlock('align-left');
-
-  console.log('unwrappolva');
-}
-
-// ALIGN RIGHT
-
-function wrapAlignRight(editor) {
-  editor.wrapBlock({
-    type: 'align-right',
-    data: { editor },
-  });
-
-  editor.moveToEnd();
-}
-
-function unwrapAlignRight(editor) {
-  editor.unwrapBlock('align-right', 'align-left', 'align-center');
-}
-
 const MarkButton = ({ editor, type, icon }) => {
   const { value } = editor;
   const isActive = value.activeMarks.some(mark => mark.type === type);
@@ -302,7 +260,6 @@ const RULES = [
         }
       }
       if (obj.type === 'align') {
-        console.log(obj.type);
         switch (obj.type) {
           case 'align-center': {
             return (
@@ -476,74 +433,18 @@ class App extends React.Component {
     this.editor = editor;
   };
 
-  onInsertTable = () => {
-    insertTable();
-  };
-  onInsertColumn = () => {
-    insertColumn();
-  };
+  // wordCount = (props, editor, next) => {
+  //   const { value } = editor;
+  //   const { document } = value;
+  //   const children = next();
+  //   let wordCount = 0;
 
-  onInsertRow = () => {
-    insertRow();
-  };
-
-  onRemoveColumn = () => {
-    this.editor.removeColumn();
-  };
-
-  onRemoveRow = () => {
-    this.editor.removeRow();
-  };
-
-  onRemoveTable = () => {
-    this.editor.removeTable();
-  };
-
-  onToggleHeaders = () => {
-    this.editor.toggleTableHeaders();
-  };
-
-  // onChange = ({ value }) => {
-  //   // When the document changes, save the serialized HTML to Local Storage.
-  //   if (value.document != this.state.value.document) {
-  //     const string = serializer.serialize(value);
-  //     localStorage.setItem('content', string);
+  //   for (const [node] of document.blocks({ onlyLeaves: true })) {
+  //     const words = node.text.trim().split(/\s+/);
+  //     wordCount += words.length;
   //   }
-
-  //   this.setState({ value });
+  //   return wordCount;
   // };
-
-  // onKeyDown = (event, editor, next) => {
-  //   let mark;
-
-  //   if (isBoldHotkey(event)) {
-  //     mark = 'bold';
-  //   } else if (isItalicHotkey(event)) {
-  //     mark = 'italic';
-  //   } else if (isUnderlinedHotkey(event)) {
-  //     mark = 'underlined';
-  //   } else if (isCodeHotkey(event)) {
-  //     mark = 'code';
-  //   } else {
-  //     return next();
-  //   }
-
-  //   event.preventDefault();
-  //   editor.toggleMark(mark);
-  // };
-
-  wordCount = (props, editor, next) => {
-    const { value } = editor;
-    const { document } = value;
-    const children = next();
-    let wordCount = 0;
-
-    for (const [node] of document.blocks({ onlyLeaves: true })) {
-      const words = node.text.trim().split(/\s+/);
-      wordCount += words.length;
-    }
-    return wordCount;
-  };
 
   renderEditor = (props, editor, next) => {
     const children = next();
@@ -717,6 +618,7 @@ class App extends React.Component {
         return block.type === name;
       });
       listTrue = value.blocks.some(block => {
+        // ALIGN
         if (
           block.type === 'align-left' ||
           block.type === 'align-right' ||
@@ -727,17 +629,16 @@ class App extends React.Component {
             name === 'align-right' ||
             name === 'align-center'
           ) {
-            console.log('1-es if ág');
             editor.unwrapBlock('align-left');
             editor.unwrapBlock('align-right');
             editor.unwrapBlock('align-center');
             editor.setBlocks('paragraph');
           } else {
-            console.log('1-es else ág');
             editor.setBlocks(name);
             editor.wrapBlock(block.type);
           }
         }
+        // HEADING
         if (
           block.type === 'heading-one' ||
           block.type === 'heading-two' ||
@@ -752,7 +653,6 @@ class App extends React.Component {
             name === 'heading-four' ||
             name === 'heading-five'
           ) {
-            console.log('2-es if ág');
             editor
               .unwrapBlock('align-center')
               .unwrapBlock('align-left')
@@ -769,7 +669,6 @@ class App extends React.Component {
             name === 'align-right' ||
             name === 'align-left'
           ) {
-            console.log('2.2-es if ág');
             editor.unwrapBlock('align-center');
             editor.unwrapBlock('align-left');
             editor.unwrapBlock('align-right');
@@ -777,6 +676,7 @@ class App extends React.Component {
             editor.wrapBlock(name);
           }
         }
+        // LIST
         if (
           block.type === 'bulleted-list' ||
           block.type === 'numbered-list' ||
@@ -787,9 +687,6 @@ class App extends React.Component {
             name === 'numbered-list' ||
             name === 'list-item'
           ) {
-            console.log('3-as if ág');
-            console.log('Blocktype: ', block.type);
-            console.log('Name: ', name);
             editor.unwrapBlock('bulleted-list');
             editor.unwrapBlock('numbered-list');
             editor.unwrapBlock('list-item');
@@ -800,25 +697,35 @@ class App extends React.Component {
             name === 'align-left' ||
             name === 'align-right'
           ) {
-            console.log('Blocktype: ', block.type);
-            console.log('Name: ', name);
             editor.unwrapBlock('align-center');
             editor.unwrapBlock('align-left');
             editor.unwrapBlock('align-right');
             editor.setBlocks(block.type);
             editor.wrapBlock(name);
           } else {
-            console.log('3-as else ág');
-            console.log('Blocktype: ', block.type);
-            console.log('Name: ', name);
             editor.unwrapBlock('bulleted-list');
             editor.unwrapBlock('numbered-list');
             editor.unwrapBlock('list-item');
             editor.setBlocks('paragraph');
           }
         }
+        // IMAGE
+        if (block.type === 'image') {
+          if (
+            name === 'align-center' ||
+            name === 'align-left' ||
+            name === 'align-right'
+          ) {
+            editor.setBlocks(block.type);
+            editor.unwrapBlock('align-center');
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.wrapBlock(name);
+          }
+        }
+
+        // PARAGRAPH && DEFAULT
         if (block.type === 'paragraph') {
-          console.log('paragraph if ág');
           editor.unwrapBlock('heading-one');
           editor.unwrapBlock('heading-two');
           editor.unwrapBlock('heading-three');
@@ -831,21 +738,6 @@ class App extends React.Component {
           editor.unwrapBlock('numbered-list');
           editor.unwrapBlock('list-item');
           editor.setBlocks(name);
-        }
-        if (block.type === 'image') {
-          if (
-            name === 'align-center' ||
-            name === 'align-left' ||
-            name === 'align-right'
-          ) {
-            console.log('5-es if ág');
-            editor.setBlocks(block.type);
-            editor.unwrapBlock('align-center');
-            editor.unwrapBlock('align-left');
-            editor.unwrapBlock('align-right');
-            editor.wrapBlock(name);
-          }
-         
         }
 
         return listTrue;
@@ -946,7 +838,6 @@ class App extends React.Component {
 
   onClickMark = (event, type, name) => {
     event.preventDefault();
-    console.log('TYPE2', type);
     this.editor.toggleMark(type);
   };
 
@@ -968,7 +859,6 @@ class App extends React.Component {
   };
 
   onKeyDown = (event, editor, next) => {
-    console.log('KEy: ', event.key);
     const { value } = editor;
     const { document, selection } = value;
     const { start, isCollapsed } = selection;
@@ -986,32 +876,33 @@ class App extends React.Component {
     }
   };
 
-  listTrue = () => {
-    const { editor } = this.editor;
-    const { value } = editor;
-    // return value.blocks.some(node => {
-    //   if (
-    //     node.type === 'bulleted-list' ||
-    //     node.type === 'numbered-list' ||
-    //     notDeepEqual.type === 'list-item'
-    //   ) {
-    //     console.log(node.type);
-    //     // editor.unwrapBlock('bulleted-list');
-    //     // editor.unwrapBlock('numbered-list');
-    //     // editor.unwrapBlock('list-item');
-    //     // editor.moveFocusBackward(1);
-    //     editor.insertBlock('list-item');
-    //   } else {
-    //     console.log('nem list enter');
-    //     editor.insertBlock('paragraph');
-    //     editor.unwrapBlock('line-break');
-    //   }
-    // });
-  };
+  // listTrue = () => {
+  //   const { editor } = this.editor;
+  //   const { value } = editor;
+  //   return value.blocks.some(node => {
+  //     if (
+  //       node.type === 'bulleted-list' ||
+  //       node.type === 'numbered-list' ||
+  //       node.type === 'list-item'
+  //     ) {
+  //       console.log(node.type);
+  //       editor.unwrapBlock('bulleted-list');
+  //       editor.unwrapBlock('numbered-list');
+  //       editor.unwrapBlock('list-item');
+  //       editor.moveFocusForwardward(1);
+  //       editor.setBlocks('list-item');
+  //       editor.wrapBlock('numbered-list');
+  //     } else {
+  //       console.log('nem list enter');
+  //       editor.insertBlock('paragraph');
+  //       editor.unwrapBlock('line-break');
+  //     }
+  //   });
+  // };
 
   onEnter = (event, editor, node, next, type) => {
     const { value } = editor;
-    // this.listTrue();
+    this.listTrue();
   };
 
   onDelete = (event, editor, next) => {
@@ -1054,27 +945,6 @@ class App extends React.Component {
     return value.blocks.some(node => node.type === name);
   };
 
-  // offsetSet = () => {
-  //   console.log(this.editor.value.selection.anchor.offset);
-
-  //   const selection = window.getSelection();
-  //   const parentNode = document.getElementsByClassName('ow-wysiwyg-editor');
-  //   if (parentNode[0].children[0].innerText === 'Enter some text...') {
-  //     parentNode[0].children[0].innerText.length === 0;
-  //   }
-  //   console.log(parentNode[0].children[0].innerText);
-  //   console.log(parentNode[0].children[0].innerText.length);
-  //   const range = document.createRange();
-  //   console.log(this.editor.value.selection.anchor.offset);
-  //   range.setStart(
-  //     parentNode[0].children[0],
-  //     toString(this.editor.value.selection.anchor.offset)
-  //   );
-  //   range.setEnd(parentNode[0].children[0], 1);
-
-  //   selection.addRange(range);
-  // };
-
   render() {
     const { as: Component, className, role, children, ...props } = this.props;
 
@@ -1093,10 +963,10 @@ class App extends React.Component {
             onKeyDown: this.onKeyDown,
             renderBlock: this.renderBlock,
             renderMark: this.renderMark,
-            // isBoldHotkey: this.isBoldHotkey,
-            // isItalicHotkey: this.isBoldHotkey,
-            // isUnderlinedHotkey: this.isUnderlinedHotkey,
-            // isCodeHotkey: this.dsCodeHotkey,
+            isBoldHotkey: this.isBoldHotkey,
+            isItalicHotkey: this.isBoldHotkey,
+            isUnderlinedHotkey: this.isUnderlinedHotkey,
+            isCodeHotkey: this.dsCodeHotkey,
             hasBlock: this.hasBlock,
             hasLinks: this.hasLinks,
             onClickBlock: this.onClickBlock,
@@ -1107,13 +977,6 @@ class App extends React.Component {
             onClickText: this.onClickText,
             onClickImage: this.onClickImage,
             renderInline: this.renderInline,
-            offsetSet: this.offsetSet,
-
-            // onInsertTable: this.onInsertTable,
-            // onInsertRow: this.onInsertRow,
-            // onInsertColumn: this.onInsertColumn,
-            // renderEditor: this.renderEditor,
-            // wordCount: this.state.wordCount,
           }}
         >
           {children}

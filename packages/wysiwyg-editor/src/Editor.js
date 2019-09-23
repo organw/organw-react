@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Editor as SlateEditor } from 'slate-react';
 import { SharedAppConsumer, serializer } from './App';
-import { offset } from './App.story';
 
 const propTypes = {
   className: PropTypes.string,
@@ -13,7 +12,6 @@ const propTypes = {
 
 const defaultProps = {
   as: 'div',
-  // editor: this.editor,
 };
 
 const schema = {
@@ -34,16 +32,14 @@ class Editor extends React.Component {
             return (
               <React.Fragment>
                 <SlateEditor
-                  // onClick={props.offsetSet}
                   onBlur={props.offsetSet}
                   onFocus={props.offsetSet}
                   style={{ width: '100%' }}
                   spellCheck
-                  // autoFocus
+                  autoFocus
                   placeholder="Enter some text..."
                   ref={props.ref}
                   value={props.value}
-                  // onFocus={props.offsetSet}
                   onChange={props.onChange}
                   schema={schema}
                   // onKeyDown={props.onKeyDown}
@@ -52,12 +48,6 @@ class Editor extends React.Component {
                   onDrop={props.onDrop}
                   onPaste={props.onPaste}
                   renderInline={props.renderInline}
-                  // hasLinks={props.hasLinks}
-                  // onClickBlock={props.onClickBlock}
-                  // onDropOrPaste={props.onDropOrPaste}
-                  // onClickImage={props.onClickImage}
-                  // renderEditor={props.renderEditor}
-                  // wordCount={props.wordCount}
                 />
                 {serializer.serialize(props.value)}
               </React.Fragment>

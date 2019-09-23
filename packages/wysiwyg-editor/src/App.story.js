@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { select, boolean } from '@storybook/addon-knobs';
-import { serializer, SharedAppConsumer } from './App';
+import { serializer } from './App';
 import {
   App,
   Menubar,
@@ -20,30 +19,7 @@ class Default extends React.Component {
   };
 
   onChange = ({ value }) => {
-    const off = value.selection.anchor.offset;
-    this.setState({ offset: off, value });
-    () => {
-      <SharedAppConsumer>
-        {props => {
-          props.offsetSet;
-        }}
-      </SharedAppConsumer>;
-    };
-
-    // ample: italic and bol
-
-    // const selection = window.getSelection();
-    // if (
-    //   selection.focusNode.textContent.length === null ||
-    //   selection.focusNode.textContent.length === undefined ||
-    //   selection.focusNode.textContent.length === 19
-    // ) {
-    //   selection.focusNode.textContent.length =
-    //     selection.focusNode.textContent.length + 1;
-    //   selection.anchorOffset(selection.focusNode.textContent.length + 1);
-    // }
-    // // selection.anchorOffset = selection.focusNode.textContent.length;
-    // console.log(selection.focusNode.textContent.length);
+    this.setState({ value });
   };
 
   render() {
@@ -108,7 +84,7 @@ class Default extends React.Component {
               Align-right
             </ToolbarItem>
           </ToolbarGroup>
-          <ToolbarGroup>
+          {/* <ToolbarGroup>
             <ToolbarItem type="table" tag="table" name="table">
               Add table
             </ToolbarItem>
@@ -118,7 +94,7 @@ class Default extends React.Component {
             <ToolbarItem type="table" tag="td" name="table-cell">
               Add cell
             </ToolbarItem>
-          </ToolbarGroup>
+          </ToolbarGroup> */}
           <ToolbarGroup>
             <ToolbarItem type="link" tag="a" name="link">
               Add link

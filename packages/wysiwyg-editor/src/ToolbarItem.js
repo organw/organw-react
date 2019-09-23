@@ -33,6 +33,7 @@ const ToolbarItem = ({
   children,
   type,
 }) => {
+  // MARK
   if (type === 'mark') {
     return (
       <SharedAppConsumer>
@@ -51,6 +52,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+  // BLOCK
   if (type === 'block') {
     return (
       <SharedAppConsumer>
@@ -72,7 +74,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
-
+  // ALIGN
   if (type === 'align') {
     if (name === 'align-left') {
       return (
@@ -129,7 +131,7 @@ const ToolbarItem = ({
       );
     }
   }
-
+  // IMAGE
   if (name === 'image') {
     return (
       <SharedAppConsumer>
@@ -148,64 +150,65 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+  // TABLE
+  // if (type === 'table') {
+  //   if (name === 'table') {
+  //     return (
+  //       <SharedAppConsumer>
+  //         {propss => {
+  //           return (
+  //             <Component
+  //               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+  //               onMouseDown={editor => {
+  //                 propss.onInsertTable(editor);
+  //               }}
+  //             >
+  //               {children}
+  //             </Component>
+  //           );
+  //         }}
+  //       </SharedAppConsumer>
+  //     );
+  //   }
+  //   if (name === 'table-row') {
+  //     return (
+  //       <SharedAppConsumer>
+  //         {propss => {
+  //           return (
+  //             <Component
+  //               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+  //               onMouseDown={event => {
+  //                 propss.onInsertRow(event, name);
+  //               }}
+  //             >
+  //               {children}
+  //             </Component>
+  //           );
+  //         }}
+  //       </SharedAppConsumer>
+  //     );
+  //   }
+  //   if (name === 'table-cell') {
+  //     return (
+  //       <SharedAppConsumer>
+  //         {propss => {
+  //           return (
+  //             <Component
+  //               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+  //               onMouseDown={event => {
+  //                 propss.onInsertColumn(event, name);
+  //               }}
+  //             >
+  //               {children}
+  //             </Component>
+  //           );
+  //         }}
+  //       </SharedAppConsumer>
+  //     );
+  //   }
+  // }
 
-  if (type === 'table') {
-    if (name === 'table') {
-      return (
-        <SharedAppConsumer>
-          {propss => {
-            return (
-              <Component
-                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={editor => {
-                  propss.onInsertTable(editor);
-                }}
-              >
-                {children}
-              </Component>
-            );
-          }}
-        </SharedAppConsumer>
-      );
-    }
-    if (name === 'table-row') {
-      return (
-        <SharedAppConsumer>
-          {propss => {
-            return (
-              <Component
-                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onInsertRow(event, name);
-                }}
-              >
-                {children}
-              </Component>
-            );
-          }}
-        </SharedAppConsumer>
-      );
-    }
-    if (name === 'table-cell') {
-      return (
-        <SharedAppConsumer>
-          {propss => {
-            return (
-              <Component
-                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onInsertColumn(event, name);
-                }}
-              >
-                {children}
-              </Component>
-            );
-          }}
-        </SharedAppConsumer>
-      );
-    }
-  }
-
+  // LINK
   if (type === 'link') {
     return (
       <SharedAppConsumer>
@@ -225,7 +228,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
-
+  // LIST
   if (
     name === 'list-item' ||
     name === 'bulleted-list' ||
@@ -248,7 +251,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
-
+  // TEXT
   if (type === 'text') {
     return (
       <SharedAppConsumer>
