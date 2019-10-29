@@ -103,12 +103,6 @@ class Default extends React.Component {
             <ToolbarItem type="link" tag="a" name="link">
               Add link
             </ToolbarItem>
-            {/* <ToolbarItem type="image" tag="image" name="image">
-              <ImageButton type="image" tag="image" name="image">
-                Add image
-              </ImageButton>
-            </ToolbarItem> */}
-
             <ToolbarItem type="image" tag="img" name="image">
               Add image
             </ToolbarItem>
@@ -123,9 +117,6 @@ class Default extends React.Component {
             <ToolbarItem type="text" tag="${JEGY_ÁR}" name="text">
               JEGY_ÁR
             </ToolbarItem>
-            {/* <ToolbarItem type="block" name="close">
-              Close
-            </ToolbarItem> */}
           </ToolbarGroup>
         </Toolbar>
         <Editor />

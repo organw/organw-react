@@ -210,6 +210,7 @@ const ToolbarItem = ({
 
   // TABLE
   if (type === 'table') {
+    // NORMAL TABLE
     if (name === 'table') {
       return (
         <SharedAppConsumer>
@@ -228,6 +229,7 @@ const ToolbarItem = ({
         </SharedAppConsumer>
       );
     }
+    // TABLE ALIGNED LEFT
     if (name === 'table_left') {
       return (
         <SharedAppConsumer>
@@ -246,6 +248,7 @@ const ToolbarItem = ({
         </SharedAppConsumer>
       );
     }
+    // TABLE ALIGNED CENTER
     if (name === 'table_center') {
       return (
         <SharedAppConsumer>
@@ -264,6 +267,7 @@ const ToolbarItem = ({
         </SharedAppConsumer>
       );
     }
+    // TABLE ALIGNED RIGHT
     if (name === 'table_right') {
       return (
         <SharedAppConsumer>
@@ -292,7 +296,6 @@ const ToolbarItem = ({
           return (
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-              // active={propss.hasLinks}
               onMouseDown={event => {
                 propss.onClickLink(event, name);
               }}
