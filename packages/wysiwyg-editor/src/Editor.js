@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Editor as SlateEditor } from 'slate-react';
 import { SharedAppConsumer, serializer } from './App';
+import InsertImages from 'slate-drop-or-paste-images';
+import InsertBlockOnEnter from 'slate-insert-block-on-enter';
 
 const propTypes = {
   className: PropTypes.string,
@@ -12,14 +14,6 @@ const propTypes = {
 
 const defaultProps = {
   as: 'div',
-};
-
-const schema = {
-  blocks: {
-    image: {
-      isVoid: true,
-    },
-  },
 };
 
 class Editor extends React.Component {
@@ -32,8 +26,8 @@ class Editor extends React.Component {
             return (
               <React.Fragment>
                 <SlateEditor
-                  onBlur={props.offsetSet}
-                  onFocus={props.offsetSet}
+                  // onBlur={props.offsetSet}
+                  // onFocus={props.offsetSet}
                   style={{ width: '100%' }}
                   spellCheck
                   autoFocus
@@ -41,15 +35,17 @@ class Editor extends React.Component {
                   ref={props.ref}
                   value={props.value}
                   onChange={props.onChange}
-                  schema={schema}
+                  // schema={schema}
+                  // plugins={plugins}
                   // onKeyDown={props.onKeyDown}
                   renderBlock={props.renderBlock}
                   renderMark={props.renderMark}
+                  // onDrop={}
                   onDrop={props.onDrop}
                   onPaste={props.onPaste}
                   renderInline={props.renderInline}
                 />
-                {serializer.serialize(props.value)}
+                {/* {serializer.serialize(props.value)} */}
               </React.Fragment>
             );
           }}

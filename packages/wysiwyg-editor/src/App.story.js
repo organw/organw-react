@@ -11,10 +11,11 @@ import {
   Editor,
   Statusbar,
 } from './index';
+// import { ImageButton } from '@slate-editor/image-plugin';
 
 class Default extends React.Component {
   state = {
-    value: serializer.deserialize('<div></div>'),
+    value: serializer.deserialize('<p></p>'),
     offset: '',
   };
 
@@ -84,32 +85,51 @@ class Default extends React.Component {
               Align-right
             </ToolbarItem>
           </ToolbarGroup>
-          {/* <ToolbarGroup>
+          <ToolbarGroup>
             <ToolbarItem type="table" tag="table" name="table">
               Add table
             </ToolbarItem>
-            <ToolbarItem type="table" tag="tr" name="table-row">
-              Add row
+            <ToolbarItem type="table" tag="table" name="table_left">
+              Add table left
             </ToolbarItem>
-            <ToolbarItem type="table" tag="td" name="table-cell">
-              Add cell
+            <ToolbarItem type="table" tag="table" name="table_center">
+              Add table center
             </ToolbarItem>
-          </ToolbarGroup> */}
+            <ToolbarItem type="table" tag="table" name="table_right">
+              Add table right
+            </ToolbarItem>
+          </ToolbarGroup>
           <ToolbarGroup>
             <ToolbarItem type="link" tag="a" name="link">
               Add link
             </ToolbarItem>
+            {/* <ToolbarItem type="image" tag="image" name="image">
+              <ImageButton type="image" tag="image" name="image">
+                Add image
+              </ImageButton>
+            </ToolbarItem> */}
+
             <ToolbarItem type="image" tag="img" name="image">
               Add image
+            </ToolbarItem>
+            <ToolbarItem type="image" tag="img" name="float_left">
+              Add image with text inline left
+            </ToolbarItem>
+            <ToolbarItem type="image" tag="img" name="float_right">
+              Add image with text inline right
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
             <ToolbarItem type="text" tag="${JEGY_ÁR}" name="text">
               JEGY_ÁR
             </ToolbarItem>
+            {/* <ToolbarItem type="block" name="close">
+              Close
+            </ToolbarItem> */}
           </ToolbarGroup>
         </Toolbar>
         <Editor />
+        {serializer.serialize(this.state.value)}
         <Statusbar />
       </App>
     );

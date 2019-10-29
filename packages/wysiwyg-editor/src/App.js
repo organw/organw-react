@@ -1,17 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
+import PropTypes, { element } from 'prop-types';
 import classNames from 'classnames';
 import Html from 'slate-html-serializer';
 import { getEventTransfer, findDOMNode } from 'slate-react';
 import { isKeyHotkey } from 'is-hotkey';
-import { Button, Icon, Menu } from './components';
+import { Button, Icon, Menu, TablePlugin } from './components';
 import { css } from 'emotion';
-import { Block } from 'slate';
+import { Block, Range } from 'slate';
 import { notDeepEqual } from 'assert';
+import { ImagePlugin, ImageButton } from '@slate-editor/image-plugin';
 // import { AlignmentPlugin } from '@slate-editor/alignment-plugin';
-
-// import { insertColumn, insertRow, insertTable } from './table';
+import Close from './close';
+import { create } from 'istanbul-reports';
 
 const propTypes = {
   className: PropTypes.string,
@@ -99,15 +100,42 @@ const HoverMenu = React.forwardRef(({ editor }, ref) => {
   );
 });
 
-function insertImage(editor, src, target) {
+function insertImage(editor, src, type, name, target) {
   if (target) {
     editor.select(target);
   }
-
-  editor.insertBlock({
-    type: 'image',
-    data: { src },
-  });
+  if (type === 'float_left' || type === 'float_right') {
+    if (type === 'float_left') {
+      let leftObj = {
+        object: 'inline',
+        type: 'float_left',
+        isVoid: true,
+        data: { src },
+      };
+      editor.insertInline(leftObj);
+      editor.wrapInline('align-left');
+    }
+    if (type === 'float_right') {
+      let rightObj = {
+        object: 'inline',
+        type: 'float_right',
+        isVoid: true,
+        data: { src },
+      };
+      editor.insertInline(rightObj);
+      editor.wrapInline('align-right');
+    }
+  } else {
+    let imgObj = {
+      object: 'block',
+      type: 'image',
+      isVoid: true,
+      name: 'image',
+      data: { src },
+    };
+    editor.insertBlock(imgObj);
+    editor.wrapBlock('paragraph');
+  }
 }
 
 function isImage(url) {
@@ -136,6 +164,7 @@ const BLOCK_TAGS = {
   tr: 'table-row',
   td: 'table-cell',
   a: 'link',
+  img: 'image',
 };
 
 const MARK_TAGS = {
@@ -211,10 +240,13 @@ const RULES = [
             const src = obj.data.get('src');
             return (
               <img
+                {...attributes}
                 src={src}
                 className={css`
-                  display: block;
-                  max-width: 100%;
+                  display: inline;
+                  float: left;
+                  margin: 0 20px 20px 0;
+                  max-width: 40%;
                   max-height: 20em;
                   box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
                 `}
@@ -223,28 +255,46 @@ const RULES = [
           }
           case 'align-left':
             return (
-              <p align="left" {...attributes}>
+              <p align="left" style={{ textIndent: '2em' }} {...attributes}>
                 {children}
               </p>
             );
           case 'align-center':
             return (
-              <p align="center" {...attributes}>
+              <p align="center" style={{ textIndent: '2em' }} {...attributes}>
                 {children}
               </p>
             );
           case 'align-right':
             return (
-              <p align="right" {...attributes}>
+              <p align="right" style={{ textIndent: '2em' }} {...attributes}>
                 {children}
               </p>
             );
+          case 'table':
+            return (
+              <table className={'responsive'}>
+                <tbody {...attributes}>{children}</tbody>
+              </table>
+            );
+          case 'table-row':
+            return <tr {...attributes}>{children}</tr>;
+          case 'table-cell':
+            return <td {...attributes}>{children}</td>;
           default:
             return <p {...attributes}>{children}</p>;
         }
       }
-      if (obj.type === 'inline') {
+      if (obj.object === 'inline') {
         switch (obj.type) {
+          case 'float_left': {
+            const src = obj.data.get('src');
+            return <img {...attributes} src={src} />;
+          }
+          case 'float_right': {
+            const src = obj.data.get('src');
+            return <img {...attributes} src={src} />;
+          }
           case 'link': {
             const { data } = obj;
             const href = data.get('href');
@@ -254,7 +304,6 @@ const RULES = [
               </a>
             );
           }
-
           default:
             return <p {...attributes}>{children}</p>;
         }
@@ -263,21 +312,36 @@ const RULES = [
         switch (obj.type) {
           case 'align-center': {
             return (
-              <p align="center" {...attributes} href={href}>
+              <p
+                align="center"
+                style={{ textIndent: '2em' }}
+                {...attributes}
+                href={href}
+              >
                 {children}
               </p>
             );
           }
           case 'align-left': {
             return (
-              <p align="left" {...attributes} href={href}>
+              <p
+                align="left"
+                style={{ textIndent: '2em' }}
+                {...attributes}
+                href={href}
+              >
                 {children}
               </p>
             );
           }
           case 'align-right': {
             return (
-              <p align="right" {...attributes} href={href}>
+              <p
+                align="right"
+                style={{ textIndent: '2em' }}
+                {...attributes}
+                href={href}
+              >
                 {children}
               </p>
             );
@@ -324,36 +388,41 @@ const RULES = [
     },
   },
 
-  {
-    // Special case for images, to grab their src.
-    deserialize(el, next) {
-      if (el.tagName.toLowerCase() === 'img') {
-        return {
-          object: 'block',
-          type: 'image',
-          nodes: next(el.childNodes),
-          data: {
-            src: el.getAttribute('src'),
-          },
-        };
-      }
-    },
-    serialize(obj, children) {
-      if (obj.object == 'image') {
-        switch (obj.object) {
-          case 'image': {
-            const { data } = obj;
-            const href = data.get('href');
-            return (
-              <a {...attributes} href={href}>
-                {children}
-              </a>
-            );
-          }
-        }
-      }
-    },
-  },
+  // {
+  //   // Special case for images, to grab their src.
+  //   deserialize(el, next) {
+  //     if (el.tagName.toLowerCase() === 'img') {
+  //       return {
+  //         object: 'inline',
+  //         type: 'image',
+  //         nodes: next(el.childNodes),
+  //         data: {
+  //           src: el.getAttribute('src'),
+  //           style: el.getAttribute('style'),
+  //         },
+  //       };
+  //     }
+  //   },
+  //   serialize(obj, children) {
+  //     console.log(obj.type);
+  //     if (obj.type == 'inline') {
+  //       switch (obj.object) {
+  //         case 'float_left': {
+  //           const { data } = obj;
+  //           const src = data.get('src');
+  //           const style = data.get('style');
+  //           return <img src={src} style={style} />;
+  //         }
+  //         case 'float_right': {
+  //           const { data } = obj;
+  //           const src = data.get('src');
+  //           const style = data.get('style');
+  //           return <img src={src} style={style} />;
+  //         }
+  //       }
+  //     }
+  //   },
+  // },
 
   {
     // Special case for links, to grab their href.
@@ -458,7 +527,6 @@ class App extends React.Component {
 
   renderBlock = (props, editor, next) => {
     const { attributes, children, node, isFocused } = props;
-
     switch (node.type) {
       case 'span':
         return <span {...attributes}>{children}</span>;
@@ -499,14 +567,17 @@ class App extends React.Component {
             {...attributes}
             src={src}
             className={css`
-              display: block;
-              max-width: 100%;
+              display: inline;
+              float: left;
+              margin: 0 20px 20px 0;
+              max-width: 40%;
               max-height: 20em;
               box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
             `}
           />
         );
       }
+
       case 'link': {
         const { data } = node;
         const href = data.get('href');
@@ -534,6 +605,18 @@ class App extends React.Component {
             {children}
           </p>
         );
+      case 'table':
+        return (
+          <p>
+            <table className={'responsive'}>
+              <tbody {...attributes}>{children}</tbody>
+            </table>
+          </p>
+        );
+      case 'table-row':
+        return <tr {...attributes}>{children}</tr>;
+      case 'table-cell':
+        return <td {...attributes}>{children}</td>;
       default:
         return next();
     }
@@ -618,6 +701,8 @@ class App extends React.Component {
         return block.type === name;
       });
       listTrue = value.blocks.some(block => {
+        console.log('Block type: ', block.type);
+        console.log('Name: ', name);
         // ALIGN
         if (
           block.type === 'align-left' ||
@@ -724,6 +809,19 @@ class App extends React.Component {
           }
         }
 
+        if (block.type === 'table') {
+          if (
+            name === 'align-left' ||
+            name === 'align-center' ||
+            name === 'align-right'
+          ) {
+            editor.wrapBlock(name);
+          }
+          if (name === 'table') {
+            editor.setBlocks('paragraph');
+          }
+        }
+
         // PARAGRAPH && DEFAULT
         if (block.type === 'paragraph') {
           editor.unwrapBlock('heading-one');
@@ -745,44 +843,148 @@ class App extends React.Component {
     }
   };
 
-  onClickImage = event => {
+  onClickTable = (event, type, name) => {
     event.preventDefault();
-    const src = window.prompt('Írja be a kép URL címét!');
-    if (!src) return;
-    this.editor.command(insertImage, src);
-    this.editor.wrapBlock('paragraph');
+    const row = window.prompt('Írja be hány soros táblázatot szeretne!');
+    const col = window.prompt('Írja be hány oszlopos táblázatot szeretne!');
+
+    console.log(name);
+    let table = [];
+
+    let tableObj = {
+      object: 'block',
+      type: 'table',
+      nodes: [],
+    };
+    let rows = [];
+    for (let i = 0; i < row; i++) {
+      let rowID = `row${i}`;
+      let cell = [];
+      for (let j = 0; j < col; j++) {
+        let cellID = `cell${i}-${j}`;
+        cell.push({
+          object: 'block',
+          type: 'table-cell',
+          nodes: [
+            {
+              object: 'text',
+              text: cellID,
+            },
+          ],
+        });
+      }
+
+      rows.push({
+        object: 'block',
+        type: 'table-row',
+        nodes: cell,
+      });
+    }
+
+    tableObj.nodes = rows;
+    if (
+      name === 'table_left' ||
+      name === 'table_center' ||
+      name === 'table_right'
+    ) {
+      if (name === 'table_left') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-left',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+      if (name === 'table_center') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-center',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+      if (name === 'table_right') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-right',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+    } else {
+      let paraObj = {
+        object: 'block',
+        type: 'paragraph',
+        nodes: [tableObj],
+      };
+      this.editor.insertBlock(paraObj);
+    }
   };
 
-  onDropOrPasteImg = (event, editor, next) => {
-    const target = editor.findEventRange(event);
-    if (!target && event.type === 'drop') return next();
+  onClickImage = (event, type, editor) => {
+    event.preventDefault();
+    const src = window.prompt('Enter the URL of the image:');
+    if (!src) return;
 
-    const transfer = getEventTransfer(event);
-    const { type, text, files } = transfer;
+    this.editor.command(insertImage(this.editor, src, type));
+  };
 
-    if (type === 'files') {
-      for (const file of files) {
-        const reader = new FileReader();
-        const [mime] = file.type.split('/');
-        if (mime !== 'image') continue;
+  /**
+   * On drop, insert the image wherever it is dropped.
+   *
+   * @param {Event} event
+   * @param {Editor} editor
+   * @param {Function} next
+   */
 
-        reader.addEventListener('load', () => {
-          editor.command(insertImage, reader.result, target);
-        });
+  // onDropOrPasteImg = (event, editor, next) => {
+  //   const target = editor.findEventRange(event);
+  //   if (!target && event.type === 'drop') return next();
 
-        reader.readAsDataURL(file);
-      }
-      return;
-    }
+  //   const transfer = getEventTransfer(event);
+  //   const { type, text, files } = transfer;
 
-    if (type === 'text') {
-      if (!isUrl(text)) return next();
-      if (!isImage(text)) return next();
-      editor.command(insertImage, text, target);
-      return;
-    }
+  //   if (type === 'files') {
+  //     for (const file of files) {
+  //       const reader = new FileReader();
+  //       const [mime] = file.type.split('/');
+  //       if (mime !== 'image') continue;
 
-    next();
+  //       reader.addEventListener('load', () => {
+  //         editor.command(insertImage, reader.result, target);
+  //       });
+
+  //       reader.readAsDataURL(file);
+  //     }
+  //     return;
+  //   }
+
+  //   if (type === 'text') {
+  //     if (!isUrl(text)) return next();
+  //     if (!isImage(text)) return next();
+  //     editor.command(insertImage, text, target);
+  //     return;
+  //   }
+
+  //   next();
+  // };
+
+  onClickClose = () => {
+    setTimeout(function() {
+      let pdf = document.getElementById('pdf-area').innerHTML;
+      // let pdf2 = d(pdf);
+
+      window.open(
+        'https://drive.google.com/file/d/1_HvFawnRb5QG9VQAtk4DYBBgYVISlSm1/view'
+      );
+
+      // window.print();
+    }, 1000);
+    window.onfocus = function() {
+      setTimeout(function() {
+        window.close();
+      }, 1000);
+    };
   };
 
   onPaste = (event, editor, next) => {
@@ -902,26 +1104,26 @@ class App extends React.Component {
 
   onEnter = (event, editor, node, next, type) => {
     const { value } = editor;
-    this.listTrue();
+    // event.preventDefault();
   };
 
   onDelete = (event, editor, next) => {
     const { value } = editor;
     const { selection } = value;
     if (selection.end.offset !== value.startText.text.length) return next();
-    event.preventDefault();
   };
 
   onBackspace = (event, editor, next) => {
+    // event.preventDefault();
     const { value } = editor;
     const { selection } = value;
     if (selection.start.offset !== 0) return next();
-    event.preventDefault();
+
     editor.delete();
   };
 
-  renderInline = (props, editor, next) => {
-    const { attributes, children, node } = props;
+  renderInline = (props, editor, next, type) => {
+    const { attributes, children, node, isFocused } = props;
 
     switch (node.type) {
       case 'link': {
@@ -931,6 +1133,42 @@ class App extends React.Component {
           <a {...attributes} href={href}>
             {children}
           </a>
+        );
+      }
+
+      case 'float_left': {
+        const src = node.data.get('src');
+        return (
+          <img
+            {...attributes}
+            src={src}
+            className={css`
+              display: inline;
+              float: left;
+              margin: 0 20px 20px 0;
+              max-width: 40%;
+              max-height: 20em;
+              box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+            `}
+          />
+        );
+      }
+
+      case 'float_right': {
+        const src = node.data.get('src');
+        return (
+          <img
+            {...attributes}
+            src={src}
+            className={css`
+              display: inline;
+              float: right;
+              margin: 0 20px 20px 0;
+              max-width: 40%;
+              max-height: 20em;
+              box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+            `}
+          />
         );
       }
 
@@ -949,39 +1187,50 @@ class App extends React.Component {
     const { as: Component, className, role, children, ...props } = this.props;
 
     return (
-      <Component
-        {...props}
-        role={role}
-        className={classNames(className, 'ow-wysiwyg-app')}
-      >
-        <SharedAppContext.Provider
-          value={{
-            value: props.value,
-            ref: this.ref,
-            editor: this.editor,
-            onChange: props.onChange,
-            onKeyDown: this.onKeyDown,
-            renderBlock: this.renderBlock,
-            renderMark: this.renderMark,
-            isBoldHotkey: this.isBoldHotkey,
-            isItalicHotkey: this.isBoldHotkey,
-            isUnderlinedHotkey: this.isUnderlinedHotkey,
-            isCodeHotkey: this.dsCodeHotkey,
-            hasBlock: this.hasBlock,
-            hasLinks: this.hasLinks,
-            onClickBlock: this.onClickBlock,
-            onClickMark: this.onClickMark,
-            onDrop: this.onDropOrPasteImg,
-            onPaste: this.onPaste,
-            onClickLink: this.onClickLink,
-            onClickText: this.onClickText,
-            onClickImage: this.onClickImage,
-            renderInline: this.renderInline,
-          }}
+      <React.Fragment>
+        <iframe
+          name="pdf-area"
+          id="pdf-area"
+          src="https://drive.google.com/file/d/1_HvFawnRb5QG9VQAtk4DYBBgYVISlSm1/view"
+          style={{ visibility: 'hidden', height: 0, width: 0 }}
+        />
+
+        <Component
+          {...props}
+          role={role}
+          className={classNames(className, 'ow-wysiwyg-app')}
         >
-          {children}
-        </SharedAppContext.Provider>
-      </Component>
+          <SharedAppContext.Provider
+            value={{
+              value: props.value,
+              ref: this.ref,
+              editor: this.editor,
+              onChange: props.onChange,
+              onKeyDown: this.onKeyDown,
+              renderBlock: this.renderBlock,
+              renderMark: this.renderMark,
+              isBoldHotkey: this.isBoldHotkey,
+              isItalicHotkey: this.isBoldHotkey,
+              isUnderlinedHotkey: this.isUnderlinedHotkey,
+              isCodeHotkey: this.dsCodeHotkey,
+              hasBlock: this.hasBlock,
+              hasLinks: this.hasLinks,
+              onClickBlock: this.onClickBlock,
+              onClickMark: this.onClickMark,
+              onDrop: this.onDropOrPasteImg,
+              onPaste: this.onDropOrPasteImg,
+              onClickLink: this.onClickLink,
+              onClickText: this.onClickText,
+              onClickImage: this.onClickImage,
+              onClickTable: this.onClickTable,
+              renderInline: this.renderInline,
+              onClickClose: this.onClickClose,
+            }}
+          >
+            {children}
+          </SharedAppContext.Provider>
+        </Component>
+      </React.Fragment>
     );
   }
 }
