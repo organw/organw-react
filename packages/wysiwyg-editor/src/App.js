@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes, { element } from 'prop-types';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Html from 'slate-html-serializer';
 import { getEventTransfer } from 'slate-react';
@@ -566,7 +566,6 @@ class App extends React.Component {
 
   renderMark = (props, editor, next) => {
     const { children, mark, attributes } = props;
-
     switch (mark.type) {
       case 'bold':
         return <strong {...attributes}>{children}</strong>;
@@ -858,7 +857,6 @@ class App extends React.Component {
 
     const transfer = getEventTransfer(event);
     const { type, text, files } = transfer;
-
     if (type === 'files') {
       for (const file of files) {
         const reader = new FileReader();
@@ -894,7 +892,8 @@ class App extends React.Component {
     if (this.hasLinks()) {
       editor.command(unwrapLink);
     }
-
+    return wordCount;
+  };
     editor.command(wrapLink, text);
   };
 

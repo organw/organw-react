@@ -52,47 +52,30 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+
   // BLOCK
   if (type === 'block') {
-    if (name === 'close') {
-      return (
-        <SharedAppConsumer>
-          {propss => {
-            return (
-              <Component
-                // className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onClickClose(event, name);
-                }}
-              >
-                {children}
-              </Component>
-            );
-          }}
-        </SharedAppConsumer>
-      );
-    } else {
-      return (
-        <SharedAppConsumer>
-          {propss => {
-            const isActive = propss.hasBlock(name);
+    return (
+      <SharedAppConsumer>
+        {propss => {
+          const isActive = propss.hasBlock(name);
 
-            return (
-              <Component
-                active={toString(isActive)}
-                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onClickBlock(event, type, name);
-                }}
-              >
-                {children}
-              </Component>
-            );
-          }}
-        </SharedAppConsumer>
-      );
-    }
+          return (
+            <Component
+              active={toString(isActive)}
+              className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+              onMouseDown={event => {
+                propss.onClickBlock(event, type, name);
+              }}
+            >
+              {children}
+            </Component>
+          );
+        }}
+      </SharedAppConsumer>
+    );
   }
+  
   // ALIGN
   if (type === 'align') {
     if (name === 'align-left') {
@@ -150,6 +133,7 @@ const ToolbarItem = ({
       );
     }
   }
+
   // IMAGE
   if (type === 'image') {
     if (name === 'image') {
@@ -307,6 +291,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+  
   // LIST
   if (
     name === 'list-item' ||
@@ -330,6 +315,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+
   // TEXT
   if (type === 'text') {
     return (
