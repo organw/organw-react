@@ -61,7 +61,6 @@
     "@storybook/addon-knobs": "^5.1.1",
     "@storybook/react": "^5.1.1",
     "@storybook/theming": "^5.1.1",
-    "@types/storybook__addon-knobs": "^5.0.0",
     "@types/storybook__react": "^4.0.1",
     "babel-plugin-emotion": "9.2.11",
     "create-emotion": "^10.0.7",
