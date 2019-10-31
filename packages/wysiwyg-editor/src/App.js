@@ -117,6 +117,7 @@ function insertImage(editor, src, type, name, target) {
       data: { src },
     });
   }
+  editor.moveFocusToEndOfNextText().focus();
 }
 
 function isImage(url) {
