@@ -892,8 +892,7 @@ class App extends React.Component {
     if (this.hasLinks()) {
       editor.command(unwrapLink);
     }
-    return wordCount;
-  };
+
     editor.command(wrapLink, text);
   };
 
