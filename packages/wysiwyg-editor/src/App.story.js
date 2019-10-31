@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { select, boolean } from '@storybook/addon-knobs';
-import { serializer, SharedAppConsumer } from './App';
+import { serializer } from './App';
 import {
   App,
   Menubar,
@@ -85,11 +84,31 @@ class Default extends React.Component {
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
+            <ToolbarItem type="table" tag="table" name="table">
+              Add table
+            </ToolbarItem>
+            <ToolbarItem type="table" tag="table" name="table_left">
+              Add table left
+            </ToolbarItem>
+            <ToolbarItem type="table" tag="table" name="table_center">
+              Add table center
+            </ToolbarItem>
+            <ToolbarItem type="table" tag="table" name="table_right">
+              Add table right
+            </ToolbarItem>
+          </ToolbarGroup>
+          <ToolbarGroup>
             <ToolbarItem type="link" tag="a" name="link">
               Add link
             </ToolbarItem>
             <ToolbarItem type="image" tag="img" name="image">
               Add image
+            </ToolbarItem>
+            <ToolbarItem type="image" tag="img" name="float_left">
+              Add image with text inline left
+            </ToolbarItem>
+            <ToolbarItem type="image" tag="img" name="float_right">
+              Add image with text inline right
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>

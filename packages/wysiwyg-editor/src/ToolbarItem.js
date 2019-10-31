@@ -33,6 +33,7 @@ const ToolbarItem = ({
   children,
   type,
 }) => {
+  // MARK
   if (type === 'mark') {
     return (
       <SharedAppConsumer>
@@ -51,6 +52,8 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+
+  // BLOCK
   if (type === 'block') {
     return (
       <SharedAppConsumer>
@@ -72,7 +75,8 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
-
+  
+  // ALIGN
   if (type === 'align') {
     if (name === 'align-left') {
       return (
@@ -130,26 +134,67 @@ const ToolbarItem = ({
     }
   }
 
-  if (name === 'image') {
-    return (
-      <SharedAppConsumer>
-        {propss => {
-          return (
-            <Component
-              className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-              onMouseDown={event => {
-                propss.onClickImage(event, name);
-              }}
-            >
-              {children}
-            </Component>
-          );
-        }}
-      </SharedAppConsumer>
-    );
+  // IMAGE
+  if (type === 'image') {
+    if (name === 'image') {
+      return (
+        <SharedAppConsumer>
+          {propss => {
+            return (
+              <Component
+                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                onMouseDown={event => {
+                  propss.onClickImage(event, name, type);
+                }}
+              >
+                {children}
+              </Component>
+            );
+          }}
+        </SharedAppConsumer>
+      );
+    }
+    if (name === 'float_left') {
+      return (
+        <SharedAppConsumer>
+          {propss => {
+            return (
+              <Component
+                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                onMouseDown={event => {
+                  propss.onClickImage(event, name, type);
+                }}
+              >
+                {children}
+              </Component>
+            );
+          }}
+        </SharedAppConsumer>
+      );
+    }
+    if (name === 'float_right') {
+      return (
+        <SharedAppConsumer>
+          {propss => {
+            return (
+              <Component
+                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                onMouseDown={event => {
+                  propss.onClickImage(event, name, type);
+                }}
+              >
+                {children}
+              </Component>
+            );
+          }}
+        </SharedAppConsumer>
+      );
+    }
   }
 
+  // TABLE
   if (type === 'table') {
+    // NORMAL TABLE
     if (name === 'table') {
       return (
         <SharedAppConsumer>
@@ -157,8 +202,8 @@ const ToolbarItem = ({
             return (
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={editor => {
-                  propss.onInsertTable(editor);
+                onMouseDown={event => {
+                  propss.onClickTable(event, type, name);
                 }}
               >
                 {children}
@@ -168,7 +213,8 @@ const ToolbarItem = ({
         </SharedAppConsumer>
       );
     }
-    if (name === 'table-row') {
+    // TABLE ALIGNED LEFT
+    if (name === 'table_left') {
       return (
         <SharedAppConsumer>
           {propss => {
@@ -176,7 +222,7 @@ const ToolbarItem = ({
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
-                  propss.onInsertRow(event, name);
+                  propss.onClickTable(event, type, name);
                 }}
               >
                 {children}
@@ -186,7 +232,8 @@ const ToolbarItem = ({
         </SharedAppConsumer>
       );
     }
-    if (name === 'table-cell') {
+    // TABLE ALIGNED CENTER
+    if (name === 'table_center') {
       return (
         <SharedAppConsumer>
           {propss => {
@@ -194,7 +241,26 @@ const ToolbarItem = ({
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
-                  propss.onInsertColumn(event, name);
+                  propss.onClickTable(event, type, name);
+                }}
+              >
+                {children}
+              </Component>
+            );
+          }}
+        </SharedAppConsumer>
+      );
+    }
+    // TABLE ALIGNED RIGHT
+    if (name === 'table_right') {
+      return (
+        <SharedAppConsumer>
+          {propss => {
+            return (
+              <Component
+                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                onMouseDown={event => {
+                  propss.onClickTable(event, type, name);
                 }}
               >
                 {children}
@@ -206,6 +272,7 @@ const ToolbarItem = ({
     }
   }
 
+  // LINK
   if (type === 'link') {
     return (
       <SharedAppConsumer>
@@ -213,7 +280,6 @@ const ToolbarItem = ({
           return (
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-              // active={propss.hasLinks}
               onMouseDown={event => {
                 propss.onClickLink(event, name);
               }}
@@ -225,7 +291,8 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
-
+  
+  // LIST
   if (
     name === 'list-item' ||
     name === 'bulleted-list' ||
@@ -249,6 +316,7 @@ const ToolbarItem = ({
     );
   }
 
+  // TEXT
   if (type === 'text') {
     return (
       <SharedAppConsumer>

@@ -18,16 +18,10 @@ const Statusbar = ({ as: Component, className, children }) => {
   return (
     <SharedAppConsumer>
       {props => {
-        // console.log(props.wordCount);
         return (
           <Component>
             <Component>Statusbar</Component>
             {children}
-
-            <Component>
-              {' '}
-              <span className="word-count">{props.wordCount}</span>
-            </Component>
           </Component>
         );
       }}

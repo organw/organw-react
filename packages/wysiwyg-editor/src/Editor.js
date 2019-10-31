@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Editor as SlateEditor } from 'slate-react';
-import { SharedAppConsumer, serializer } from './App';
+import { SharedAppConsumer } from './App';
 
 const propTypes = {
   className: PropTypes.string,
@@ -28,26 +28,23 @@ class Editor extends React.Component {
     return (
       <Component className={classNames(className, 'ow-wysiwyg-editor')}>
         <SharedAppConsumer>
-          {props => {
+          {propps => {
             return (
-              <React.Fragment>
-                <SlateEditor
-                  style={{ width: '100%' }}
-                  spellCheck
-                  autoFocus
-                  placeholder="Enter some text..."
-                  ref={props.ref}
-                  value={props.value}
-                  onChange={props.onChange}
-                  schema={schema}
-                  onKeyDown={props.onKeyDown}
-                  renderBlock={props.renderBlock}
-                  renderMark={props.renderMark}
-                  onDrop={props.onDrop}
-                  onPaste={props.onPaste}
-                  renderInline={props.renderInline}
-                />
-              </React.Fragment>
+              <SlateEditor
+                style={{ width: '100%' }}
+                spellCheck
+                autoFocus
+                placeholder="Enter some text..."
+                ref={propps.ref}
+                value={propps.value}
+                onChange={propps.onChange}
+                schema={schema}
+                renderBlock={propps.renderBlock}
+                renderMark={propps.renderMark}
+                onDrop={propps.onDrop}
+                onPaste={propps.onPaste}
+                renderInline={propps.renderInline}
+              />
             );
           }}
         </SharedAppConsumer>

@@ -5,11 +5,7 @@ import classNames from 'classnames';
 import Html from 'slate-html-serializer';
 import { getEventTransfer } from 'slate-react';
 import { isKeyHotkey } from 'is-hotkey';
-import { Button, Icon, Menu } from './components';
 import { css } from 'emotion';
-// import { AlignmentPlugin } from '@slate-editor/alignment-plugin';
-
-// import { insertColumn, insertRow, insertTable } from './table';
 
 const propTypes = {
   className: PropTypes.string,
@@ -27,7 +23,6 @@ const defaultProps = {
 const DEFAULT_NODE = '';
 const initialValue = '<div></div>';
 const SharedAppContext = React.createContext({});
-
 const isBoldHotkey = isKeyHotkey('mod+b');
 const isItalicHotkey = isKeyHotkey('mod+i');
 const isUnderlinedHotkey = isKeyHotkey('mod+u');
@@ -42,112 +37,86 @@ function wrapLink(editor, href) {
   editor.moveToEnd();
 }
 
-/**
- * A change helper to standardize unwrapping links.
- *
- * @param {Editor} editor
- */
-
 function unwrapLink(editor) {
   editor.unwrapInline('link');
 }
 
-// ALIGN CENTER
+// const MarkButton = ({ editor, type, icon }) => {
+//   const { value } = editor;
+//   const isActive = value.activeMarks.some(mark => mark.type === type);
+//   return (
+//     <Button
+//       reversed
+//       active={isActive}
+//       onMouseDown={event => {
+//         event.preventDefault();
+//         editor.toggleMark(type);
+//       }}
+//     >
+//       <Icon>{icon}</Icon>
+//     </Button>
+//   );
+// };
 
-function wrapAlignCenter(editor) {
-  editor.wrapBlock({
-    type: 'align-center',
-    data: { editor },
-  });
+// const HoverMenu = React.forwardRef(({ editor }, ref) => {
+//   const root = window.document.getElementById('root');
+//   return ReactDOM.createPortal(
+//     <Menu
+//       ref={ref}
+//       className={css`
+//         padding: 8px 7px 6px;
+//         width: 40%;
+//         position: sticky;
+//         z-index: 1;
+//         top: -10000px;
+//         left: -10000px;
+//         margin-top: -6px;
+//         opacity: 0;
+//         background-color: #222;
+//         border-radius: 4px;
+//         transition: opacity 0.75s;
+//       `}
+//     >
+//       <MarkButton editor={editor} type="bold" icon="format_bold" />
+//       <MarkButton editor={editor} type="italic" icon="format_italic" />
+//       <MarkButton editor={editor} type="underlined" icon="format_underlined" />
+//       <MarkButton editor={editor} type="code" icon="code" />
+//     </Menu>,
+//     root
+//   );
+// });
 
-  editor.moveToEnd();
-}
-
-function unwrapAlignCenter(editor) {
-  editor.unwrapBlock('align-right', 'align-left', 'align-center');
-}
-
-// ALIGN LEFT
-
-function wrapAlignLeft(editor, type) {
-  editor.wrapBlock(type);
-}
-
-function unwrapAlignLeft(editor) {
-  editor.unwrapBlock('align-left');
-
-  console.log('unwrappolva');
-}
-
-// ALIGN RIGHT
-
-function wrapAlignRight(editor) {
-  editor.wrapBlock({
-    type: 'align-right',
-    data: { editor },
-  });
-
-  editor.moveToEnd();
-}
-
-function unwrapAlignRight(editor) {
-  editor.unwrapBlock('align-right', 'align-left', 'align-center');
-}
-
-const MarkButton = ({ editor, type, icon }) => {
-  const { value } = editor;
-  const isActive = value.activeMarks.some(mark => mark.type === type);
-  return (
-    <Button
-      reversed
-      active={isActive}
-      onMouseDown={event => {
-        event.preventDefault();
-        editor.toggleMark(type);
-      }}
-    >
-      <Icon>{icon}</Icon>
-    </Button>
-  );
-};
-
-const HoverMenu = React.forwardRef(({ editor }, ref) => {
-  const root = window.document.getElementById('root');
-  return ReactDOM.createPortal(
-    <Menu
-      ref={ref}
-      className={css`
-        padding: 8px 7px 6px;
-        width: 40%;
-        position: sticky;
-        z-index: 1;
-        top: -10000px;
-        left: -10000px;
-        margin-top: -6px;
-        opacity: 0;
-        background-color: #222;
-        border-radius: 4px;
-        transition: opacity 0.75s;
-      `}
-    >
-      <MarkButton editor={editor} type="bold" icon="format_bold" />
-      <MarkButton editor={editor} type="italic" icon="format_italic" />
-      <MarkButton editor={editor} type="underlined" icon="format_underlined" />
-      <MarkButton editor={editor} type="code" icon="code" />
-    </Menu>,
-    root
-  );
-});
-
-function insertImage(editor, src, target) {
+function insertImage(editor, src, type, name, target) {
   if (target) {
     editor.select(target);
   }
-
-  editor.insertBlock({
-    type: 'image',
-    data: { src },
-  });
+  if (type === 'float_left' || type === 'float_right') {
+    if (type === 'float_left') {
+      let leftObj = {
+        object: 'inline',
+        type: 'float_left',
+        isVoid: true,
+        data: { src },
+      };
+      editor.insertInline(leftObj);
+      editor.wrapInline('align-left');
+    }
+    if (type === 'float_right') {
+      let rightObj = {
+        object: 'inline',
+        type: 'float_right',
+        isVoid: true,
+        data: { src },
+      };
+      editor.insertInline(rightObj);
+      editor.wrapInline('align-right');
+    }
+  } else {
+    editor.insertBlock({
+      type: 'image',
+      data: { src },
+    });
+  }
 }
 
 function isImage(url) {
@@ -234,17 +203,30 @@ const RULES = [
           case 'list-item':
             return <li>{children}</li>;
           case 'bulleted-list':
-            return <ul>{children}</ul>;
+            return (
+              <ul>
+                <li>{children}</li>
+              </ul>
+            );
           case 'numbered-list':
-            return <ol>{children}</ol>;
+            return (
+              <ol>
+                <li>{children}</li>
+              </ol>
+            );
+          case 'line-break':
+            return <br />;
           case 'image': {
             const src = obj.data.get('src');
             return (
               <img
+                {...attributes}
                 src={src}
                 className={css`
-                  display: block;
-                  max-width: 100%;
+                  display: inline;
+                  float: left;
+                  margin: 0 20px 20px 0;
+                  max-width: 40%;
                   max-height: 20em;
                   box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
                 `}
@@ -253,28 +235,46 @@ const RULES = [
           }
           case 'align-left':
             return (
-              <p align="left" {...attributes}>
+              <p align="left" style={{ textIndent: '2em' }} {...attributes}>
                 {children}
               </p>
             );
           case 'align-center':
             return (
-              <p align="center" {...attributes}>
+              <p align="center" style={{ textIndent: '2em' }} {...attributes}>
                 {children}
               </p>
             );
           case 'align-right':
             return (
-              <p align="right" {...attributes}>
+              <p align="right" style={{ textIndent: '2em' }} {...attributes}>
                 {children}
               </p>
             );
+          case 'table':
+            return (
+              <table className={'responsive'}>
+                <tbody {...attributes}>{children}</tbody>
+              </table>
+            );
+          case 'table-row':
+            return <tr {...attributes}>{children}</tr>;
+          case 'table-cell':
+            return <td {...attributes}>{children}</td>;
           default:
             return <p {...attributes}>{children}</p>;
         }
       }
-      if (obj.type === 'inline') {
+      if (obj.object === 'inline') {
         switch (obj.type) {
+          case 'float_left': {
+            const src = obj.data.get('src');
+            return <img {...attributes} src={src} />;
+          }
+          case 'float_right': {
+            const src = obj.data.get('src');
+            return <img {...attributes} src={src} />;
+          }
           case 'link': {
             const { data } = obj;
             const href = data.get('href');
@@ -284,31 +284,44 @@ const RULES = [
               </a>
             );
           }
-
           default:
             return <p {...attributes}>{children}</p>;
         }
       }
       if (obj.type === 'align') {
-        console.log(obj.type);
         switch (obj.type) {
           case 'align-center': {
             return (
-              <p align="center" {...attributes} href={href}>
+              <p
+                align="center"
+                style={{ textIndent: '2em' }}
+                {...attributes}
+                href={href}
+              >
                 {children}
               </p>
             );
           }
           case 'align-left': {
             return (
-              <p align="left" {...attributes} href={href}>
+              <p
+                align="left"
+                style={{ textIndent: '2em' }}
+                {...attributes}
+                href={href}
+              >
                 {children}
               </p>
             );
           }
           case 'align-right': {
             return (
-              <p align="right" {...attributes} href={href}>
+              <p
+                align="right"
+                style={{ textIndent: '2em' }}
+                {...attributes}
+                href={href}
+              >
                 {children}
               </p>
             );
@@ -328,6 +341,8 @@ const RULES = [
             return <em {...attributes}>{children}</em>;
           case 'underlined':
             return <u {...attributes}>{children}</u>;
+          case 'line-break':
+            return <br />;
           default:
             return <p {...attributes}>{children}</p>;
           case 'align-left':
@@ -348,37 +363,6 @@ const RULES = [
                 {children}
               </p>
             );
-        }
-      }
-    },
-  },
-
-  {
-    // Special case for images, to grab their src.
-    deserialize(el, next) {
-      if (el.tagName.toLowerCase() === 'img') {
-        return {
-          object: 'block',
-          type: 'image',
-          nodes: next(el.childNodes),
-          data: {
-            src: el.getAttribute('src'),
-          },
-        };
-      }
-    },
-    serialize(obj, children) {
-      if (obj.object == 'image') {
-        switch (obj.object) {
-          case 'image': {
-            const { data } = obj;
-            const href = data.get('href');
-            return (
-              <a {...attributes} href={href}>
-                {children}
-              </a>
-            );
-          }
         }
       }
     },
@@ -420,137 +404,84 @@ class App extends React.Component {
 
     this.state = {
       value: serializer.deserialize(initialValue),
-      wordCount: null,
+      // wordCount: null,
     };
   }
 
-  menuRef = React.createRef();
+  // menuRef = React.createRef();
 
   componentDidMount = () => {
-    this.updateMenu();
+    // this.updateMenu();
   };
 
   componentDidUpdate = () => {
-    this.updateMenu();
+    // this.updateMenu();
   };
 
-  updateMenu = () => {
-    const menu = this.menuRef.current;
-    if (!menu) return;
+  // updateMenu = () => {
+  //   const menu = this.menuRef.current;
+  //   if (!menu) return;
 
-    const { value } = this.state;
-    const { fragment, selection } = value;
+  //   const { value } = this.state;
+  //   const { fragment, selection } = value;
 
-    if (selection.isBlurred || selection.isCollapsed || fragment.text === '') {
-      menu.removeAttribute('style');
-      return;
-    }
+  //   if (selection.isBlurred || selection.isCollapsed || fragment.text === '') {
+  //     menu.removeAttribute('style');
+  //     return;
+  //   }
 
-    const native = window.getSelection();
-    const range = native.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    menu.style.opacity = 1;
-    menu.style.top = `${rect.top + window.pageYOffset - menu.offsetHeight}px`;
+  //   const native = window.getSelection();
+  //   const range = native.getRangeAt(0);
+  //   const rect = range.getBoundingClientRect();
+  //   menu.style.opacity = 1;
+  //   menu.style.top = `${rect.top + window.pageYOffset - menu.offsetHeight}px`;
 
-    menu.style.left = `${rect.left +
-      window.pageXOffset -
-      menu.offsetWidth / 2 +
-      rect.width / 2}px`;
-  };
+  //   menu.style.left = `${rect.left +
+  //     window.pageXOffset -
+  //     menu.offsetWidth / 2 +
+  //     rect.width / 2}px`;
+  // };
 
   ref = editor => {
     this.editor = editor;
   };
 
-  onInsertTable = () => {
-    insertTable();
-  };
-  onInsertColumn = () => {
-    insertColumn();
-  };
+  // wordCount = (props, editor, next) => {
+  //   const { value } = editor;
+  //   const { document } = value;
+  //   const children = next();
+  //   let wordCount = 0;
 
-  onInsertRow = () => {
-    insertRow();
-  };
-
-  onRemoveColumn = () => {
-    this.editor.removeColumn();
-  };
-
-  onRemoveRow = () => {
-    this.editor.removeRow();
-  };
-
-  onRemoveTable = () => {
-    this.editor.removeTable();
-  };
-
-  onToggleHeaders = () => {
-    this.editor.toggleTableHeaders();
-  };
-
-  // onChange = ({ value }) => {
-  //   // When the document changes, save the serialized HTML to Local Storage.
-  //   if (value.document != this.state.value.document) {
-  //     const string = serializer.serialize(value);
-  //     localStorage.setItem('content', string);
+  //   for (const [node] of document.blocks({ onlyLeaves: true })) {
+  //     const words = node.text.trim().split(/\s+/);
+  //     wordCount += words.length;
   //   }
-
-  //   this.setState({ value });
+  //   return wordCount;
   // };
 
-  onKeyDown = (event, editor, next) => {
-    let mark;
-
-    if (isBoldHotkey(event)) {
-      mark = 'bold';
-    } else if (isItalicHotkey(event)) {
-      mark = 'italic';
-    } else if (isUnderlinedHotkey(event)) {
-      mark = 'underlined';
-    } else if (isCodeHotkey(event)) {
-      mark = 'code';
-    } else {
-      return next();
-    }
-
-    event.preventDefault();
-    editor.toggleMark(mark);
-  };
-
-  wordCount = (props, editor, next) => {
-    const { value } = editor;
-    const { document } = value;
-    const children = next();
-    let wordCount = 0;
-
-    for (const [node] of document.blocks({ onlyLeaves: true })) {
-      const words = node.text.trim().split(/\s+/);
-      wordCount += words.length;
-    }
-    return wordCount;
-  };
-
-  renderEditor = (props, editor, next) => {
-    const children = next();
-    return (
-      <React.Fragment>
-        {children}
-        <HoverMenu ref={this.menuRef} editor={editor} />
-      </React.Fragment>
-    );
-  };
+  // renderEditor = (props, editor, next) => {
+  //   const children = next();
+  //   return (
+  //     <React.Fragment>
+  //       {children}
+  //       <HoverMenu ref={this.menuRef} editor={editor} />
+  //     </React.Fragment>
+  //   );
+  // };
 
   renderBlock = (props, editor, next) => {
     const { attributes, children, node, isFocused } = props;
-
     switch (node.type) {
       case 'span':
         return <span {...attributes}>{children}</span>;
       case 'block-quote':
         return <blockquote {...attributes}>{children}</blockquote>;
       case 'bulleted-list':
-        return <ul {...attributes}>{children}</ul>;
+        return (
+          <ul {...attributes}>
+            <li>{children}</li>
+          </ul>
+        );
       case 'heading-one':
         return <h1 {...attributes}>{children}</h1>;
       case 'heading-two':
@@ -566,7 +497,13 @@ class App extends React.Component {
       case 'list-item':
         return <li {...attributes}>{children}</li>;
       case 'numbered-list':
-        return <ol {...attributes}>{children}</ol>;
+        return (
+          <ol {...attributes}>
+            <li>{children}</li>
+          </ol>
+        );
+      case 'line-break':
+        return <br />;
       case 'image': {
         const src = node.data.get('src');
         return (
@@ -582,6 +519,7 @@ class App extends React.Component {
           />
         );
       }
+
       case 'link': {
         const { data } = node;
         const href = data.get('href');
@@ -609,6 +547,18 @@ class App extends React.Component {
             {children}
           </p>
         );
+      case 'table':
+        return (
+          <p>
+            <table className={'responsive'}>
+              <tbody {...attributes}>{children}</tbody>
+            </table>
+          </p>
+        );
+      case 'table-row':
+        return <tr {...attributes}>{children}</tr>;
+      case 'table-cell':
+        return <td {...attributes}>{children}</td>;
       default:
         return next();
     }
@@ -616,7 +566,6 @@ class App extends React.Component {
 
   renderMark = (props, editor, next) => {
     const { children, mark, attributes } = props;
-
     switch (mark.type) {
       case 'bold':
         return <strong {...attributes}>{children}</strong>;
@@ -656,6 +605,8 @@ class App extends React.Component {
         return <h5 {...attributes}>{children}</h5>;
       case 'heading-six':
         return <h6 {...attributes}>{children}</h6>;
+      case 'line-break':
+        return <br />;
       default:
         return next();
     }
@@ -681,238 +632,108 @@ class App extends React.Component {
     if (type === 'text') editor.insertText(tag);
 
     if (type !== 'bulleted-list' && type !== 'numbered-list') {
-      const isActive = this.hasBlock(name);
-      const isList = this.hasBlock('list-item');
-      console.log(isActive);
-      if (isList) {
-        if (name === 'list-item') {
-          editor
-
-            .unwrapBlock('bulleted-list')
-            .unwrapBlock('numbered-list')
-            .setBlocks(name);
-        } else {
-          console.log('...................');
-          editor
-            .setBlocks(isActive ? DEFAULT_NODE : 'list-item')
-            .unwrapBlock('bulleted-list')
-            .unwrapBlock('numbered-list')
-            .wrapBlock(name);
-        }
-      } else {
-        editor.setBlocks(isActive ? DEFAULT_NODE : name);
-      }
-    } else {
-      // Handle the extra wrapping required for list buttons.
-      const isList = this.hasBlock('list-item');
-      const isType = value.blocks.some(block => {
-        return !!document.getClosest(block.key, parent => parent.type === name);
+      const isList = value.blocks.some(block => {
+        editor.unwrapBlock('bulleted-list');
+        editor.unwrapBlock('numbered-list');
+        return block.type === 'list-item';
       });
-      console.log('isType : ', isType);
-      if (isList && isType) {
-        editor
-          .setBlocks(DEFAULT_NODE)
-          .unwrapBlock('bulleted-list')
-          .unwrapBlock('numbered-list');
-      } else if (isList) {
-        editor
-          .unwrapBlock(
-            type === 'bulleted-list' ? 'numbered-list' : 'bulleted-list'
-          )
-          .wrapBlock(name);
-      } else {
-        editor
-          .setBlocks('list-item')
-          .unwrapBlock('align-center')
-          .unwrapBlock('align-left')
-          .unwrapBlock('align-right')
-          .wrapBlock(name);
-      }
-    }
 
-    // Handle everything but list buttons.
-    // if (type !== 'bulleted-list' && type !== 'numbered-list') {
-    //   const isActive = () => {
-    //     // editor.unwrapBlock('list-item');
-    //     this.hasBlock(name);
-    //   };
-    //   const isList = this.hasBlock('list-item');
-    //   const isType = value.blocks.some(block => {
-    //     editor.setBlocks(type);
-    //     console.log(block);
-    //     return block.type === name;
-    //   });
-    //   console.log('isType: ', isType);
-    //   console.log('isList: ', isList);
-    //   listTrue = value.blocks.some(block => {
-    //     if (isList && isType) {
-    //       if (name === 'list-item' && isType) {
-    //         editor.unwrapBlock('list-item');
-    //         editor.unwrapBlock('bulleted-list');
-    //         editor.unwrapBlock('numbered-list');
-    //         editor.setBlocks(DEFAULT_NODE);
-    //       } else {
-    //         editor.unwrapBlock('list-item');
-    //         editor.unwrapBlock('bulleted-list');
-    //         editor.unwrapBlock('numbered-list');
-    //         editor.wrapBlock(name);
-    //       }
-    //     }
-    //     if (isList) {
-    //       editor.unwrapBlock('list-item');
-    //       if (isType) {
-    //         console.log('isType 2: ', isType);
-    //         editor.unwrapBlock('list-item');
-    //         editor.unwrapBlock('bulleted-list');
-    //         editor.unwrapBlock('numbered-list');
-    //         editor.setBlocks(DEFAULT_NODE);
-    //       } else {
-    //         editor.unwrapBlock('list-item');
-    //         editor.unwrapBlock('bulleted-list');
-    //         editor.unwrapBlock('numbered-list');
-    //         editor.setBlocks('list-item');
-    //         editor.wrapBlock(name);
-    //       }
-    //     } else {
-    //       editor.unwrapBlock('list-item');
-    //       editor.unwrapBlock('bulleted-list');
-    //       editor.unwrapBlock('numbered-list');
-    //       editor.setBlocks(name || DEFAULT_NODE);
-    //     }
-    //     // if (isList && name !== 'list-item') {
-    //     //   editor.setBlocks(name);
-    //     //   editor.wrapBlock('list-item');
-    //     // }
-    //     // if (isType) {
-    //     //   console.log('isList && isType');
-    //     //   editor
-    //     //     .unwrapBlock('bulleted-list')
-    //     //     .unwrapBlock('numbered-list')
-    //     //     .unwrapBlock('list-item')
-    //     //     .setBlocks(DEFAULT_NODE);
-    //     // }
-    //     // console.log(block.type, name);
-
-    //     // if (isType === false) {
-    //     //   console.log('isList');
-    //     //   editor.unwrapBlock('bulleted-list').unwrapBlock('numbered-list');
-    //     //   if (block.type === name) {
-    //     //     editor.setBlocks(DEFAULT_NODE);
-    //     //   } else {
-    //     //     editor.setBlocks('list-item');
-    //     //     editor.wrapBlock(name);
-    //     //   }
-    //     // } else {
-    //     //   editor.unwrapBlock('list-item');
-    //     //   if (block.type === name) {
-    //     //     editor
-    //     //       // .unwrapBlock('numbered-list')
-    //     //       // .unwrapBlock('bulleted-list')
-    //     //       .unwrapBlock('list-item');
-    //     //     editor.setBlocks(DEFAULT_NODE);
-    //     //   } else {
-    //     //     console.log('elseelse');
-    //     //     editor
-    //     //       .unwrapBlock('bulleted-list')
-    //     //       .unwrapBlock('numbered-list')
-    //     //       .unwrapBlock('list-item');
-    //     //     editor.setBlocks(name || DEFAULT_NODE);
-    //     //   }
-
-    //     return listTrue;
-    //   });
-    // }
-
-    isAligned = value.blocks.some(block => {
-      if (
-        block.type === 'align-left' ||
-        block.type === 'align-right' ||
-        block.type === 'align-center'
-      ) {
-        editor.unwrapBlock('align-left');
-        editor.unwrapBlock('align-right');
-        editor.unwrapBlock('align-center');
+      const isType = value.blocks.some(block => {
+        return block.type === name;
+      });
+      listTrue = value.blocks.some(block => {
+        // ALIGN
         if (
-          name === 'align-left' ||
-          name === 'align-right' ||
-          name === 'align-center'
+          block.type === 'align-left' ||
+          block.type === 'align-right' ||
+          block.type === 'align-center'
         ) {
-          editor.setBlocks(name);
-        } else {
-          editor.setBlocks(name);
-          editor.wrapBlock(block.type);
-        }
-      }
-      if (
-        block.type === 'heading-one' ||
-        block.type === 'heading-two' ||
-        block.type === 'heading-three' ||
-        block.type === 'heading-four' ||
-        block.type === 'heading-five' ||
-        block.type === 'heading-six'
-      ) {
-        if (
-          name === 'heading-one' ||
-          name === 'heading-two' ||
-          name === 'heading-three' ||
-          name === 'heading-four' ||
-          name === 'heading-five' ||
-          name === 'heading-six'
-        ) {
-          editor.unwrapBlock('heading-one');
-          editor.unwrapBlock('heading-two');
-          editor.unwrapBlock('heading-three');
-          editor.unwrapBlock('heading-four');
-          editor.unwrapBlock('heading-five');
-          editor.unwrapBlock('heading-six');
-          editor.setBlocks(name);
-          if (name === block.type) {
-            editor.unwrapBlock('heading-one');
-            editor.unwrapBlock('heading-two');
-            editor.unwrapBlock('heading-three');
-            editor.unwrapBlock('heading-four');
-            editor.unwrapBlock('heading-five');
-            editor.unwrapBlock('heading-six');
-
+          if (
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
+          ) {
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.unwrapBlock('align-center');
             editor.setBlocks('paragraph');
           } else {
             editor.setBlocks(name);
+            editor.wrapBlock(block.type);
           }
-        } else {
-          editor.unwrapBlock('heading-one');
-          editor.unwrapBlock('heading-two');
-          editor.unwrapBlock('heading-three');
-          editor.unwrapBlock('heading-four');
-          editor.unwrapBlock('heading-five');
-          editor.unwrapBlock('heading-six');
-          editor.unwrapBlock('align-left');
-          editor.unwrapBlock('align-right');
-          editor.unwrapBlock('align-center');
-          editor.setBlocks(block.type);
-          editor.wrapBlock(name);
         }
-      } else {
-        if (block.type === 'paragraph') {
-          editor.unwrapBlock('align-left');
-          editor.unwrapBlock('align-right');
-          editor.unwrapBlock('align-center');
-          editor.unwrapBlock('paragraph');
-          editor.setBlocks(name);
-          editor.wrapBlock(block.type);
-          editor.unwrapBlock('paragraph');
+        // HEADING
+        if (
+          block.type === 'heading-one' ||
+          block.type === 'heading-two' ||
+          block.type === 'heading-three' ||
+          block.type === 'heading-four' ||
+          block.type === 'heading-five'
+        ) {
+          if (
+            name === 'heading-one' ||
+            name === 'heading-two' ||
+            name === 'heading-three' ||
+            name === 'heading-four' ||
+            name === 'heading-five'
+          ) {
+            editor
+              .unwrapBlock('align-center')
+              .unwrapBlock('align-left')
+              .unwrapBlock('align-right')
+              .unwrapBlock('heading-one')
+              .unwrapBlock('heading-two')
+              .unwrapBlock('heading-three')
+              .unwrapBlock('heading-four')
+              .unwrapBlock('heading-five')
+              .setBlocks('paragraph');
+          }
+          if (
+            name === 'align-center' ||
+            name === 'align-right' ||
+            name === 'align-left'
+          ) {
+            editor.unwrapBlock('align-center');
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.setBlocks(block.type);
+            editor.wrapBlock(name);
+          }
         }
-        if (name === block.type) {
-          editor.unwrapBlock('align-left');
-          editor.unwrapBlock('align-right');
-          editor.unwrapBlock('align-center');
-          editor.unwrapBlock('heading-one');
-          editor.unwrapBlock('heading-two');
-          editor.unwrapBlock('heading-three');
-          editor.unwrapBlock('heading-four');
-          editor.unwrapBlock('heading-five');
-          editor.unwrapBlock('heading-six');
-          editor.setBlocks(name);
+        // LIST
+        if (
+          block.type === 'bulleted-list' ||
+          block.type === 'numbered-list' ||
+          block.type === 'list-item'
+        ) {
+          if (
+            name === 'bulleted-list' ||
+            name === 'numbered-list' ||
+            name === 'list-item'
+          ) {
+            editor.unwrapBlock('bulleted-list');
+            editor.unwrapBlock('numbered-list');
+            editor.unwrapBlock('list-item');
+            editor.setBlocks('paragraph');
+          }
+          if (
+            name === 'align-center' ||
+            name === 'align-left' ||
+            name === 'align-right'
+          ) {
+            editor.unwrapBlock('align-center');
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.setBlocks(block.type);
+            editor.wrapBlock(name);
+          } else {
+            editor.unwrapBlock('bulleted-list');
+            editor.unwrapBlock('numbered-list');
+            editor.unwrapBlock('list-item');
+            editor.setBlocks('paragraph');
+          }
         }
+        // IMAGE
         if (block.type === 'image') {
           if (
             name === 'align-center' ||
@@ -920,20 +741,114 @@ class App extends React.Component {
             name === 'align-right'
           ) {
             editor.setBlocks(block.type);
+            editor.unwrapBlock('align-center');
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
             editor.wrapBlock(name);
           }
         }
-      }
-      return isAligned;
-    });
+
+        // PARAGRAPH && DEFAULT
+        if (block.type === 'paragraph') {
+          editor.unwrapBlock('heading-one');
+          editor.unwrapBlock('heading-two');
+          editor.unwrapBlock('heading-three');
+          editor.unwrapBlock('heading-four');
+          editor.unwrapBlock('heading-five');
+          editor.unwrapBlock('align-center');
+          editor.unwrapBlock('align-left');
+          editor.unwrapBlock('align-right');
+          editor.unwrapBlock('bulleted-list');
+          editor.unwrapBlock('numbered-list');
+          editor.unwrapBlock('list-item');
+          editor.setBlocks(name);
+        }
+
+        return listTrue;
+      });
+    }
   };
 
-  onClickImage = event => {
+  onClickTable = (event, type, name) => {
+    event.preventDefault();
+    const row = window.prompt('Írja be hány soros táblázatot szeretne!');
+    const col = window.prompt('Írja be hány oszlopos táblázatot szeretne!');
+
+    let tableObj = {
+      object: 'block',
+      type: 'table',
+      nodes: [],
+    };
+    let rows = [];
+    for (let i = 0; i < row; i++) {
+      let rowID = `row${i}`;
+      let cell = [];
+      for (let j = 0; j < col; j++) {
+        let cellID = `cell${i}-${j}`;
+        cell.push({
+          object: 'block',
+          type: 'table-cell',
+          nodes: [
+            {
+              object: 'text',
+              text: cellID,
+            },
+          ],
+        });
+      }
+
+      rows.push({
+        object: 'block',
+        type: 'table-row',
+        nodes: cell,
+      });
+    }
+
+    tableObj.nodes = rows;
+    if (
+      name === 'table_left' ||
+      name === 'table_center' ||
+      name === 'table_right'
+    ) {
+      if (name === 'table_left') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-left',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+      if (name === 'table_center') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-center',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+      if (name === 'table_right') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-right',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+    } else {
+      let paraObj = {
+        object: 'block',
+        type: 'paragraph',
+        nodes: [tableObj],
+      };
+      this.editor.insertBlock(paraObj);
+    }
+  };
+
+  onClickImage = (event, type, editor) => {
     event.preventDefault();
     const src = window.prompt('Írja be a kép URL címét!');
     if (!src) return;
-    this.editor.command(insertImage, src);
-    this.editor.wrapBlock('paragraph');
+    this.editor.command(insertImage(this.editor, src, type, name));
   };
 
   onDropOrPasteImg = (event, editor, next) => {
@@ -942,7 +857,6 @@ class App extends React.Component {
 
     const transfer = getEventTransfer(event);
     const { type, text, files } = transfer;
-
     if (type === 'files') {
       for (const file of files) {
         const reader = new FileReader();
@@ -978,7 +892,8 @@ class App extends React.Component {
     if (this.hasLinks()) {
       editor.command(unwrapLink);
     }
-
+    return wordCount;
+  };
     editor.command(wrapLink, text);
   };
 
@@ -1021,7 +936,6 @@ class App extends React.Component {
 
   onClickMark = (event, type, name) => {
     event.preventDefault();
-    console.log('TYPE2', type);
     this.editor.toggleMark(type);
   };
 
@@ -1034,7 +948,7 @@ class App extends React.Component {
 
   hasBlock = type => {
     const { value } = this.state;
-    return value.blocks.some(node => node.type === type);
+    return props.value.blocks.some(node => node.type === type);
   };
 
   hasLinks = () => {
@@ -1048,28 +962,6 @@ class App extends React.Component {
     const { start, isCollapsed } = selection;
     const startNode = document.getDescendant(start.key);
 
-    if (isCollapsed && start.isAtStartOfNode(startNode)) {
-      const previous = document.getPreviousText(startNode.key);
-
-      if (!previous) {
-        return next();
-      }
-
-      const prevBlock = document.getClosestBlock(previous.key);
-
-      if (prevBlock.type === 'table-cell') {
-        if (['Backspace', 'Delete', 'Enter'].includes(event.key)) {
-          event.preventDefault();
-        } else {
-          return next();
-        }
-      }
-    }
-
-    if (value.startBlock.type !== 'table-cell') {
-      return next();
-    }
-
     switch (event.key) {
       case 'Backspace':
         return this.onBackspace(event, editor, next);
@@ -1082,29 +974,31 @@ class App extends React.Component {
     }
   };
 
-  onEnter = (event, editor, next) => {
-    editor.insertBlock('paragraph');
+  onEnter = (event, editor, node, next, type) => {
+    // event.preventDefault();
+    const { value } = editor;
   };
 
   onDelete = (event, editor, next) => {
     const { value } = editor;
     const { selection } = value;
     if (selection.end.offset !== value.startText.text.length) return next();
-    event.preventDefault();
   };
 
   onBackspace = (event, editor, next) => {
+    // event.preventDefault();
     const { value } = editor;
     const { selection } = value;
-    clg(selection.start.offset);
     if (selection.start.offset !== 0) return next();
-    event.preventDefault();
+
+    editor.delete();
   };
 
-  renderInline = (props, editor, next) => {
-    const { attributes, children, node } = props;
+  renderInline = (props, editor, next, type) => {
+    const { attributes, children, node, isFocused } = props;
 
     switch (node.type) {
+      // LINK
       case 'link': {
         const { data } = node;
         const href = data.get('href');
@@ -1114,7 +1008,42 @@ class App extends React.Component {
           </a>
         );
       }
-
+      // FLOATED_IMAGE
+      case 'float_left': {
+        const src = node.data.get('src');
+        return (
+          <img
+            {...attributes}
+            src={src}
+            className={css`
+              display: inline;
+              float: left;
+              margin: 0 20px 20px 0;
+              max-width: 40%;
+              max-height: 20em;
+              box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+            `}
+          />
+        );
+      }
+      case 'float_right': {
+        const src = node.data.get('src');
+        return (
+          <img
+            {...attributes}
+            src={src}
+            className={css`
+              display: inline;
+              float: right;
+              margin: 0 20px 20px 0;
+              max-width: 40%;
+              max-height: 20em;
+              box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+            `}
+          />
+        );
+      }
+      // DEFAULT
       default: {
         return next();
       }
@@ -1130,44 +1059,43 @@ class App extends React.Component {
     const { as: Component, className, role, children, ...props } = this.props;
 
     return (
-      <Component
-        {...props}
-        role={role}
-        className={classNames(className, 'ow-wysiwyg-app')}
-      >
-        <SharedAppContext.Provider
-          value={{
-            value: props.value,
-            ref: this.ref,
-            editor: this.editor,
-            onChange: props.onChange,
-            onKeyDown: this.onKeyDown,
-            renderBlock: this.renderBlock,
-            renderMark: this.renderMark,
-            // isBoldHotkey: this.isBoldHotkey,
-            // isItalicHotkey: this.isBoldHotkey,
-            // isUnderlinedHotkey: this.isUnderlinedHotkey,
-            // isCodeHotkey: this.dsCodeHotkey,
-            hasBlock: this.hasBlock,
-            hasLinks: this.hasLinks,
-            onClickBlock: this.onClickBlock,
-            onClickMark: this.onClickMark,
-            onDrop: this.onDropOrPasteImg,
-            onPaste: this.onPaste,
-            onClickLink: this.onClickLink,
-            onClickText: this.onClickText,
-            onClickImage: this.onClickImage,
-            renderInline: this.renderInline,
-            // onInsertTable: this.onInsertTable,
-            // onInsertRow: this.onInsertRow,
-            // onInsertColumn: this.onInsertColumn,
-            // renderEditor: this.renderEditor,
-            // wordCount: this.state.wordCount,
-          }}
+      <React.Fragment>
+        <Component
+          {...props}
+          role={role}
+          className={classNames(className, 'ow-wysiwyg-app')}
         >
-          {children}
-        </SharedAppContext.Provider>
-      </Component>
+          <SharedAppContext.Provider
+            value={{
+              value: props.value,
+              ref: this.ref,
+              editor: this.editor,
+              onChange: props.onChange,
+              onKeyDown: this.onKeyDown,
+              renderBlock: this.renderBlock,
+              renderMark: this.renderMark,
+              isBoldHotkey: this.isBoldHotkey,
+              isItalicHotkey: this.isBoldHotkey,
+              isUnderlinedHotkey: this.isUnderlinedHotkey,
+              isCodeHotkey: this.dsCodeHotkey,
+              hasBlock: this.hasBlock,
+              hasLinks: this.hasLinks,
+              onClickBlock: this.onClickBlock,
+              onClickMark: this.onClickMark,
+              onDrop: this.onDropOrPasteImg,
+              onPaste: this.onPaste,
+              onClickLink: this.onClickLink,
+              onClickText: this.onClickText,
+              onClickImage: this.onClickImage,
+              onClickTable: this.onClickTable,
+              renderInline: this.renderInline,
+              onClickClose: this.onClickClose,
+            }}
+          >
+            {children}
+          </SharedAppContext.Provider>
+        </Component>
+      </React.Fragment>
     );
   }
 }
