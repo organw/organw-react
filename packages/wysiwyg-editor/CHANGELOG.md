@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.9.1...@organw/wysiwyg-editor@0.10.0) (2019-10-31)
+
+
+### Bug Fixes
+
+* **App:** fix broken build ([31490f5](https://github.com/organw/organw-react/commit/31490f5fe4376c534d6e55317e88e3b94ab98989))
+* **App:** image duplication ([27d6412](https://github.com/organw/organw-react/commit/27d64122dd6de17fc8da5b400ebb1ef24f0839f7))
+
+
+### Features
+
+* **Statusbar:** add classname ([f01b19c](https://github.com/organw/organw-react/commit/f01b19c3c9bd685e4221b47a95d00104f6b80a39))
+
+
+
+
+
+
 ## [0.9.1](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.9.0...@organw/wysiwyg-editor@0.9.1) (2019-09-19)
 
 
