@@ -30,6 +30,7 @@
     "image-extensions": "^1.1.0",
     "immutable": "^4.0.0-rc.12",
     "is-hotkey": "^0.1.4",
+    "is-url": "^1.2.4",
     "prop-types": "^15.7.2",
     "slate": "^0.47.7",
     "slate-drop-or-paste-images": "^0.9.1",

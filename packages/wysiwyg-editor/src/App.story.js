@@ -120,7 +120,7 @@ class Default extends React.Component {
           </ToolbarGroup>
         </Toolbar>
         <Editor />
-        {serializer.serialize(this.state.value)}
+        {/* {serializer.serialize(this.state.value)} */}
         <Statusbar />
       </App>
     );

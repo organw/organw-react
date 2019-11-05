@@ -19,6 +19,20 @@ const schema = {
     image: {
       isVoid: true,
     },
+    float_left: {
+      isVoid: true,
+    },
+    float_right: {
+      isVoid: true,
+    },
+  },
+  inlines: {
+    float_left: {
+      isVoid: true,
+    },
+    float_right: {
+      isVoid: true,
+    },
   },
 };
 
@@ -41,8 +55,8 @@ class Editor extends React.Component {
                 schema={schema}
                 renderBlock={propps.renderBlock}
                 renderMark={propps.renderMark}
-                onDrop={propps.onDrop}
-                onPaste={propps.onPaste}
+                onDrop={propps.onDropOrPaste}
+                onPaste={propps.onDropOrPaste}
                 renderInline={propps.renderInline}
               />
             );

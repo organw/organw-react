@@ -6,6 +6,8 @@ import Html from 'slate-html-serializer';
 import { getEventTransfer } from 'slate-react';
 import { isKeyHotkey } from 'is-hotkey';
 import { css } from 'emotion';
+import imageExtensions from 'image-extensions';
+import isUrl from 'is-url';
 
 const propTypes = {
   className: PropTypes.string,
@@ -86,17 +88,14 @@ function unwrapLink(editor) {
 //   );
 // });
 
-function insertImage(editor, src, type, name, target) {
-  if (target) {
-    editor.select(target);
-  }
+function insertImage(editor, file, type, name, target) {
   if (type === 'float_left' || type === 'float_right') {
     if (type === 'float_left') {
       let leftObj = {
         object: 'inline',
         type: 'float_left',
         isVoid: true,
-        data: { src },
+        data: { file },
       };
       editor.insertInline(leftObj);
       editor.wrapInline('align-left');
@@ -106,7 +105,7 @@ function insertImage(editor, src, type, name, target) {
         object: 'inline',
         type: 'float_right',
         isVoid: true,
-        data: { src },
+        data: { file },
       };
       editor.insertInline(rightObj);
       editor.wrapInline('align-right');
@@ -114,7 +113,8 @@ function insertImage(editor, src, type, name, target) {
   } else {
     editor.insertBlock({
       type: 'image',
-      data: { src },
+      isVoid: true,
+      data: { file },
     });
   }
 }
@@ -217,7 +217,7 @@ const RULES = [
           case 'line-break':
             return <br />;
           case 'image': {
-            const src = obj.data.get('src');
+            const src = obj.data.get('file');
             return (
               <img
                 {...attributes}
@@ -268,12 +268,38 @@ const RULES = [
       if (obj.object === 'inline') {
         switch (obj.type) {
           case 'float_left': {
-            const src = obj.data.get('src');
-            return <img {...attributes} src={src} />;
+            const src = obj.data.get('file');
+            return (
+              <img
+                {...attributes}
+                src={src}
+                className={css`
+                  display: inline;
+                  float: left;
+                  margin: 0 20px 20px 0;
+                  max-width: 40%;
+                  max-height: 20em;
+                  box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+                `}
+              />
+            );
           }
           case 'float_right': {
-            const src = obj.data.get('src');
-            return <img {...attributes} src={src} />;
+            const src = obj.data.get('file');
+            return (
+              <img
+                {...attributes}
+                src={src}
+                className={css`
+                  display: inline;
+                  float: left;
+                  margin: 0 20px 20px 0;
+                  max-width: 40%;
+                  max-height: 20em;
+                  box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+                `}
+              />
+            );
           }
           case 'link': {
             const { data } = obj;
@@ -469,6 +495,15 @@ class App extends React.Component {
   //   );
   // };
 
+  onChangeFile = (e, event, name, type, inputFile) => {
+    e.stopPropagation();
+    e.preventDefault();
+    let file = e.target.files[0];
+    this.setState({ file });
+    this.onClickImage(file, event, name, type, inputFile);
+    /// if you want to upload latter
+  };
+
   renderBlock = (props, editor, next) => {
     const { attributes, children, node, isFocused } = props;
     switch (node.type) {
@@ -505,7 +540,7 @@ class App extends React.Component {
       case 'line-break':
         return <br />;
       case 'image': {
-        const src = node.data.get('src');
+        const src = node.data.get('file');
         return (
           <img
             {...attributes}
@@ -770,6 +805,14 @@ class App extends React.Component {
     }
   };
 
+  toBase64 = file =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+
   onClickTable = (event, type, name) => {
     event.preventDefault();
     const row = window.prompt('Írja be hány soros táblázatot szeretne!');
@@ -845,19 +888,23 @@ class App extends React.Component {
     }
   };
 
-  onClickImage = (event, type, editor) => {
+  onClickImage = (file, event, type) => {
     event.preventDefault();
-    const src = window.prompt('Írja be a kép URL címét!');
-    if (!src) return;
-    this.editor.command(insertImage(this.editor, src, type, name));
+
+    this.toBase64(file).then(data => {
+      this.editor.command(insertImage(this.editor, data, type, name));
+    });
+    //const file = document.getElementById('imgupload');
   };
 
-  onDropOrPasteImg = (event, editor, next) => {
+  onDropOrPaste = (event, editor, next) => {
     const target = editor.findEventRange(event);
     if (!target && event.type === 'drop') return next();
 
     const transfer = getEventTransfer(event);
     const { type, text, files } = transfer;
+
+    console.log(type);
 
     if (type === 'files') {
       for (const file of files) {
@@ -1011,7 +1058,7 @@ class App extends React.Component {
       }
       // FLOATED_IMAGE
       case 'float_left': {
-        const src = node.data.get('src');
+        const src = node.data.get('file');
         return (
           <img
             {...attributes}
@@ -1028,7 +1075,7 @@ class App extends React.Component {
         );
       }
       case 'float_right': {
-        const src = node.data.get('src');
+        const src = node.data.get('file');
         return (
           <img
             {...attributes}
@@ -1083,14 +1130,15 @@ class App extends React.Component {
               hasLinks: this.hasLinks,
               onClickBlock: this.onClickBlock,
               onClickMark: this.onClickMark,
-              onDrop: this.onDropOrPasteImg,
-              onPaste: this.onPaste,
+              onDrop: this.onDropOrPaste,
+              onPaste: this.onDropOrPaste,
               onClickLink: this.onClickLink,
               onClickText: this.onClickText,
               onClickImage: this.onClickImage,
               onClickTable: this.onClickTable,
               renderInline: this.renderInline,
               onClickClose: this.onClickClose,
+              onChangeFile: this.onChangeFile,
             }}
           >
             {children}
