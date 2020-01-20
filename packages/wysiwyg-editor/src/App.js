@@ -920,6 +920,19 @@ class App extends React.Component {
       }
       return;
     }
+  };
+
+  onClickMark = (event, type, name) => {
+    event.preventDefault();
+    this.editor.toggleMark(type);
+  };
+
+  hasMark = type => {
+    const { value } = this.state;
+    return value.activeMarks.some(mark => {
+      mark.type === type;
+    });
+  };
 
     if (type === 'text') {
       if (!isUrl(text)) return next();
@@ -927,6 +940,12 @@ class App extends React.Component {
       editor.command(insertImage, text, target);
       return;
     }
+  };
+
+  onEnter = (event, editor, node, next, type) => {
+    // event.preventDefault();
+    const { value } = editor;
+  };
 
     next();
   };

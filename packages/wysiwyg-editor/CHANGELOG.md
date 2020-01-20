@@ -3,6 +3,100 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.9.1...@organw/wysiwyg-editor@0.12.0) (2019-10-31)
+
+
+### Bug Fixes
+
+* **App:** fix broken build ([31490f5](https://github.com/organw/organw-react/commit/31490f5fe4376c534d6e55317e88e3b94ab98989))
+* **App:** image duplication ([27d6412](https://github.com/organw/organw-react/commit/27d64122dd6de17fc8da5b400ebb1ef24f0839f7))
+
+
+### Features
+
+* **Statusbar:** add classname ([f01b19c](https://github.com/organw/organw-react/commit/f01b19c3c9bd685e4221b47a95d00104f6b80a39))
+* **wysiwyg-editor:** support custom statusbar classnames ([c28f9e5](https://github.com/organw/organw-react/commit/c28f9e51a58a4baeb3e4b7adcd3b793e87faafe6))
+
+
+
+
+
+# [0.11.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.9.1...@organw/wysiwyg-editor@0.11.0) (2019-10-31)
+
+
+### Bug Fixes
+
+* **App:** fix broken build ([31490f5](https://github.com/organw/organw-react/commit/31490f5fe4376c534d6e55317e88e3b94ab98989))
+* **App:** image duplication ([27d6412](https://github.com/organw/organw-react/commit/27d64122dd6de17fc8da5b400ebb1ef24f0839f7))
+
+
+### Features
+
+* **Statusbar:** add classname ([f01b19c](https://github.com/organw/organw-react/commit/f01b19c3c9bd685e4221b47a95d00104f6b80a39))
+
+
+
+
+
+# [0.10.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.9.1...@organw/wysiwyg-editor@0.10.0) (2019-10-31)
+
+
+### Bug Fixes
+
+* **App:** fix broken build ([31490f5](https://github.com/organw/organw-react/commit/31490f5fe4376c534d6e55317e88e3b94ab98989))
+* **App:** image duplication ([27d6412](https://github.com/organw/organw-react/commit/27d64122dd6de17fc8da5b400ebb1ef24f0839f7))
+
+
+### Features
+
+* **Statusbar:** add classname ([f01b19c](https://github.com/organw/organw-react/commit/f01b19c3c9bd685e4221b47a95d00104f6b80a39))
+
+
+
+
+
+
+## [0.9.1](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.9.0...@organw/wysiwyg-editor@0.9.1) (2019-09-19)
+
+
+### Bug Fixes
+
+* **wysiwyg-editor:** fix serializer export ([0c96640](https://github.com/organw/organw-react/commit/0c96640))
+
+
+
+
+
+# [0.9.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.8.0...@organw/wysiwyg-editor@0.9.0) (2019-09-19)
+
+
+### Features
+
+* **wysiwyg-editor:** add image align ([#2](https://github.com/organw/organw-react/issues/2)) ([86bb04e](https://github.com/organw/organw-react/commit/86bb04e))
+
+
+
+
+
+
+# [0.8.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.7.0...@organw/wysiwyg-editor@0.8.0) (2019-09-13)
+
+
+### Bug Fixes
+
+* **wysiwyg-editor:** remove unused import ([316b7c7](https://github.com/organw/organw-react/commit/316b7c7))
+
+
+### Features
+
+* **wysiwyg-editor:** add new features  ([#1](https://github.com/organw/organw-react/issues/1)) ([db7a99f](https://github.com/organw/organw-react/commit/db7a99f))
+* **wysiwyg-editor:** release ([739978a](https://github.com/organw/organw-react/commit/739978a))
+
+
+
+
+
+
 # [0.7.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.6.1...@organw/wysiwyg-editor@0.7.0) (2019-09-02)
 
 

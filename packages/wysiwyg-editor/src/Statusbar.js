@@ -19,7 +19,12 @@ const Statusbar = ({ as: Component, className, children }) => {
     <SharedAppConsumer>
       {props => {
         return (
-          <Component>
+          <Component
+            className={classNames(
+              className,
+              'ow-wysiwyg-statusbar',
+            )}
+          >
             <Component>Statusbar</Component>
             {children}
           </Component>
