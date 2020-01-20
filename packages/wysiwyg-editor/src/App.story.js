@@ -11,14 +11,16 @@ import {
   Editor,
   Statusbar,
 } from './index';
+// import { ImageButton } from '@slate-editor/image-plugin';
 
 class Default extends React.Component {
   state = {
-    value: serializer.deserialize('<div></div>'),
+    value: serializer.deserialize('<p></p>'),
+    offset: '',
   };
 
   onChange = ({ value }) => {
-    this.setState({ value: value });
+    this.setState({ value });
   };
 
   render() {
@@ -118,6 +120,7 @@ class Default extends React.Component {
           </ToolbarGroup>
         </Toolbar>
         <Editor />
+        {/* {serializer.serialize(this.state.value)} */}
         <Statusbar />
       </App>
     );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { SharedAppConsumer } from './App';
@@ -33,6 +33,10 @@ const ToolbarItem = ({
   children,
   type,
 }) => {
+  const inputFile1 = useRef();
+  const inputFile2 = useRef();
+  const inputFile3 = useRef();
+
   // MARK
   if (type === 'mark') {
     return (
@@ -75,7 +79,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
-  
+
   // ALIGN
   if (type === 'align') {
     if (name === 'align-left') {
@@ -141,14 +145,25 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             return (
-              <Component
-                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onClickImage(event, name, type);
-                }}
-              >
-                {children}
-              </Component>
+              <React.Fragment>
+                <input
+                  type="file"
+                  id="imgupload1"
+                  style={{ display: 'none' }}
+                  ref={inputFile1}
+                  onChange={e =>
+                    propss.onChangeFile(e, event, name, type, inputFile1)
+                  }
+                />
+                <Component
+                  className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                  onMouseDown={event => {
+                    inputFile1.current.click();
+                  }}
+                >
+                  {children}
+                </Component>
+              </React.Fragment>
             );
           }}
         </SharedAppConsumer>
@@ -159,14 +174,25 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             return (
-              <Component
-                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onClickImage(event, name, type);
-                }}
-              >
-                {children}
-              </Component>
+              <React.Fragment>
+                <input
+                  type="file"
+                  id="imgupload2"
+                  style={{ display: 'none' }}
+                  ref={inputFile2}
+                  onChange={e =>
+                    propss.onChangeFile(e, event, name, type, inputFile2)
+                  }
+                />
+                <Component
+                  className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                  onMouseDown={event => {
+                    inputFile2.current.click();
+                  }}
+                >
+                  {children}
+                </Component>
+              </React.Fragment>
             );
           }}
         </SharedAppConsumer>
@@ -177,14 +203,25 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             return (
-              <Component
-                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onClickImage(event, name, type);
-                }}
-              >
-                {children}
-              </Component>
+              <React.Fragment>
+                <input
+                  type="file"
+                  id="imgupload3"
+                  style={{ display: 'none' }}
+                  ref={inputFile3}
+                  onChange={e =>
+                    propss.onChangeFile(e, event, name, type, inputFile3)
+                  }
+                />
+                <Component
+                  className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                  onMouseDown={event => {
+                    inputFile3.current.click();
+                  }}
+                >
+                  {children}
+                </Component>
+              </React.Fragment>
             );
           }}
         </SharedAppConsumer>
@@ -291,7 +328,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
-  
+
   // LIST
   if (
     name === 'list-item' ||
