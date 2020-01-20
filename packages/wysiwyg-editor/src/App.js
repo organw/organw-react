@@ -920,6 +920,15 @@ class App extends React.Component {
       }
       return;
     }
+
+    if (type === 'text') {
+      if (!isUrl(text)) return next();
+      if (!isImage(text)) return next();
+      editor.command(insertImage, text, target);
+      return;
+    }
+    next();
+    
   };
 
   onClickMark = (event, type, name) => {
@@ -934,20 +943,9 @@ class App extends React.Component {
     });
   };
 
-    if (type === 'text') {
-      if (!isUrl(text)) return next();
-      if (!isImage(text)) return next();
-      editor.command(insertImage, text, target);
-      return;
-    }
-  };
-
   onEnter = (event, editor, node, next, type) => {
     // event.preventDefault();
     const { value } = editor;
-  };
-
-    next();
   };
 
   onPaste = (event, editor, next) => {
