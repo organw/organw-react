@@ -12,7 +12,7 @@
     "lerna": "lerna",
     "build": "lerna run --parallel build -- --env production",
     "bootstrap": "lerna bootstrap --no-package-locks",
-    "release": "lerna publish -f",
+    "release": "lerna publish --force-publish=*",
     "release:ci": "lerna publish --yes",
     "release:canary": "lerna publish -c"
   },
