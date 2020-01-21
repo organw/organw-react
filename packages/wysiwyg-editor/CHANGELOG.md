@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.12.0...@organw/wysiwyg-editor@0.14.0) (2020-01-21)
+
+
+### Bug Fixes
+
+* **App.js:** build error ([bf73dbd](https://github.com/organw/organw-react/commit/bf73dbd6d55dabd89d0237d330ea05f9f4cbd4d6))
+
+
+### Features
+
+* new release ([d703a42](https://github.com/organw/organw-react/commit/d703a423ab7ae9a20ff4c8bda16da90e7741c624))
+
+
+
+
+
+
 # [0.13.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.12.0...@organw/wysiwyg-editor@0.13.0) (2020-01-21)
 
 
