@@ -15,6 +15,8 @@ const propTypes = {
     'image',
     'text',
     'align',
+    'embed',
+    'modal'
   ]).isRequired,
   name: PropTypes.string,
   tag: PropTypes.string,
@@ -172,9 +174,10 @@ const ToolbarItem = ({
                 />
                 <Component
                   className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                  onMouseDown={event => {
-                    inputFile1.current.click();
-                  }}
+                  onMouseDown={() => propss.onClickModal(type)}
+                  // onMouseDown={event => {
+                  //   inputFile1.current.click();
+                  // }}
                 >
                   {children}
                 </Component>
@@ -201,9 +204,10 @@ const ToolbarItem = ({
                 />
                 <Component
                   className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                  onMouseDown={event => {
-                    inputFile2.current.click();
-                  }}
+                  onMouseDown={() => propss.onClickModal(type)}
+                  // onMouseDown={event => {
+                  //   inputFile2.current.click();
+                  // }}
                 >
                   {children}
                 </Component>
@@ -230,9 +234,10 @@ const ToolbarItem = ({
                 />
                 <Component
                   className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                  onMouseDown={event => {
-                    inputFile3.current.click();
-                  }}
+                  onMouseDown={() => propss.onClickModal(type)}
+                  // onMouseDown={event => {
+                  //   inputFile3.current.click();
+                  // }}
                 >
                   {children}
                 </Component>
@@ -244,6 +249,24 @@ const ToolbarItem = ({
     }
   }
 
+  // EMBED
+  if (type === 'embed') {
+    return (
+      <SharedAppConsumer>
+        {propss => {
+          return (
+            <Component
+              className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+              onMouseDown={() => propss.onClickModal(type)}
+            >
+              {children}
+            </Component>
+          );
+        }}
+      </SharedAppConsumer>
+    );
+  } 
+
   // TABLE
   if (type === 'table') {
     // NORMAL TABLE
@@ -254,9 +277,7 @@ const ToolbarItem = ({
             return (
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onClickTable(event, type, name);
-                }}
+                onMouseDown={() => propss.onClickModal(type, name)}
               >
                 {children}
               </Component>
@@ -273,9 +294,7 @@ const ToolbarItem = ({
             return (
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onClickTable(event, type, name);
-                }}
+                onMouseDown={() => propss.onClickModal(type, name)}
               >
                 {children}
               </Component>
@@ -292,9 +311,7 @@ const ToolbarItem = ({
             return (
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onClickTable(event, type, name);
-                }}
+                onMouseDown={() => propss.onClickModal(type, name)}
               >
                 {children}
               </Component>
@@ -311,9 +328,7 @@ const ToolbarItem = ({
             return (
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={event => {
-                  propss.onClickTable(event, type, name);
-                }}
+                onMouseDown={() => propss.onClickModal(type, name)}
               >
                 {children}
               </Component>
@@ -324,6 +339,24 @@ const ToolbarItem = ({
     }
   }
 
+  // BUTTON
+  if (type === 'button') {
+    return (
+      <SharedAppConsumer>
+        {propss => {
+          return (
+            <Component
+              className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+              onMouseDown={() => propss.onClickModal(type)}
+            >
+              {children}
+            </Component>
+          );
+        }}
+      </SharedAppConsumer>
+    );
+  }
+
   // LINK
   if (type === 'link') {
     return (
@@ -332,9 +365,7 @@ const ToolbarItem = ({
           return (
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-              onMouseDown={event => {
-                propss.onClickLink(event, name);
-              }}
+              onMouseDown={() => propss.onClickModal(type)}
             >
               {children}
             </Component>

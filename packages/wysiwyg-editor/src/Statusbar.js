@@ -23,6 +23,7 @@ const Statusbar = ({ as: Component, className, children }) => {
             <Component>Statusbar</Component>
             {children}
           </Component>
+           
         );
       }}
     </SharedAppConsumer>

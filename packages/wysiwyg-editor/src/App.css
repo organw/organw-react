@@ -1,0 +1,61 @@
+.modal {
+    position: absolute;
+    margin: 0 50%;
+    border-style: solid;
+    border-color: grey;
+    border-width: 1px;
+    border-radius: 5px;
+    height: fit-content;
+    width: 500px;
+    padding: 30px 30px 30px 30px;
+}
+
+.modal-body {
+    border: 2px;
+}
+
+.modal-content {
+    text-align: center;
+}
+
+.modal-footer {
+    padding: 30px 110px 30px 110px;
+    height: 30px;
+    width: 500px
+}
+
+.btn-success {
+    height: 40px;
+    width: 100px;
+    border-radius: 5px;
+    border-color: rgb(39, 202, 39);
+    background-color: rgb(39, 202, 39);
+    
+}
+
+.btn-info {
+    height: 40px;
+    width: 100px;
+    border-radius: 5px;
+    border-color: rgb(0, 100, 255);
+    background-color: rgb(0, 100, 255);
+}
+
+label {
+    font-size: 30px;
+    text-align: center;
+}
+
+input {
+    width: 300px;
+    align-content: center;
+}
+
+table th td {
+    border: 1px solid black;
+} 
+
+
+
+
+

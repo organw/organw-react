@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { serializer } from './App';
+import { serializer, SharedAppConsumer } from './App';
 import {
   App,
   Menubar,
@@ -43,6 +43,9 @@ class Default extends React.Component {
             </ToolbarItem>
             <ToolbarItem type="mark" tag="u" name="underlined">
               U
+            </ToolbarItem>
+            <ToolbarItem type="mark" tag="s" name="strikethrough">
+              S
             </ToolbarItem>
             <ToolbarItem type="block" tag="li" name="list-item">
               Lista
@@ -111,6 +114,12 @@ class Default extends React.Component {
             </ToolbarItem>
             <ToolbarItem type="image" tag="img" name="float_right">
               Add image with text inline right
+            </ToolbarItem>
+            <ToolbarItem type="embed" tag="embed" name="embed">
+              Videó beágyazása
+            </ToolbarItem>
+            <ToolbarItem type="button" tag="button" name="button">
+              Gomb beszúrása
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
