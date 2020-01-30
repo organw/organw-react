@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes, { element } from 'prop-types';
+import PropTypes, { element, bool } from 'prop-types';
 import classNames from 'classnames';
 import Html from 'slate-html-serializer';
 import { getEventTransfer } from 'slate-react';
@@ -8,6 +8,7 @@ import { isKeyHotkey } from 'is-hotkey';
 import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
+import './App.css'
 
 const propTypes = {
   className: PropTypes.string,
@@ -28,7 +29,8 @@ const SharedAppContext = React.createContext({});
 const isBoldHotkey = isKeyHotkey('mod+b');
 const isItalicHotkey = isKeyHotkey('mod+i');
 const isUnderlinedHotkey = isKeyHotkey('mod+u');
-const isCodeHotkey = isKeyHotkey('mod+`');
+const isCodeHotkey = isKeyHotkey('mod+q');
+const isStriketroughHotkey = isKeyHotkey('mod+s');
 
 function wrapLink(editor, href) {
   editor.wrapInline({
@@ -42,51 +44,6 @@ function wrapLink(editor, href) {
 function unwrapLink(editor) {
   editor.unwrapInline('link');
 }
-
-// const MarkButton = ({ editor, type, icon }) => {
-//   const { value } = editor;
-//   const isActive = value.activeMarks.some(mark => mark.type === type);
-//   return (
-//     <Button
-//       reversed
-//       active={isActive}
-//       onMouseDown={event => {
-//         event.preventDefault();
-//         editor.toggleMark(type);
-//       }}
-//     >
-//       <Icon>{icon}</Icon>
-//     </Button>
-//   );
-// };
-
-// const HoverMenu = React.forwardRef(({ editor }, ref) => {
-//   const root = window.document.getElementById('root');
-//   return ReactDOM.createPortal(
-//     <Menu
-//       ref={ref}
-//       className={css`
-//         padding: 8px 7px 6px;
-//         width: 40%;
-//         position: sticky;
-//         z-index: 1;
-//         top: -10000px;
-//         left: -10000px;
-//         margin-top: -6px;
-//         opacity: 0;
-//         background-color: #222;
-//         border-radius: 4px;
-//         transition: opacity 0.75s;
-//       `}
-//     >
-//       <MarkButton editor={editor} type="bold" icon="format_bold" />
-//       <MarkButton editor={editor} type="italic" icon="format_italic" />
-//       <MarkButton editor={editor} type="underlined" icon="format_underlined" />
-//       <MarkButton editor={editor} type="code" icon="code" />
-//     </Menu>,
-//     root
-//   );
-// });
 
 function insertImage(editor, file, type, name, target) {
   if (type === 'float_left' || type === 'float_right') {
@@ -105,7 +62,7 @@ function insertImage(editor, file, type, name, target) {
         object: 'inline',
         type: 'float_right',
         isVoid: true,
-        data: { file },
+        data: { file }
       };
       editor.insertInline(rightObj);
       editor.wrapInline('align-right');
@@ -144,7 +101,7 @@ const BLOCK_TAGS = {
   table: 'table',
   tr: 'table-row',
   td: 'table-cell',
-  a: 'link',
+  a: 'link'
 };
 
 const MARK_TAGS = {
@@ -185,13 +142,13 @@ const RULES = [
               <span className={obj.data.get('className')}>{children}</span>
             );
           case 'paragraph':
-            return <p className={obj.data.get('className')}>{children}</p>;
+            return <p>{children}</p>;
           case 'block-quote':
             return <blockquote>{children}</blockquote>;
           case 'heading-one':
-            return <h1 className={obj.data.get('className')}>{children}</h1>;
+            return <h1>{children}</h1>;
           case 'heading-two':
-            return <h2 className={obj.data.get('className')}>{children}</h2>;
+            return <h2>{children}</h2>;
           case 'heading-three':
             return <h3>{children}</h3>;
           case 'heading-four':
@@ -252,15 +209,39 @@ const RULES = [
               </p>
             );
           case 'table':
-            return (
-              <table className={'responsive'}>
-                <tbody {...attributes}>{children}</tbody>
-              </table>
-            );
+            const buttonbackground =  obj.data.get('buttonbackground') ? obj.data.get('buttonbackground') : '#FFFFFF'
+            const buttontext = obj.data.get('buttontext') ? obj.data.get('buttontext') : '#000000'
+            const classname = obj.data.get('className') ? obj.data.get('className') : '';
+            if(classname === 'but') {
+              return (
+                <table {...attributes} className={classname} style={{ backgroundColor: buttonbackground, color: buttontext, border: '0px none transparent'  }}>
+                  <tbody {...attributes}>{children}</tbody>
+                </table>
+              );
+            } else {
+              return (
+                <table {...attributes} className={classname} style={{ backgroundColor: buttonbackground, color: buttontext }}>
+                  <tbody {...attributes}>{children}</tbody>
+                </table>
+              );
+            }
           case 'table-row':
             return <tr {...attributes}>{children}</tr>;
           case 'table-cell':
             return <td {...attributes}>{children}</td>;
+          case 'embed':
+            return (
+            <iframe 
+            className={css`
+            display: block;
+            margin: 0 20px 20px 0;
+            max-width: 40%;
+            max-height: 20em;
+            box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+          `} 
+          width="560" height=" 315" src={obj.data.get('src')} frameBorder="0" allow="accelerometer" allowFullScreen>
+
+          </iframe>);
           default:
             return <p {...attributes}>{children}</p>;
         }
@@ -367,6 +348,8 @@ const RULES = [
             return <em {...attributes}>{children}</em>;
           case 'underlined':
             return <u {...attributes}>{children}</u>;
+          case 'strikethrough':
+            return <strike {...attributes}>{children}</strike>;
           case 'line-break':
             return <br />;
           default:
@@ -430,70 +413,30 @@ class App extends React.Component {
 
     this.state = {
       value: serializer.deserialize(initialValue),
-      // wordCount: null,
+      isOpenModal: false,
+      modalType: '',
+      // LINK
+      linktext: '',
+      linkhref: '',
+      // TABLE
+      cols: '',
+      rows: '',
+      classname: '',
+      // IMAGE
+      src: '',
+      alt: '',
+      // EMBED
+      videolink: '',
+      // BUTTONNAME
+      buttonname: '',
+      // BUTTON
+      buttonbackground: '',
+      buttontext: ''
     };
   }
-
-  // menuRef = React.createRef();
-
-  componentDidMount = () => {
-    // this.updateMenu();
-  };
-
-  componentDidUpdate = () => {
-    // this.updateMenu();
-  };
-
-  // updateMenu = () => {
-  //   const menu = this.menuRef.current;
-  //   if (!menu) return;
-
-  //   const { value } = this.state;
-  //   const { fragment, selection } = value;
-
-  //   if (selection.isBlurred || selection.isCollapsed || fragment.text === '') {
-  //     menu.removeAttribute('style');
-  //     return;
-  //   }
-
-  //   const native = window.getSelection();
-  //   const range = native.getRangeAt(0);
-  //   const rect = range.getBoundingClientRect();
-  //   menu.style.opacity = 1;
-  //   menu.style.top = `${rect.top + window.pageYOffset - menu.offsetHeight}px`;
-
-  //   menu.style.left = `${rect.left +
-  //     window.pageXOffset -
-  //     menu.offsetWidth / 2 +
-  //     rect.width / 2}px`;
-  // };
-
   ref = editor => {
     this.editor = editor;
   };
-
-  // wordCount = (props, editor, next) => {
-  //   const { value } = editor;
-  //   const { document } = value;
-  //   const children = next();
-  //   let wordCount = 0;
-
-  //   for (const [node] of document.blocks({ onlyLeaves: true })) {
-  //     const words = node.text.trim().split(/\s+/);
-  //     wordCount += words.length;
-  //   }
-  //   return wordCount;
-  // };
-
-  // renderEditor = (props, editor, next) => {
-  //   const children = next();
-  //   return (
-  //     <React.Fragment>
-  //       {children}
-  //       <HoverMenu ref={this.menuRef} editor={editor} />
-  //     </React.Fragment>
-  //   );
-  // };
 
   onChangeFile = (e, event, name, type, inputFile) => {
     e.stopPropagation();
@@ -503,6 +446,28 @@ class App extends React.Component {
     this.onClickImage(file, event, name, type, inputFile);
     /// if you want to upload latter
   };
+
+  onKeyDown = (event, editor, next) => {
+    let mark;
+
+    if (isBoldHotkey(event)) {
+      mark = 'bold'
+    } else if (isItalicHotkey(event)) {
+      mark = 'italic'
+    } else if (isUnderlinedHotkey(event)) {
+      mark = 'underlined'
+    } else if (isCodeHotkey(event)) {
+      mark = 'code'
+    } else if (isStriketroughHotkey(event)) {
+      mark = 'strikethrough'
+    }
+     else {
+      return next()
+    }
+
+    event.preventDefault()
+    editor.toggleMark(mark)
+  }
 
   renderBlock = (props, editor, next) => {
     const { attributes, children, node, isFocused } = props;
@@ -583,17 +548,36 @@ class App extends React.Component {
           </p>
         );
       case 'table':
-        return (
-          <p>
-            <table className={'responsive'}>
+        const buttonbackground =  node.data.get('buttonbackground') ? node.data.get('buttonbackground') : '#FFFFFF'
+        const buttontext = node.data.get('buttontext') ? node.data.get('buttontext') : '#000000'
+        const classname = node.data.get('className') ? node.data.get('className') : ''
+        if(classname === 'but') {
+          return (
+            <table {...attributes} className={classname} style={{backgroundColor: buttonbackground, color: buttontext , border: '0px none transparent' }}>
               <tbody {...attributes}>{children}</tbody>
             </table>
-          </p>
         );
+        } else {
+          return (
+            <table {...attributes} className={classname}>
+              <tbody {...attributes}>{children}</tbody>
+            </table>
+        );
+        }
       case 'table-row':
         return <tr {...attributes}>{children}</tr>;
       case 'table-cell':
         return <td {...attributes}>{children}</td>;
+      case 'embed':
+        return (
+        <iframe className={css`
+        display: block;
+        margin: 0 20px 20px 0;
+        max-width: 40%;
+        max-height: 20em;
+        box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+        `} 
+        width="560" height=" 315" src={node.data.get('src')} frameBorder="0" allow="accelerometer" allowFullScreen></iframe>);
       default:
         return next();
     }
@@ -611,6 +595,8 @@ class App extends React.Component {
         return <em {...attributes}>{children}</em>;
       case 'underlined':
         return <u {...attributes}>{children}</u>;
+      case 'strikethrough':
+        return <strike {...attributes}>{children}</strike>;
       case 'align-left':
         return (
           <p align="left" {...attributes}>
@@ -655,6 +641,160 @@ class App extends React.Component {
     const { document } = value;
     editor.insertText(tag);
   };
+
+  onClickModal = (type, name) => {
+    this.toggleModal();
+    this.setState({ modalType: type, buttonname: name })
+  }
+
+  toggleModal = () => {
+    this.setState(prevState => ({
+      isOpenModal: !prevState.isOpenModal
+    }));
+  }
+
+  
+  modalChooser = (type) => {
+    if(type) {
+      if(type === 'link'){
+        return this.linkModal();
+      } else if(type === 'image'){
+        return this.imageModal();
+      } else if(type === 'table'){
+        return this.tableModal();
+      } else if(type === 'embed'){
+        return this.embedModal();
+      } else if(type === 'button'){
+        return this.buttonModal();
+      }
+     } 
+  }
+
+  renderModal = () => {
+    return(
+        <div className="modal">
+        <div className="modal-body">
+          <div className="modal-content">
+            {this.modalChooser(this.state.modalType)}
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button className="btn-success" 
+          onMouseDown={() => { 
+            this.onModalSubmit(this.state.modalType); 
+            setTimeout(() => {
+              this.toggleModal();
+            }, 200); }}
+          >
+            OK
+          </button>
+          &nbsp;&nbsp;
+          <button className="btn-info" onClick={this.toggleModal}>Mégse</button>
+        </div>
+        </div>
+    )
+  }
+
+  buttonModal = () => {
+    return (
+      <div>
+        <div>
+          <label> Kérem válassza ki a gomb háttérszínét! </label><br />
+          <input name="buttonbackground" id="buttonbackground" type="color" value={this.state.buttonbackground} onChange={(e) => { this.onChangeValue(e) }} />
+        </div>
+        <div>
+        <label> Kérem válassza ki a gomb betűszínét! </label><br />
+        <input name="buttontext" id="buttontext" type="color" value={this.state.buttontext} onChange={(e) => { this.onChangeValue(e) }} />
+      </div>
+    </div>
+    )
+  }
+
+  linkModal = () => {
+    return (
+      <div>
+        <div>
+          <label> Kérem illesze be a linket! </label><br />
+          <input name="linkhref" id="linkhref" type="text" value={this.state.linkhref} onChange={(e) => { this.onChangeValue(e) }} />
+        </div>
+        <div>
+        <label> Kérem írja be a link szövegét! </label><br />
+        <input name="linktext" id="linktext" type="text" value={this.state.linktext} onChange={(e) => { this.onChangeValue(e) }} />
+      </div>
+    </div>
+    )
+  }
+
+  imageModal = () => {
+    return (
+    <div>
+      <div>
+        <label> Kérem illesze be a kép linkjét! </label><br />
+        <input type="text" value={this.state.src} onChange={(e) => { this.onChangeValue(e) }} />
+      </div>
+      <div>
+        <label> Kérem írja be a kép alt attribútumát! </label><br />
+        <input type="text" value={this.state.alt} onChange={(e) => { this.onChangeValue(e) }} />
+      </div>
+    </div>
+    )
+  }
+
+  tableModal = () => {
+    return (
+      <div>
+        <div>
+          <label> Kérem adja be hány oszlopos táblázatot szeretne! </label><br />
+          <input name="cols" id="cols" type="text" value={this.state.cols} onChange={(e) => { this.onChangeValue(e) }} />
+        </div>
+        <div>
+          <label> Kérem adja be hány soros táblázatot szeretne! </label><br />
+          <input name="rows" id="rows" type="text" value={this.state.rows} onChange={(e) => { this.onChangeValue(e) }} />
+        </div>
+        <div>
+          <label> Kérem adja be a táblázat osztálynevét! </label><br />
+          <input name="classname" id="classname" type="text" value={this.state.classname} onChange={(e) => { this.onChangeValue(e) }} />
+        </div>
+      </div>
+    )
+  }
+
+  embedModal = () => {
+    return (
+      <div>
+        <label> Kérem illesze be a videó linkjét! </label><br />
+        <input name="videolink" id="videolink" type="text" value={this.state.videolink} onChange={(e) => { this.onChangeValue(e) }} />
+      </div>
+    )
+  }
+
+  onChangeValue = (e) => {
+    const { target } = e;
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const { name } = target;
+    this.setState({
+      [name]: value
+    });
+  }
+
+  onModalSubmit = (type) => {
+    if(type === 'link'){
+      this.onClickLink(this.state.linkhref, this.state.linktext);
+    }
+    if(type === 'image'){
+      return this.onClickImage(this.state.src, this.state.alt);
+    }
+    if(type === 'table'){
+      return this.onClickTable(this.state.cols, this.state.rows, this.state.classname, this.state.buttonname);
+    }
+    if(type === 'embed'){
+      return this.onClickEmbed(this.state.videolink);
+    }
+    if(type === 'button'){
+      return this.onClickButton(1, 1, this.state.buttonbackground, this.state.buttontext);
+    }
+  }
+
 
   onClickBlock = (event, type, name, tag) => {
     event.preventDefault();
@@ -784,6 +924,22 @@ class App extends React.Component {
           }
         }
 
+         // EMBED
+         if (
+          block.type === 'embed'
+        ) {
+          if (
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
+          ) {
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.unwrapBlock('align-center');
+            editor.wrapBlock(name);
+          } 
+        }
+
         // PARAGRAPH && DEFAULT
         if (block.type === 'paragraph') {
           editor.unwrapBlock('heading-one');
@@ -813,15 +969,16 @@ class App extends React.Component {
       reader.onerror = error => reject(error);
     });
 
-  onClickTable = (event, type, name) => {
-    event.preventDefault();
-    const row = window.prompt('Írja be hány soros táblázatot szeretne!');
-    const col = window.prompt('Írja be hány oszlopos táblázatot szeretne!');
-
+  onClickButton = (row, col, buttonbackground, buttontext) => {
     let tableObj = {
       object: 'block',
       type: 'table',
       nodes: [],
+      data: {
+        buttonbackground: buttonbackground,
+        buttontext: buttontext, 
+        className: 'but'
+      }
     };
     let rows = [];
     for (let i = 0; i < row; i++) {
@@ -840,7 +997,6 @@ class App extends React.Component {
           ],
         });
       }
-
       rows.push({
         object: 'block',
         type: 'table-row',
@@ -849,6 +1005,7 @@ class App extends React.Component {
     }
 
     tableObj.nodes = rows;
+
     if (
       name === 'table_left' ||
       name === 'table_center' ||
@@ -884,18 +1041,120 @@ class App extends React.Component {
         type: 'paragraph',
         nodes: [tableObj],
       };
+
+      this.editor.insertBlock(paraObj);
+    }
+  }
+
+  onClickTable = (row, col, classname, name) => {
+
+    let tableObj = {
+      object: 'block',
+      type: 'table',
+      nodes: [],
+      data: {
+        className: classname
+      }
+    };
+    let rows = [];
+    for (let i = 0; i < row; i++) {
+      let rowID = `row${i}`;
+      let cell = [];
+      for (let j = 0; j < col; j++) {
+        let cellID = `cell${i}-${j}`;
+        cell.push({
+          object: 'block',
+          type: 'table-cell',
+          nodes: [
+            {
+              object: 'text',
+              text: cellID,
+            },
+          ],
+        });
+      }
+
+      rows.push({
+        object: 'block',
+        type: 'table-row',
+        nodes: cell,
+      });
+    }
+
+    tableObj.nodes = rows;
+
+    if (
+      name === 'table_left' ||
+      name === 'table_center' ||
+      name === 'table_right'
+    ) {
+      if (name === 'table_left') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-left',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+      if (name === 'table_center') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-center',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+      if (name === 'table_right') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-right',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+    } else {
+      let paraObj = {
+        object: 'block',
+        type: 'paragraph',
+        nodes: [tableObj],
+      };
+
       this.editor.insertBlock(paraObj);
     }
   };
 
   onClickImage = (file, event, type) => {
     event.preventDefault();
-
     this.toBase64(file).then(data => {
       this.editor.command(insertImage(this.editor, data, type, name));
     });
-    //const file = document.getElementById('imgupload');
   };
+
+  getJsonFromUrl = (url) => {
+    if(!url) url = location.search;
+    var query = url.substr(1);
+    var result = {};
+    query.split("&").forEach((part) => {
+      var item = part.split("=");
+      result[item[0]] = decodeURIComponent(item[1]);
+    });
+    return result;
+  }
+
+  onClickEmbed = (videolink) => {
+    if (videolink.includes('youtube')) {
+    let src = 'https://www.youtube.com/embed/' + this.getJsonFromUrl(new URL(videolink).search).v;
+    let embedObj = {
+      object: 'block',
+      type: 'embed',
+      data: {
+        src: src
+      }
+    } 
+    this.editor.insertBlock(embedObj);
+    embedObj.data.src = src;
+    }
+  }
 
   onDropOrPaste = (event, editor, next) => {
     const target = editor.findEventRange(event);
@@ -903,8 +1162,6 @@ class App extends React.Component {
 
     const transfer = getEventTransfer(event);
     const { type, text, files } = transfer;
-
-    console.log(type);
 
     if (type === 'files') {
       for (const file of files) {
@@ -927,25 +1184,8 @@ class App extends React.Component {
       editor.command(insertImage, text, target);
       return;
     }
+
     next();
-    
-  };
-
-  onClickMark = (event, type, name) => {
-    event.preventDefault();
-    this.editor.toggleMark(type);
-  };
-
-  hasMark = type => {
-    const { value } = this.state;
-    return value.activeMarks.some(mark => {
-      mark.type === type;
-    });
-  };
-
-  onEnter = (event, editor, node, next, type) => {
-    // event.preventDefault();
-    const { value } = editor;
   };
 
   onPaste = (event, editor, next) => {
@@ -962,41 +1202,23 @@ class App extends React.Component {
     editor.command(wrapLink, text);
   };
 
-  onClickLink = event => {
-    event.preventDefault();
+  onClickLink = (linkhref, linktext) => {
 
     const { editor } = this;
     const { value } = editor;
     const hasLinks = this.hasLinks();
 
-    if (hasLinks) {
-      editor.command(unwrapLink);
-    } else if (value.selection.isExpanded) {
-      const href = window.prompt('Enter the URL of the link:');
+    const href = linkhref;
+    const text = linktext;
 
-      if (href == null) {
-        return;
-      }
-
-      editor.command(wrapLink, href);
-    } else {
-      const href = window.prompt('Enter the URL of the link:');
-
-      if (href == null) {
-        return;
-      }
-
-      const text = window.prompt('Enter the text for the link:');
-
-      if (text == null) {
-        return;
-      }
-
-      editor
-        .insertText(text)
-        .moveFocusBackward(text.length)
-        .command(wrapLink, href);
-    }
+    editor.insertText(text);
+    editor.moveFocusBackward(text.length)
+    this.editor.wrapInline({
+      type: 'link',
+      data: { href },
+    });
+  
+    editor.moveToEnd();
   };
 
   onClickMark = (event, type, name) => {
@@ -1021,23 +1243,23 @@ class App extends React.Component {
     return value.inlines.some(inline => inline.type === 'link');
   };
 
-  onKeyDown = (event, editor, next) => {
-    const { value } = editor;
-    const { document, selection } = value;
-    const { start, isCollapsed } = selection;
-    const startNode = document.getDescendant(start.key);
+  // onKeyDown = (event, editor, next) => {
+  //   const { value } = editor;
+  //   const { document, selection } = value;
+  //   const { start, isCollapsed } = selection;
+  //   const startNode = document.getDescendant(start.key);
 
-    switch (event.key) {
-      case 'Backspace':
-        return this.onBackspace(event, editor, next);
-      case 'Delete':
-        return this.onDelete(event, editor, next);
-      case 'Enter':
-        return this.onEnter(event, editor, next);
-      default:
-        return next();
-    }
-  };
+  //   switch (event.key) {
+  //     case 'Backspace':
+  //       return this.onBackspace(event, editor, next);
+  //     case 'Delete':
+  //       return this.onDelete(event, editor, next);
+  //     case 'Enter':
+  //       return this.onEnter(event, editor, next);
+  //     default:
+  //       return next();
+  //   }
+  // };
 
   onEnter = (event, editor, node, next, type) => {
     // event.preventDefault();
@@ -1061,7 +1283,6 @@ class App extends React.Component {
 
   renderInline = (props, editor, next, type) => {
     const { attributes, children, node, isFocused } = props;
-
     switch (node.type) {
       // LINK
       case 'link': {
@@ -1122,7 +1343,6 @@ class App extends React.Component {
 
   render() {
     const { as: Component, className, role, children, ...props } = this.props;
-
     return (
       <React.Fragment>
         <Component
@@ -1137,12 +1357,8 @@ class App extends React.Component {
               editor: this.editor,
               onChange: props.onChange,
               onKeyDown: this.onKeyDown,
-              renderBlock: this.renderBlock,
-              renderMark: this.renderMark,
-              isBoldHotkey: this.isBoldHotkey,
-              isItalicHotkey: this.isBoldHotkey,
-              isUnderlinedHotkey: this.isUnderlinedHotkey,
-              isCodeHotkey: this.dsCodeHotkey,
+              renderblock: this.renderBlock,
+              rendermark: this.renderMark,
               hasBlock: this.hasBlock,
               hasLinks: this.hasLinks,
               onClickBlock: this.onClickBlock,
@@ -1153,14 +1369,19 @@ class App extends React.Component {
               onClickText: this.onClickText,
               onClickImage: this.onClickImage,
               onClickTable: this.onClickTable,
-              renderInline: this.renderInline,
-              onClickClose: this.onClickClose,
+              renderinline: this.renderInline,
               onChangeFile: this.onChangeFile,
+              onClickEmbed: this.onClickEmbed,
+              onClickModal: this.onClickModal,
+              toggleModal: this.toggleModal,
+              isOpenModal: this.state.isOpenModal,
+              renderModal: this.renderModal
             }}
           >
             {children}
           </SharedAppContext.Provider>
         </Component>
+        {this.state.isOpenModal ? this.renderModal() : ""}
       </React.Fragment>
     );
   }

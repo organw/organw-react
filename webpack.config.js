@@ -73,7 +73,10 @@ module.exports = function(env = 'production') {
           },
           exclude: /node_modules/,
         },
-
+        {
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader'],
+        },
         {
           test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
           loader: '@svgr/webpack',

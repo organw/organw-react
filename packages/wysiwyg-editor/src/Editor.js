@@ -25,6 +25,9 @@ const schema = {
     float_right: {
       isVoid: true,
     },
+    embed: {
+      isVoid: true
+    }
   },
   inlines: {
     float_left: {
@@ -44,21 +47,24 @@ class Editor extends React.Component {
         <SharedAppConsumer>
           {propps => {
             return (
-              <SlateEditor
-                style={{ width: '100%' }}
-                spellCheck
-                autoFocus
-                placeholder="Enter some text..."
-                ref={propps.ref}
-                value={propps.value}
-                onChange={propps.onChange}
-                schema={schema}
-                renderBlock={propps.renderBlock}
-                renderMark={propps.renderMark}
-                onDrop={propps.onDropOrPaste}
-                onPaste={propps.onDropOrPaste}
-                renderInline={propps.renderInline}
-              />
+              <React.Fragment>
+                <SlateEditor
+                  style={{ width: '100%' }}
+                  spellCheck
+                  autoFocus
+                  placeholder="Enter some text..."
+                  ref={propps.ref}
+                  value={propps.value}
+                  onChange={propps.onChange}
+                  schema={schema}
+                  onKeyDown={propps.onKeyDown}
+                  renderBlock={propps.renderblock}
+                  renderMark={propps.rendermark}
+                  onDrop={propps.onDropOrPaste}
+                  onPaste={propps.onDropOrPaste}
+                  renderInline={propps.renderinline}
+                />
+              </React.Fragment>
             );
           }}
         </SharedAppConsumer>
