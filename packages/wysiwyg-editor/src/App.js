@@ -434,7 +434,6 @@ class App extends React.Component {
       buttontext: ''
     };
   }
-
   ref = editor => {
     this.editor = editor;
   };
@@ -998,7 +997,6 @@ class App extends React.Component {
           ],
         });
       }
-
       rows.push({
         object: 'block',
         type: 'table-row',
@@ -1285,7 +1283,6 @@ class App extends React.Component {
 
   renderInline = (props, editor, next, type) => {
     const { attributes, children, node, isFocused } = props;
-
     switch (node.type) {
       // LINK
       case 'link': {
@@ -1383,7 +1380,6 @@ class App extends React.Component {
           >
             {children}
           </SharedAppContext.Provider>
-         
         </Component>
         {this.state.isOpenModal ? this.renderModal() : ""}
       </React.Fragment>

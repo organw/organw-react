@@ -38,6 +38,7 @@ const ToolbarItem = ({
   const inputFile1 = useRef();
   const inputFile2 = useRef();
   const inputFile3 = useRef();
+
   // MARK
   if (type === 'mark') {
     return (
@@ -57,6 +58,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+
   // BLOCK
   if (type === 'block') {
     if (name === 'close') {
@@ -98,6 +100,7 @@ const ToolbarItem = ({
       );
     }
   }
+
   // ALIGN
   if (type === 'align') {
     if (name === 'align-left') {
@@ -155,6 +158,7 @@ const ToolbarItem = ({
       );
     }
   }
+
   // IMAGE
   if (type === 'image') {
     if (name === 'image') {
@@ -374,6 +378,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+
   // LIST
   if (
     name === 'list-item' ||
@@ -397,6 +402,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+
   // TEXT
   if (type === 'text') {
     return (
