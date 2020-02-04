@@ -415,6 +415,7 @@ class App extends React.Component {
       value: serializer.deserialize(initialValue),
       isOpenModal: false,
       modalType: '',
+      modalTitle: '',
       // LINK
       linktext: '',
       linkhref: '',
@@ -670,26 +671,43 @@ class App extends React.Component {
      } 
   }
 
+  modalTitleChooser = (type) => {
+    if(type) {
+      if(type === 'link'){
+        return "Link beszúrása";
+      } else if(type === 'image'){
+        return "Kép beszúrása";
+      } else if(type === 'table'){
+        return "Táblázat beszúrása";
+      } else if(type === 'embed'){
+        return "Videó beszúrása";
+      } else if(type === 'button'){
+        return "Gomb beszúrása";
+      }
+     } 
+  }
+
   renderModal = () => {
     return(
         <div className="modal">
         <div className="modal-body">
           <div className="modal-content">
+            <div className="modal-header">
+              {this.modalTitleChooser(this.state.modalType)}
+            </div>
             {this.modalChooser(this.state.modalType)}
+            <button className="btn-success" 
+              onMouseDown={() => { 
+                this.onModalSubmit(this.state.modalType); 
+                setTimeout(() => {
+                  this.toggleModal();
+                }, 200); }}
+              >
+                OK
+              </button>
+              &nbsp;&nbsp;
+              <button className="btn-dismiss" onClick={this.toggleModal}>Mégse</button>
           </div>
-        </div>
-        <div className="modal-footer">
-          <button className="btn-success" 
-          onMouseDown={() => { 
-            this.onModalSubmit(this.state.modalType); 
-            setTimeout(() => {
-              this.toggleModal();
-            }, 200); }}
-          >
-            OK
-          </button>
-          &nbsp;&nbsp;
-          <button className="btn-info" onClick={this.toggleModal}>Mégse</button>
         </div>
         </div>
     )
@@ -699,12 +717,12 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <label> Kérem válassza ki a gomb háttérszínét! </label><br />
-          <input name="buttonbackground" id="buttonbackground" type="color" value={this.state.buttonbackground} onChange={(e) => { this.onChangeValue(e) }} />
+          <label>Háttérszín</label><br />
+          <input className="form-control" name="buttonbackground" id="buttonbackground" type="color" value={this.state.buttonbackground} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-        <label> Kérem válassza ki a gomb betűszínét! </label><br />
-        <input name="buttontext" id="buttontext" type="color" value={this.state.buttontext} onChange={(e) => { this.onChangeValue(e) }} />
+        <label>Betűszín</label><br />
+        <input className="form-control" name="buttontext" id="buttontext" type="color" value={this.state.buttontext} onChange={(e) => { this.onChangeValue(e) }} />
       </div>
     </div>
     )
@@ -714,12 +732,12 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <label> Kérem illesze be a linket! </label><br />
-          <input name="linkhref" id="linkhref" type="text" value={this.state.linkhref} onChange={(e) => { this.onChangeValue(e) }} />
+          <label>URL</label><br />
+          <input name="linkhref" id="linkhref" type="text" value={this.state.linkhref} onChange={(e) => { this.onChangeValue(e) }} className="form-control" />
         </div>
         <div>
-        <label> Kérem írja be a link szövegét! </label><br />
-        <input name="linktext" id="linktext" type="text" value={this.state.linktext} onChange={(e) => { this.onChangeValue(e) }} />
+        <label>Megjelenő szöveg</label><br />
+        <input name="linktext" id="linktext" type="text" value={this.state.linktext} onChange={(e) => { this.onChangeValue(e) }} className="form-control" />
       </div>
     </div>
     )
@@ -729,12 +747,12 @@ class App extends React.Component {
     return (
     <div>
       <div>
-        <label> Kérem illesze be a kép linkjét! </label><br />
-        <input type="text" value={this.state.src} onChange={(e) => { this.onChangeValue(e) }} />
+        <label>URL</label><br />
+        <input className="form-control" type="text" value={this.state.src} onChange={(e) => { this.onChangeValue(e) }} />
       </div>
       <div>
-        <label> Kérem írja be a kép alt attribútumát! </label><br />
-        <input type="text" value={this.state.alt} onChange={(e) => { this.onChangeValue(e) }} />
+        <label>Alt attribútum</label><br />
+        <input className="form-control" type="text" value={this.state.alt} onChange={(e) => { this.onChangeValue(e) }} />
       </div>
     </div>
     )
@@ -744,16 +762,16 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <label> Kérem adja be hány oszlopos táblázatot szeretne! </label><br />
-          <input name="cols" id="cols" type="text" value={this.state.cols} onChange={(e) => { this.onChangeValue(e) }} />
+          <label>Oszlopok száma</label><br />
+          <input className="form-control" name="cols" id="cols" type="text" value={this.state.cols} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-          <label> Kérem adja be hány soros táblázatot szeretne! </label><br />
-          <input name="rows" id="rows" type="text" value={this.state.rows} onChange={(e) => { this.onChangeValue(e) }} />
+          <label>Sorok száma</label><br />
+          <input className="form-control" name="rows" id="rows" type="text" value={this.state.rows} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-          <label> Kérem adja be a táblázat osztálynevét! </label><br />
-          <input name="classname" id="classname" type="text" value={this.state.classname} onChange={(e) => { this.onChangeValue(e) }} />
+          <label>CSS osztálynév</label><br />
+          <input className="form-control" name="classname" id="classname" type="text" value={this.state.classname} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
       </div>
     )
@@ -762,8 +780,8 @@ class App extends React.Component {
   embedModal = () => {
     return (
       <div>
-        <label> Kérem illesze be a videó linkjét! </label><br />
-        <input name="videolink" id="videolink" type="text" value={this.state.videolink} onChange={(e) => { this.onChangeValue(e) }} />
+        <label>URL</label><br />
+        <input className="form-control" name="videolink" id="videolink" type="text" value={this.state.videolink} onChange={(e) => { this.onChangeValue(e) }} />
       </div>
     )
   }
