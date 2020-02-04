@@ -46,6 +46,12 @@ label {
     text-align: center;
 }
 
+.fontsize {
+    font-size: medium;
+    border: 1px solid grey;
+    background-color: lightgrey;
+}
+
 input {
     width: 300px;
     align-content: center;
@@ -54,6 +60,11 @@ input {
 table th td {
     border: 1px solid black;
 } 
+
+.color {
+    width: 30px;
+}
+
 
 
 

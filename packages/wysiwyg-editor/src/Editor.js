@@ -27,6 +27,9 @@ const schema = {
     },
     embed: {
       isVoid: true
+    },
+    button: {
+      isVoid: true
     }
   },
   inlines: {
@@ -36,6 +39,9 @@ const schema = {
     float_right: {
       isVoid: true,
     },
+    emoji: {
+      isVoid: true
+    }
   },
 };
 

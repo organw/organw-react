@@ -81,7 +81,6 @@ module.exports = function(env = 'production') {
           test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
           loader: '@svgr/webpack',
         },
-
         {
           test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
           loader: 'url-loader',
@@ -90,6 +89,12 @@ module.exports = function(env = 'production') {
           },
         },
       ],
+      loaders: [
+        {
+          test: /\.json$/,
+          loader: 'json-loader'
+        }
+      ]
     },
 
     plugins: (function() {
