@@ -9,6 +9,7 @@ import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
 import './App.css'
+import './simple-grid.css'
 
 const propTypes = {
   className: PropTypes.string,
@@ -745,16 +746,43 @@ class App extends React.Component {
 
   imageModal = () => {
     return (
-    <div>
       <div>
-        <label>URL</label><br />
-        <input className="form-control" type="text" value={this.state.src} onChange={(e) => { this.onChangeValue(e) }} />
+        <div className="container">
+            <div className="row">
+              <div className="col-6" style={{ height: 100 }}>
+                <img
+                  src="https://sportshub.cbsistatic.com/i/r/2020/01/04/00db1cef-f27a-43d4-8eee-37dfc904123c/thumbnail/640x360/2aca8f54005dc327a251812145dc14d2/usatsi-9238078.jpg"
+                  alt="Smiley face"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              </div>
+              <div className="col-6" style={{ height: 100 }}>
+                <img
+                  src="https://sportshub.cbsistatic.com/i/r/2020/01/04/00db1cef-f27a-43d4-8eee-37dfc904123c/thumbnail/640x360/2aca8f54005dc327a251812145dc14d2/usatsi-9238078.jpg"
+                  alt="Smiley face"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              </div>
+              <div className="col-6" style={{ height: 100 }}>
+                <img
+                  src="https://sportshub.cbsistatic.com/i/r/2020/01/04/00db1cef-f27a-43d4-8eee-37dfc904123c/thumbnail/640x360/2aca8f54005dc327a251812145dc14d2/usatsi-9238078.jpg"
+                  alt="Smiley face"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              </div>
+              <div className="col-6" style={{ height: 100 }}>
+                <img
+                  src="https://sportshub.cbsistatic.com/i/r/2020/01/04/00db1cef-f27a-43d4-8eee-37dfc904123c/thumbnail/640x360/2aca8f54005dc327a251812145dc14d2/usatsi-9238078.jpg"
+                  alt="Smiley face"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              </div>
+              <div className="col-6" style={{ height: 100, borderStyle: 'dashed', borderColor: 'darkgray' }}>
+                Fájl feltöltése
+              </div>
+            </div>
+          </div>
       </div>
-      <div>
-        <label>Alt attribútum</label><br />
-        <input className="form-control" type="text" value={this.state.alt} onChange={(e) => { this.onChangeValue(e) }} />
-      </div>
-    </div>
     )
   }
 
@@ -1142,7 +1170,7 @@ class App extends React.Component {
   };
 
   onClickImage = (file, event, type) => {
-    event.preventDefault();
+    // event.preventDefault();
     this.toBase64(file).then(data => {
       this.editor.command(insertImage(this.editor, data, type, name));
     });
