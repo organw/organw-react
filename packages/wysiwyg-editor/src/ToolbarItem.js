@@ -267,6 +267,25 @@ const ToolbarItem = ({
     );
   } 
 
+    // FONTSIZE
+    if (type === 'fontsize') {
+      return (
+        <SharedAppConsumer>
+          {propss => {
+            return (
+              <Component
+                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                onMouseDown={() => {propss.onClickFontsize(type);}}
+                id="font"
+              >
+                Betűméret&nbsp;
+              </Component>
+            );
+          }}
+        </SharedAppConsumer>
+      );
+    } 
+
   // TABLE
   if (type === 'table') {
     // NORMAL TABLE

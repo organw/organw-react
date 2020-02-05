@@ -33,7 +33,6 @@ class Default extends React.Component {
         </Menubar>
         <Toolbar>
           <ToolbarGroup>
-            <div id="fonnnt" />
             <ToolbarItem type="mark" tag="b" name="bold" id="bold">
               B
             </ToolbarItem>
@@ -49,7 +48,9 @@ class Default extends React.Component {
             <ToolbarItem type="mark" tag="s" name="strikethrough">
               S
             </ToolbarItem>
-            
+            <ToolbarItem type="fontsize" tag="fontsize" name="fontsize">
+              Betűméret&nbsp;
+            </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
             <ToolbarItem type="block" tag="h1" name="heading-one">

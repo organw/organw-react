@@ -195,7 +195,6 @@ const RULES = [
             );
           case 'paragraph_fontsize': 
             let fontsize = obj.data.get('fontsize');
-            console.log(fontsize);
             return (
             <p style={{ fontSize: fontsize }}>{children}</p>
             );
@@ -490,7 +489,8 @@ class App extends React.Component {
       buttonhref: '',
       buttonvalue: '',
       // FONT
-      fontsize:''
+      fontsize:'',
+      select: undefined
     };
   }
 
@@ -601,12 +601,6 @@ class App extends React.Component {
           </a>
         );
       }
-      // case 'paragraph': 
-      //   let fontsize = node.data.get('fontsize');
-      //   console.log(object)
-      //   return (
-      //   <p style={{ fontSize: fontsize }}>{children}</p>
-      //   );
       case 'align-left':
         return (
           <p align="left" {...attributes}>
@@ -762,7 +756,6 @@ class App extends React.Component {
   }
 
   renderModal = () => {
-    console.log(this.state.modalType)
     return(
         <div className="modal">
         <div className="modal-body">
@@ -893,13 +886,13 @@ class App extends React.Component {
     const { target } = e;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const { name } = target;
+
     if(name === 'fontsize'){
       this.setState({
         [name]: value
       });
       
       this.onClickFontsize(value);
-      console.log('object');
     } else {
       this.setState({
         [name]: value
@@ -941,34 +934,53 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.fontsizeGenerator(12, 30);
+    this.fontsizeGenerator(12, 30)
   }
 
-  renderFontsizeOptions = () => {
-    let fontbutton = document.getElementsByClassName('ow-wysiwyg-toolbar-group').item(0);
+  renderFontsizeOptions = (select) => {
     let font = document.getElementById('font');
-    setTimeout(() => {
+    let fontbutton = document.getElementsByClassName('ow-wysiwyg-toolbar-group').item(0);
+
+    if(font) {
+      font.appendChild(select);
       fontbutton.appendChild(font);
-    }, 50);
+    }
   } 
 
   fontsizeGenerator = (minsize, maxsize) => {
-     for (let i = minsize; i < maxsize + 1; i++ ) {
-      let opt = document.createElement('option');
-      opt.setAttribute('key', i);
-      opt.value = i + 'px';
-      opt.text = i;
-      let element = document.getElementById('fontsize');
-      element.appendChild(opt);
-    };
+      let select = document.createElement('select');
+      select.id = 'fontsize';
+      select.className = 'ow-wysiwyg-toolbar-item';
+      select.name = 'fontsize';
+      select.value = this.state.fontsize;
+      select.onchange = this.onChangeValue;
+      for (let i = minsize; i < maxsize + 1; i++ ) {
+        let opt = document.createElement('option');
+        opt.setAttribute('key', i);
+        opt.value = i + 'px';
+        opt.text = i;
+          select.appendChild(opt);
+      };
+      this.renderFontsizeOptions(select);
+    
   }
 
-  onClickFontsize = (e) => {
-
-    // this.editor.value.focusBlock.type = 
-    this.editor.insertBlock('paragraph_fontsize');
-    console.log('DDDDDDDDDDDDDDDDDDDDDDDDD');
-
+  onClickFontsize = (type) => {
+      this.editor.value.blocks.some(block => {
+        console.log('BLOCKTYPE: ', block.type)
+        console.log('TYPE: ', type)
+        if(block.type === type) { 
+          return;
+        } else {
+          this.editor.setBlocks({
+            object: 'block',
+            type: 'paragraph_fontsize',
+            data: {
+              fontsize: this.state.fontsize
+            }
+          });
+        }
+    });
   }
 
   onClickBlock = (event, type, name, tag) => {
@@ -1518,21 +1530,15 @@ class App extends React.Component {
               isOpenModal: this.state.isOpenModal,
               renderModal: this.renderModal,
               renderFontsizeOptions: this.renderFontsizeOptions,
-              onClickFontsize: this.onClickFontsize
+              onClickFontsize: this.onClickFontsize,
+              fontsize: this.state.fontsize,
+              onChangeValue: this.onChangeValue
             }}
           >
             {children}
           </SharedAppContext.Provider>
-         
         </Component>
-        {
-          <button id="font" className="ow-wysiwyg-toolbar-item">
-          Betűméret&nbsp;
-          <select id="fontsize" className='ow-wysiwyg-toolbar-item' name="fontsize" value={this.state.fontsize} onChange={(e) => {this.onChangeValue(e)}} />
-          </button>
-        }
-        {this.state.isOpenModal ? this.renderModal() : this.renderFontsizeOptions()}
-      
+        {this.state.isOpenModal ? this.renderModal() : ""}
         {this.state.fontsize}
         </React.Fragment>
     );
