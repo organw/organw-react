@@ -39,6 +39,10 @@
     margin-bottom: 10px;
 }
 
+.organw-active-image {
+    border: 2px solid blue;
+}
+
 .modal-flex {
   display: flex;
   height: 100%; 

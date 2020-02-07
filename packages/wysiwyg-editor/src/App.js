@@ -3,11 +3,12 @@ import ReactDOM from 'react-dom';
 import PropTypes, { element, bool } from 'prop-types';
 import classNames from 'classnames';
 import Html from 'slate-html-serializer';
-import { getEventTransfer } from 'slate-react';
+import { getEventTransfer, cloneFragment } from 'slate-react';
 import { isKeyHotkey } from 'is-hotkey';
 import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
+import DropZone from 'react-dropzone';
 import './App.css'
 import './simple-grid.css'
 
@@ -417,6 +418,7 @@ class App extends React.Component {
       isOpenModal: false,
       modalType: '',
       modalTitle: '',
+      images: [],
       // LINK
       linktext: '',
       linkhref: '',
@@ -425,6 +427,11 @@ class App extends React.Component {
       rows: '',
       classname: '',
       // IMAGE
+      activeImg: {
+        objid: '',
+        url: ''
+      },
+      image: '',
       src: '',
       alt: '',
       // EMBED
@@ -645,11 +652,22 @@ class App extends React.Component {
   };
 
   onClickModal = (type, name) => {
-    this.toggleModal();
-    this.setState({ modalType: type, buttonname: name })
+    console.log('type', type)
+    this.setState({ modalType: type, buttonname: name } , () => {
+        if(type === 'image') {
+            this.setState({ images: this.props.onImageLoading() }, () => {
+              this.toggleModal();
+            }
+          ); 
+        } else {
+          this.toggleModal();
+        }
+      }
+    )
   }
 
-  toggleModal = () => {
+  toggleModal = (props) => {
+    console.log('props', props)
     this.setState(prevState => ({
       isOpenModal: !prevState.isOpenModal
     }));
@@ -744,42 +762,56 @@ class App extends React.Component {
     )
   }
 
+  onDropImage = (acceptedfiles) => {
+    acceptedfiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const fileAsBinaryString = reader.result;
+        let files = {
+          content: btoa(fileAsBinaryString),
+          uploadDate: new Date(),
+          docname: file.name,
+          preview: file.preview,
+          logo: false,
+          mime: file.type || 'application/octet-stream',
+          new: true,
+          length: file.size,
+          //id: Lib.Browser.uuidv4(),
+        };
+        console.log(files)
+        this.setState({ image: files }, () => { 
+          this.props.onImageUpload(files);
+          this.setState({ images: this.props.onImageLoading() });
+        });
+      };
+      reader.readAsBinaryString(file);
+    });
+  }
+
   imageModal = () => {
     return (
       <div>
         <div className="container">
             <div className="row">
-              <div className="col-6" style={{ height: 100 }}>
-                <img
-                  src="https://sportshub.cbsistatic.com/i/r/2020/01/04/00db1cef-f27a-43d4-8eee-37dfc904123c/thumbnail/640x360/2aca8f54005dc327a251812145dc14d2/usatsi-9238078.jpg"
-                  alt="Smiley face"
-                  style={{ maxWidth: '100%', maxHeight: '100%' }}
-                />
+            <div className="col-6" style={{ height: 100, borderStyle: 'dashed', borderColor: 'darkgray' }}>
+                <DropZone id="formPlakat" onDrop={this.onDropImage} className="custom-dropzone" accept="image/*">
+                  <div className="dropzone-text" style={{ height: 100, width: '100%', textAlign: 'center' }}>
+                    {'Kép feltötése!'}
+                  </div>
+                </DropZone>
               </div>
-              <div className="col-6" style={{ height: 100 }}>
-                <img
-                  src="https://sportshub.cbsistatic.com/i/r/2020/01/04/00db1cef-f27a-43d4-8eee-37dfc904123c/thumbnail/640x360/2aca8f54005dc327a251812145dc14d2/usatsi-9238078.jpg"
-                  alt="Smiley face"
-                  style={{ maxWidth: '100%', maxHeight: '100%' }}
-                />
-              </div>
-              <div className="col-6" style={{ height: 100 }}>
-                <img
-                  src="https://sportshub.cbsistatic.com/i/r/2020/01/04/00db1cef-f27a-43d4-8eee-37dfc904123c/thumbnail/640x360/2aca8f54005dc327a251812145dc14d2/usatsi-9238078.jpg"
-                  alt="Smiley face"
-                  style={{ maxWidth: '100%', maxHeight: '100%' }}
-                />
-              </div>
-              <div className="col-6" style={{ height: 100 }}>
-                <img
-                  src="https://sportshub.cbsistatic.com/i/r/2020/01/04/00db1cef-f27a-43d4-8eee-37dfc904123c/thumbnail/640x360/2aca8f54005dc327a251812145dc14d2/usatsi-9238078.jpg"
-                  alt="Smiley face"
-                  style={{ maxWidth: '100%', maxHeight: '100%' }}
-                />
-              </div>
-              <div className="col-6" style={{ height: 100, borderStyle: 'dashed', borderColor: 'darkgray' }}>
-                Fájl feltöltése
-              </div>
+              {this.state.images.map((image) => {
+                  return (
+                    <div onClick={() => { this.setState({ activeImg: image })}} className="col-6" style={(image.objid === this.state.activeImg.objid) ? { height: 100, border: '2px solid blue' } : { height: 100 }} key={image.objid} >
+                      <img
+                        src={image.url}
+                        alt="photo"
+                        style={{ maxWidth: '100%', maxHeight: '100%', minWidth: '100%' }}
+                      />
+                    </div>
+                  )
+                }
+              )}
             </div>
           </div>
       </div>
@@ -828,7 +860,7 @@ class App extends React.Component {
       this.onClickLink(this.state.linkhref, this.state.linktext);
     }
     if(type === 'image'){
-      return this.onClickImage(this.state.src, this.state.alt);
+      return this.onClickImage(this.state.activeImg);
     }
     if(type === 'table'){
       return this.onClickTable(this.state.cols, this.state.rows, this.state.classname, this.state.buttonname);
@@ -1171,9 +1203,8 @@ class App extends React.Component {
 
   onClickImage = (file, event, type) => {
     // event.preventDefault();
-    this.toBase64(file).then(data => {
-      this.editor.command(insertImage(this.editor, data, type, name));
-    });
+    console.log(file)
+    this.editor.command(insertImage(this.editor, file.url, type, name));
   };
 
   getJsonFromUrl = (url) => {

@@ -23,9 +23,36 @@ class Default extends React.Component {
     this.setState({ value });
   };
 
+  onImageLoading = () => {
+    return [
+      {
+        objid: "1",
+        url: "https://www.pauliinasiniauer.com/wp-content/uploads/2015/02/IMG_6912-916x687.jpg",
+      },
+      {
+        objid: "2",
+        url: "https://d1bvpoagx8hqbg.cloudfront.net/originals/nice-places-visit-riga-71f95d3fb7704fc95ba62f07a5201b25.jpg",
+      },
+      {
+        objid: "3",
+        url: "https://www.ytravelblog.com/wp-content/uploads/2018/04/places-to-visit-in-slovakia-europe-1.jpg",
+      }
+    ];
+  };
+
+  onImageUpload = (file) => {
+    return {
+      content: "",
+      docname: "",
+      mime: "",
+      length: "",
+      alt: ""
+    };
+  };
+
   render() {
     return (
-      <App value={this.state.value} onChange={this.onChange}>
+      <App value={this.state.value} onChange={this.onChange} onImageLoading={this.onImageLoading} onImageUpload={this.onImageUpload}>
         <Menubar>
           <MenuItem>File</MenuItem>
           <MenuItem>Help</MenuItem>
