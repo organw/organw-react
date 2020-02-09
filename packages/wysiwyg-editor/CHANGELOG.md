@@ -3,6 +3,76 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.24.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.19.0...@organw/wysiwyg-editor@0.24.0) (2020-02-09)
+
+
+### Features
+
+* **wysiwyg-editor:** add image galery ([a7e838a](https://github.com/organw/organw-react/commit/a7e838a4d7b0cb07d1a3c3c19fcd348e672e3df8))
+* **wysiwyg-editor:** add modal styles + fix inputs ([35e7e19](https://github.com/organw/organw-react/commit/35e7e193e7ed5f743b245a8c22dee25733f6b9f6))
+* **wysiwyg-editor:** add modal support ([#5](https://github.com/organw/organw-react/issues/5)) ([3fae3da](https://github.com/organw/organw-react/commit/3fae3dac2e8dddd57f04f79e6004580f8c6d27e4))
+* **wysiwyg-editor:** work on image gallery ([7f82be7](https://github.com/organw/organw-react/commit/7f82be7f27b53fcebe2108ccdda5d58658ac62d0))
+
+
+
+
+
+# [0.23.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.19.0...@organw/wysiwyg-editor@0.23.0) (2020-02-09)
+
+
+### Features
+
+* **wysiwyg-editor:** add image galery ([a7e838a](https://github.com/organw/organw-react/commit/a7e838a4d7b0cb07d1a3c3c19fcd348e672e3df8))
+* **wysiwyg-editor:** add modal styles + fix inputs ([35e7e19](https://github.com/organw/organw-react/commit/35e7e193e7ed5f743b245a8c22dee25733f6b9f6))
+* **wysiwyg-editor:** add modal support ([#5](https://github.com/organw/organw-react/issues/5)) ([3fae3da](https://github.com/organw/organw-react/commit/3fae3dac2e8dddd57f04f79e6004580f8c6d27e4))
+* **wysiwyg-editor:** work on image gallery ([7f82be7](https://github.com/organw/organw-react/commit/7f82be7f27b53fcebe2108ccdda5d58658ac62d0))
+
+
+
+
+
+# [0.22.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.19.0...@organw/wysiwyg-editor@0.22.0) (2020-02-09)
+
+
+### Features
+
+* **wysiwyg-editor:** add image galery ([a7e838a](https://github.com/organw/organw-react/commit/a7e838a4d7b0cb07d1a3c3c19fcd348e672e3df8))
+* **wysiwyg-editor:** add modal styles + fix inputs ([35e7e19](https://github.com/organw/organw-react/commit/35e7e193e7ed5f743b245a8c22dee25733f6b9f6))
+* **wysiwyg-editor:** add modal support ([#5](https://github.com/organw/organw-react/issues/5)) ([3fae3da](https://github.com/organw/organw-react/commit/3fae3dac2e8dddd57f04f79e6004580f8c6d27e4))
+* **wysiwyg-editor:** work on image gallery ([7f82be7](https://github.com/organw/organw-react/commit/7f82be7f27b53fcebe2108ccdda5d58658ac62d0))
+
+
+
+
+
+# [0.21.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.19.0...@organw/wysiwyg-editor@0.21.0) (2020-02-09)
+
+
+### Features
+
+* **wysiwyg-editor:** add image galery ([a7e838a](https://github.com/organw/organw-react/commit/a7e838a4d7b0cb07d1a3c3c19fcd348e672e3df8))
+* **wysiwyg-editor:** add modal styles + fix inputs ([35e7e19](https://github.com/organw/organw-react/commit/35e7e193e7ed5f743b245a8c22dee25733f6b9f6))
+* **wysiwyg-editor:** add modal support ([#5](https://github.com/organw/organw-react/issues/5)) ([3fae3da](https://github.com/organw/organw-react/commit/3fae3dac2e8dddd57f04f79e6004580f8c6d27e4))
+* **wysiwyg-editor:** work on image gallery ([7f82be7](https://github.com/organw/organw-react/commit/7f82be7f27b53fcebe2108ccdda5d58658ac62d0))
+
+
+
+
+
+# [0.20.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.19.0...@organw/wysiwyg-editor@0.20.0) (2020-02-09)
+
+
+### Features
+
+* **wysiwyg-editor:** add image galery ([a7e838a](https://github.com/organw/organw-react/commit/a7e838a4d7b0cb07d1a3c3c19fcd348e672e3df8))
+* **wysiwyg-editor:** add modal styles + fix inputs ([35e7e19](https://github.com/organw/organw-react/commit/35e7e193e7ed5f743b245a8c22dee25733f6b9f6))
+* **wysiwyg-editor:** add modal support ([#5](https://github.com/organw/organw-react/issues/5)) ([3fae3da](https://github.com/organw/organw-react/commit/3fae3dac2e8dddd57f04f79e6004580f8c6d27e4))
+* **wysiwyg-editor:** work on image gallery ([7f82be7](https://github.com/organw/organw-react/commit/7f82be7f27b53fcebe2108ccdda5d58658ac62d0))
+
+
+
+
+
 # [0.19.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.12.0...@organw/wysiwyg-editor@0.19.0) (2020-01-21)
 
 
