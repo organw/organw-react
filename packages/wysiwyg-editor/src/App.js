@@ -708,14 +708,14 @@ class App extends React.Component {
 
   renderModal = () => {
     return(
-        <div className="modal">
-        <div className="modal-body">
-          <div className="modal-content">
-            <div className="modal-header">
+        <div className="ow-modal">
+        <div className="ow-modal-body">
+          <div className="ow-modal-content">
+            <div className="ow-modal-header">
               {this.modalTitleChooser(this.state.modalType)}
             </div>
             {this.modalChooser(this.state.modalType)}
-            <button className="btn-success" 
+            <button className="ow-btn-success" 
               onMouseDown={() => { 
                 this.onModalSubmit(this.state.modalType); 
                 setTimeout(() => {
@@ -725,7 +725,7 @@ class App extends React.Component {
                 OK
               </button>
               &nbsp;&nbsp;
-              <button className="btn-dismiss" onClick={this.toggleModal}>Mégse</button>
+              <button className="ow-btn-dismiss" onClick={this.toggleModal}>Mégse</button>
           </div>
         </div>
         </div>
@@ -736,12 +736,12 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <label>Háttérszín</label><br />
-          <input className="form-control" name="buttonbackground" id="buttonbackground" type="color" value={this.state.buttonbackground} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">Háttérszín</label><br />
+          <input className="ow-input ow-form-control" name="buttonbackground" id="buttonbackground" type="color" value={this.state.buttonbackground} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-        <label>Betűszín</label><br />
-        <input className="form-control" name="buttontext" id="buttontext" type="color" value={this.state.buttontext} onChange={(e) => { this.onChangeValue(e) }} />
+        <label className="ow-label">Betűszín</label><br />
+        <input className="ow-input ow-form-control" name="buttontext" id="buttontext" type="color" value={this.state.buttontext} onChange={(e) => { this.onChangeValue(e) }} />
       </div>
     </div>
     )
@@ -751,12 +751,12 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <label>URL</label><br />
-          <input name="linkhref" id="linkhref" type="text" value={this.state.linkhref} onChange={(e) => { this.onChangeValue(e) }} className="form-control" />
+          <label className="ow-label">URL</label><br />
+          <input name="linkhref" id="linkhref" type="text" value={this.state.linkhref} onChange={(e) => { this.onChangeValue(e) }} className="ow-form-control ow-input" />
         </div>
         <div>
-        <label>Megjelenő szöveg</label><br />
-        <input name="linktext" id="linktext" type="text" value={this.state.linktext} onChange={(e) => { this.onChangeValue(e) }} className="form-control" />
+        <label className="ow-label">Megjelenő szöveg</label><br />
+        <input name="linktext" id="linktext" type="text" value={this.state.linktext} onChange={(e) => { this.onChangeValue(e) }} className="ow-input ow-form-control" />
       </div>
     </div>
     )
@@ -791,18 +791,18 @@ class App extends React.Component {
   imageModal = () => {
     return (
       <div>
-        <div className="container">
-            <div className="row">
-            <div className="col-6" style={{ height: 100, borderStyle: 'dashed', borderColor: 'darkgray' }}>
+        <div>
+            <div className="ow-row">
+            <div className="ow-col-6" style={{ height: 130, borderStyle: 'dashed', borderColor: 'darkgray' }}>
                 <DropZone id="formPlakat" onDrop={this.onDropImage} className="custom-dropzone" accept="image/*">
-                  <div className="dropzone-text" style={{ height: 100, width: '100%', textAlign: 'center' }}>
+                  <div style={{ height: 130, width: '100%', textAlign: 'center' }}>
                     {'Kép feltötése!'}
                   </div>
                 </DropZone>
               </div>
               {this.state.images.map((image) => {
                   return (
-                    <div onClick={() => { this.setState({ activeImg: image })}} className="col-6" style={(image.objid === this.state.activeImg.objid) ? { height: 100, border: '2px solid blue' } : { height: 100 }} key={image.objid} >
+                    <div onClick={() => { this.setState({ activeImg: image })}} className="ow-col-6" style={(image.objid === this.state.activeImg.objid) ? { height: 130, border: '2px solid blue' } : { height: 130 }} key={image.objid} >
                       <img
                         src={image.url}
                         alt="photo"
@@ -822,16 +822,16 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <label>Oszlopok száma</label><br />
-          <input className="form-control" name="cols" id="cols" type="text" value={this.state.cols} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">Oszlopok száma</label><br />
+          <input className="ow-input ow-form-control" name="cols" id="cols" type="text" value={this.state.cols} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-          <label>Sorok száma</label><br />
-          <input className="form-control" name="rows" id="rows" type="text" value={this.state.rows} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">Sorok száma</label><br />
+          <input className="ow-input ow-form-control" name="rows" id="rows" type="text" value={this.state.rows} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-          <label>CSS osztálynév</label><br />
-          <input className="form-control" name="classname" id="classname" type="text" value={this.state.classname} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">CSS osztálynév</label><br />
+          <input className="ow-input ow-form-control" name="classname" id="classname" type="text" value={this.state.classname} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
       </div>
     )
@@ -840,8 +840,8 @@ class App extends React.Component {
   embedModal = () => {
     return (
       <div>
-        <label>URL</label><br />
-        <input className="form-control" name="videolink" id="videolink" type="text" value={this.state.videolink} onChange={(e) => { this.onChangeValue(e) }} />
+        <label className="ow-label">URL</label><br />
+        <input className="ow-input ow-form-control" name="videolink" id="videolink" type="text" value={this.state.videolink} onChange={(e) => { this.onChangeValue(e) }} />
       </div>
     )
   }
