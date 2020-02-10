@@ -8,7 +8,7 @@ import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
 import './App.css';
-import { Block } from 'slate';
+import { Selection, Value } from 'slate';
 const json = require('./emoji.json');
 
 const propTypes = {
@@ -587,10 +587,17 @@ class App extends React.Component {
 
 
       case 'paragraph_fontsize':
-        // let fontsize = node.data.get('fontsize');
-        return(
-        <p style={{ fontSize: this.state.fontsize }}>{children}</p>
-        );
+        let fontsize = node.data.get('fontsize');
+        if(fontsize){
+          return(
+            <p style={{ fontSize: fontsize }}>{children}</p>
+            );
+        } else {
+          return(
+            <p>{children}</p>
+            );
+        }
+        
 
       case 'link': {
         const { data } = node;
@@ -934,7 +941,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.fontsizeGenerator(12, 30)
+    this.fontsizeGenerator(12, 40)
   }
 
   renderFontsizeOptions = (select) => {
@@ -954,6 +961,7 @@ class App extends React.Component {
       select.name = 'fontsize';
       select.value = this.state.fontsize;
       select.onchange = this.onChangeValue;
+      let space = '       ';
       for (let i = minsize; i < maxsize + 1; i++ ) {
         let opt = document.createElement('option');
         opt.setAttribute('key', i);
@@ -966,12 +974,8 @@ class App extends React.Component {
   }
 
   onClickFontsize = (type) => {
-      this.editor.value.blocks.some(block => {
-        console.log('BLOCKTYPE: ', block.type)
-        console.log('TYPE: ', type)
-        if(block.type === type) { 
-          return;
-        } else {
+    let windowSelection = window.getSelection(); 
+        if(windowSelection.type === 'Range'){ 
           this.editor.setBlocks({
             object: 'block',
             type: 'paragraph_fontsize',
@@ -980,7 +984,6 @@ class App extends React.Component {
             }
           });
         }
-    });
   }
 
   onClickBlock = (event, type, name, tag) => {
@@ -1127,6 +1130,21 @@ class App extends React.Component {
 
         // BUTTON
         if (block.type === 'button') {
+          if (
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
+          ) {
+            
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.unwrapBlock('align-center');
+            editor.wrapBlock(name);
+          } 
+        }
+
+         // FONTSIZE
+         if (block.type === 'paragraph_fontsize') {
           if (
             name === 'align-left' ||
             name === 'align-right' ||
@@ -1381,24 +1399,6 @@ class App extends React.Component {
     return value.inlines.some(inline => inline.type === 'link');
   };
 
-  // onKeyDown = (event, editor, next) => {
-  //   const { value } = editor;
-  //   const { document, selection } = value;
-  //   const { start, isCollapsed } = selection;
-  //   const startNode = document.getDescendant(start.key);
-
-  //   switch (event.key) {
-  //     case 'Backspace':
-  //       return this.onBackspace(event, editor, next);
-  //     case 'Delete':
-  //       return this.onDelete(event, editor, next);
-  //     case 'Enter':
-  //       return this.onEnter(event, editor, next);
-  //     default:
-  //       return next();
-  //   }
-  // };
-
   onEnter = (event, editor, node, next, type) => {
     // event.preventDefault();
     const { value } = editor;
@@ -1493,9 +1493,7 @@ class App extends React.Component {
 
   render() {
     const { as: Component, className, role, children, ...props } = this.props;
-   
-    let element = document.getElementById('fontsize');
-  
+
     return (
       <React.Fragment>
         <Component
@@ -1529,17 +1527,13 @@ class App extends React.Component {
               toggleModal: this.toggleModal,
               isOpenModal: this.state.isOpenModal,
               renderModal: this.renderModal,
-              renderFontsizeOptions: this.renderFontsizeOptions,
               onClickFontsize: this.onClickFontsize,
-              fontsize: this.state.fontsize,
-              onChangeValue: this.onChangeValue
             }}
           >
             {children}
           </SharedAppContext.Provider>
         </Component>
         {this.state.isOpenModal ? this.renderModal() : ""}
-        {this.state.fontsize}
         </React.Fragment>
     );
   }
