@@ -653,9 +653,9 @@ class App extends React.Component {
 
   onClickModal = (type, name) => {
     console.log('type', type)
-    this.setState({ modalType: type, buttonname: name } , () => {
+    this.setState({ modalType: type, buttonname: name } , async () => {
         if(type === 'image') {
-            this.setState({ images: this.props.onImageLoading() }, () => {
+            this.setState({ images: await this.props.onImageLoading() }, () => {
               this.toggleModal();
             }
           ); 
@@ -779,9 +779,9 @@ class App extends React.Component {
           //id: Lib.Browser.uuidv4(),
         };
         console.log(files)
-        this.setState({ image: files }, () => { 
+        this.setState({ image: files }, async () => { 
           this.props.onImageUpload(files);
-          this.setState({ images: this.props.onImageLoading() });
+          this.setState({ images: await this.props.onImageLoading() });
         });
       };
       reader.readAsBinaryString(file);
