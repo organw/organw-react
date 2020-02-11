@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.24.4](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.24.3...@organw/wysiwyg-editor@0.24.4) (2020-02-11)
+
+
+### Bug Fixes
+
+* **wysiwyg-editor:** rename json property, remove unused classname ([1c9a51a](https://github.com/organw/organw-react/commit/1c9a51a705e69ca98a656f41a69fe1a325df9958))
+
+
+
+
+
 ## [0.24.3](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.24.2...@organw/wysiwyg-editor@0.24.3) (2020-02-11)
 
 
