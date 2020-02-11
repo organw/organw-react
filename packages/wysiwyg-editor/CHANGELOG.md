@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.24.3](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.24.2...@organw/wysiwyg-editor@0.24.3) (2020-02-11)
+
+
+### Bug Fixes
+
+* **wysiwyg-editor:** support promise fnc call ([4f65c9c](https://github.com/organw/organw-react/commit/4f65c9c3b2172d15a5d2227277d39a74d7344914))
+
+
+
+
+
 ## [0.24.2](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.24.1...@organw/wysiwyg-editor@0.24.2) (2020-02-10)
 
 **Note:** Version bump only for package @organw/wysiwyg-editor
