@@ -428,7 +428,7 @@ class App extends React.Component {
       classname: '',
       // IMAGE
       activeImg: {
-        objid: '',
+        objId: '',
         url: ''
       },
       image: '',
@@ -794,7 +794,7 @@ class App extends React.Component {
         <div>
             <div className="ow-row">
             <div className="ow-col-6" style={{ height: 130, borderStyle: 'dashed', borderColor: 'darkgray' }}>
-                <DropZone id="formPlakat" onDrop={this.onDropImage} className="custom-dropzone" accept="image/*">
+                <DropZone id="formPlakat" onDrop={this.onDropImage} accept="image/*">
                   <div style={{ height: 130, width: '100%', textAlign: 'center' }}>
                     {'Kép feltötése!'}
                   </div>
@@ -802,7 +802,7 @@ class App extends React.Component {
               </div>
               {this.state.images.map((image) => {
                   return (
-                    <div onClick={() => { this.setState({ activeImg: image })}} className="ow-col-6" style={(image.objid === this.state.activeImg.objid) ? { height: 130, border: '2px solid blue' } : { height: 130 }} key={image.objid} >
+                    <div onClick={() => { this.setState({ activeImg: image })}} className="ow-col-6" style={(image.objId === this.state.activeImg.objId) ? { height: 130, border: '2px solid blue' } : { height: 130 }} key={image.objId} >
                       <img
                         src={image.url}
                         alt="photo"
