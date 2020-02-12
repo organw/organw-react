@@ -1,9 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes, { element, bool } from 'prop-types';
 import classNames from 'classnames';
 import Html from 'slate-html-serializer';
-import { getEventTransfer, cloneFragment } from 'slate-react';
+import { getEventTransfer } from 'slate-react';
 import { isKeyHotkey } from 'is-hotkey';
 import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
@@ -11,6 +10,7 @@ import isUrl from 'is-url';
 import DropZone from 'react-dropzone';
 import './App.css'
 import './simple-grid.css'
+const json = require('./emoji.json');
 
 const propTypes = {
   className: PropTypes.string,
@@ -101,8 +101,8 @@ const BLOCK_TAGS = {
   h5: 'heading-five',
   h6: 'heading-six',
   table: 'table',
-  tr: 'table-row',
-  td: 'table-cell',
+  tr: 'table_row',
+  td: 'table_cell',
   a: 'link'
 };
 
@@ -143,8 +143,6 @@ const RULES = [
             return (
               <span className={obj.data.get('className')}>{children}</span>
             );
-          case 'paragraph':
-            return <p>{children}</p>;
           case 'block-quote':
             return <blockquote>{children}</blockquote>;
           case 'heading-one':
@@ -192,6 +190,15 @@ const RULES = [
               />
             );
           }
+          case 'paragraph':
+            return(
+            <p {...attributes}>{children}</p>
+            );
+          case 'paragraph_fontsize': 
+            let fontsize = obj.data.get('fontsize');
+            return (
+            <p style={{ fontSize: fontsize }}>{children}</p>
+            );
           case 'align-left':
             return (
               <p align="left" style={{ textIndent: '2em' }} {...attributes}>
@@ -211,39 +218,55 @@ const RULES = [
               </p>
             );
           case 'table':
-            const buttonbackground =  obj.data.get('buttonbackground') ? obj.data.get('buttonbackground') : '#FFFFFF'
-            const buttontext = obj.data.get('buttontext') ? obj.data.get('buttontext') : '#000000'
             const classname = obj.data.get('className') ? obj.data.get('className') : '';
-            if(classname === 'but') {
               return (
-                <table {...attributes} className={classname} style={{ backgroundColor: buttonbackground, color: buttontext, border: '0px none transparent'  }}>
+                <table {...attributes} className={classname}>
                   <tbody {...attributes}>{children}</tbody>
                 </table>
               );
-            } else {
-              return (
-                <table {...attributes} className={classname} style={{ backgroundColor: buttonbackground, color: buttontext }}>
-                  <tbody {...attributes}>{children}</tbody>
-                </table>
-              );
-            }
-          case 'table-row':
+          case 'table_row':
             return <tr {...attributes}>{children}</tr>;
-          case 'table-cell':
-            return <td {...attributes}>{children}</td>;
+          case 'table_cell':
+              return <td {...attributes}>{children}</td>;
           case 'embed':
             return (
-            <iframe 
-            className={css`
-            display: block;
-            margin: 0 20px 20px 0;
-            max-width: 40%;
-            max-height: 20em;
-            box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
-          `} 
-          width="560" height=" 315" src={obj.data.get('src')} frameBorder="0" allow="accelerometer" allowFullScreen>
-
-          </iframe>);
+              <iframe 
+              className={css`
+              display: block;
+              margin: 0 20px 20px 0;
+              max-width: 40%;
+              max-height: 20em;
+              box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+              `} 
+              width="560"
+              height=" 315"
+              src={obj.data.get('src')}
+              frameBorder="0"
+              allow="accelerometer"
+              allowFullScreen
+              >
+              </iframe>
+            );
+          case 'button':
+            const buttonbackground = obj.data.get('buttonbackground') ? obj.data.get('buttonbackground') : '';
+            const buttontext = obj.data.get('buttontext') ? obj.data.get('buttontext') : 'black';
+            const buttonhref = obj.data.get('buttonhref') ? obj.data.get('buttonhref') : '#';
+            const buttonvalue = obj.data.get('buttonvalue') ? obj.data.get('buttonvalue') : '';
+            return (
+              <button 
+              className={css`
+                margin: 0 20px 20px 0;
+                max-width: 40%;
+                max-height: 20em;
+                box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+              `}
+              style={{ backgroundColor: buttonbackground, color: buttontext, border: '0px none transparent', borderRadius: '5px', height: '32px' }} 
+              onClick={() => { window.open(buttonhref) } }
+              {...attributes}
+              >
+                {buttonvalue}
+              </button>
+            );
           default:
             return <p {...attributes}>{children}</p>;
         }
@@ -291,6 +314,16 @@ const RULES = [
               <a {...attributes} href={href}>
                 {children}
               </a>
+            );
+          }
+          case 'emoji': {
+            const { data } = obj;
+            const fontsize = data.get('fontsize');
+            const value = data.get('value')
+            return (
+              <span style={{ fontSize: fontsize }} {...attributes}>
+                {value}
+              </span>
             );
           }
           default:
@@ -392,6 +425,16 @@ const RULES = [
           },
         };
       }
+      if (el.tagName.toLowerCase() === 'span') {
+        return {
+          object: 'inline',
+          type: 'emoji',
+          nodes: next(el.childNodes),
+          data: {
+            fontsize: el.getAttribute('fontsize'),
+          },
+        };
+      }
     },
     serialize(obj, children) {
       if (obj.object === 'inline') {
@@ -400,6 +443,12 @@ const RULES = [
             const { data } = obj;
             const href = data.get('href');
             return <a href={href}>{children}</a>;
+          }
+          case 'emoji': {
+            const { data } = obj;
+            const fontsize = data.get('fontsize');
+            const value = data.get('value')
+            return <span style={{ fontSize: fontsize }}>{value}</span>;
           }
         }
       }
@@ -440,7 +489,12 @@ class App extends React.Component {
       buttonname: '',
       // BUTTON
       buttonbackground: '',
-      buttontext: ''
+      buttontext: '',
+      buttonhref: '',
+      buttonvalue: '',
+      // FONT
+      fontsize:'',
+      select: undefined
     };
   }
   ref = editor => {
@@ -529,6 +583,23 @@ class App extends React.Component {
         );
       }
 
+      case 'paragraph':
+        return(
+        <p {...attributes}>{children}</p>
+        );
+
+
+      case 'paragraph_fontsize':
+        let fontsize = node.data.get('fontsize');
+        if(fontsize){
+          return(
+            <p style={{ fontSize: fontsize }}>{children}</p>
+            );
+        } else {
+          return(
+            <p>{children}</p>
+            );
+        }
       case 'link': {
         const { data } = node;
         const href = data.get('href');
@@ -557,36 +628,47 @@ class App extends React.Component {
           </p>
         );
       case 'table':
-        const buttonbackground =  node.data.get('buttonbackground') ? node.data.get('buttonbackground') : '#FFFFFF'
-        const buttontext = node.data.get('buttontext') ? node.data.get('buttontext') : '#000000'
         const classname = node.data.get('className') ? node.data.get('className') : ''
-        if(classname === 'but') {
-          return (
-            <table {...attributes} className={classname} style={{backgroundColor: buttonbackground, color: buttontext , border: '0px none transparent' }}>
-              <tbody {...attributes}>{children}</tbody>
-            </table>
-        );
-        } else {
           return (
             <table {...attributes} className={classname}>
               <tbody {...attributes}>{children}</tbody>
             </table>
-        );
-        }
-      case 'table-row':
+          )
+      case 'table_row':
         return <tr {...attributes}>{children}</tr>;
-      case 'table-cell':
-        return <td {...attributes}>{children}</td>;
+      case 'table_cell':
+          return <td {...attributes}>{children}</td>;
       case 'embed':
         return (
-        <iframe className={css`
-        display: block;
-        margin: 0 20px 20px 0;
-        max-width: 40%;
-        max-height: 20em;
-        box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
-        `} 
-        width="560" height=" 315" src={node.data.get('src')} frameBorder="0" allow="accelerometer" allowFullScreen></iframe>);
+          <iframe className={css`
+          display: block;
+          margin: 0 20px 20px 0;
+          max-width: 40%;
+          max-height: 20em;
+          box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+          `} 
+          width="560" height=" 315" src={node.data.get('src')} frameBorder="0" allow="accelerometer" allowFullScreen></iframe>
+        );
+      case 'button':
+        const buttonbackground = node.data.get('buttonbackground') ? node.data.get('buttonbackground') : '';
+        const buttontext = node.data.get('buttontext') ? node.data.get('buttontext') : 'black';
+        const buttonhref = node.data.get('buttonhref') ? node.data.get('buttonhref') : '#'
+        const buttonvalue = node.data.get('buttonvalue') ? node.data.get('buttonvalue') : ''
+        return (
+          <button
+          className={css`
+            margin: 0 20px 20px 0;
+            max-width: 40%;
+            max-height: 20em;
+            box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+          `}
+          style={{ backgroundColor: buttonbackground, color: buttontext, border: '0px none transparent', borderRadius: '5px', height: '32px' }}
+          onClick={ () => { window.open(buttonhref) } }
+          {...attributes}
+          >
+            {buttonvalue}
+          </button>
+        );
       default:
         return next();
     }
@@ -652,7 +734,6 @@ class App extends React.Component {
   };
 
   onClickModal = (type, name) => {
-    console.log('type', type)
     this.setState({ modalType: type, buttonname: name } , async () => {
         if(type === 'image') {
             this.setState({ images: await this.props.onImageLoading() }, () => {
@@ -666,8 +747,7 @@ class App extends React.Component {
     )
   }
 
-  toggleModal = (props) => {
-    console.log('props', props)
+  toggleModal = () => {
     this.setState(prevState => ({
       isOpenModal: !prevState.isOpenModal
     }));
@@ -686,6 +766,8 @@ class App extends React.Component {
         return this.embedModal();
       } else if(type === 'button'){
         return this.buttonModal();
+      } else if(type === 'emoji'){
+        return this.emojiModal();
       }
      } 
   }
@@ -740,9 +822,17 @@ class App extends React.Component {
           <input className="ow-input ow-form-control" name="buttonbackground" id="buttonbackground" type="color" value={this.state.buttonbackground} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-        <label className="ow-label">Betűszín</label><br />
-        <input className="ow-input ow-form-control" name="buttontext" id="buttontext" type="color" value={this.state.buttontext} onChange={(e) => { this.onChangeValue(e) }} />
-      </div>
+          <label className="ow-label">Betűszín</label><br />
+          <input className="ow-input ow-form-control" name="buttontext" id="buttontext" type="color" value={this.state.buttontext} onChange={(e) => { this.onChangeValue(e) }} />
+        </div>
+        <div>
+          <label className="ow-label">Szöveg</label><br />
+          <input className="ow-input ow-form-control" name="buttonvalue" id="buttonvalue" type="text" value={this.state.buttonvalue} onChange={(e) => { this.onChangeValue(e) }} />
+        </div>
+        <div>
+          <label className="ow-label">URL</label><br />
+          <input className="ow-input ow-form-control" name="buttonhref" id="buttonhref" type="text" value={this.state.buttonhref} onChange={(e) => { this.onChangeValue(e) }} />
+        </div>
     </div>
     )
   }
@@ -846,13 +936,42 @@ class App extends React.Component {
     )
   }
 
+  renderEmojis = () => {
+    return(
+      <React.Fragment>
+      {
+        json.map(emoji => {
+          return <button key={emoji.name} style={{ fontSize: '25px' }} onClick={() => { this.onClickEmoji(emoji.id)} }><span>{emoji.id}</span></button>
+        })
+      }
+    </React.Fragment>
+    );
+  }
+
+  emojiModal = () => {
+    return (
+      <div>
+        {this.renderEmojis()}
+      </div>
+    )
+  }
+
   onChangeValue = (e) => {
     const { target } = e;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     const { name } = target;
-    this.setState({
-      [name]: value
-    });
+
+    if(name === 'fontsize'){
+      this.setState({
+        [name]: value
+      });
+      
+      this.onClickFontsize(value);
+    } else {
+      this.setState({
+        [name]: value
+      });
+    }
   }
 
   onModalSubmit = (type) => {
@@ -863,16 +982,76 @@ class App extends React.Component {
       return this.onClickImage(this.state.activeImg);
     }
     if(type === 'table'){
-      return this.onClickTable(this.state.cols, this.state.rows, this.state.classname, this.state.buttonname);
+      return this.onClickTable(this.state.cols, this.state.rows, this.state.classname);
     }
     if(type === 'embed'){
       return this.onClickEmbed(this.state.videolink);
     }
     if(type === 'button'){
-      return this.onClickButton(1, 1, this.state.buttonbackground, this.state.buttontext);
+      return this.onClickButton(this.state.buttonbackground, this.state.buttontext, this.state.buttonhref, this.state.buttonvalue);
+    }
+    if(type === 'emoji'){
+      return this.onClickEmoji(this.state.emoji);
     }
   }
 
+  onClickEmoji = (value) => {
+    let emojiObj = {
+      object: 'inline',
+      type: 'emoji',
+      data: {
+        fontsize: 20,
+        value: value
+      }
+    };
+    this.editor.insertInline(emojiObj);
+  }
+
+  componentDidMount() {
+    this.fontsizeGenerator(12, 40)
+  }
+
+  renderFontsizeOptions = (select) => {
+    let font = document.getElementById('font');
+    let fontbutton = document.getElementsByClassName('ow-wysiwyg-toolbar-group').item(0);
+
+    if(font) {
+      font.appendChild(select);
+      fontbutton.appendChild(font);
+    }
+  } 
+
+  fontsizeGenerator = (minsize, maxsize) => {
+      let select = document.createElement('select');
+      select.id = 'fontsize';
+      select.className = 'ow-wysiwyg-toolbar-item';
+      select.name = 'fontsize';
+      select.value = this.state.fontsize;
+      select.onchange = this.onChangeValue;
+      let space = '       ';
+      for (let i = minsize; i < maxsize + 1; i++ ) {
+        let opt = document.createElement('option');
+        opt.setAttribute('key', i);
+        opt.value = i + 'px';
+        opt.text = i;
+          select.appendChild(opt);
+      };
+      this.renderFontsizeOptions(select);
+    
+  }
+
+  onClickFontsize = (type) => {
+    let windowSelection = window.getSelection(); 
+        if(windowSelection.type === 'Range'){ 
+          this.editor.setBlocks({
+            object: 'block',
+            type: 'paragraph_fontsize',
+            data: {
+              fontsize: this.state.fontsize
+            }
+          });
+        }
+  }
 
   onClickBlock = (event, type, name, tag) => {
     event.preventDefault();
@@ -1002,15 +1181,43 @@ class App extends React.Component {
           }
         }
 
-         // EMBED
-         if (
-          block.type === 'embed'
-        ) {
+        // EMBED
+        if (block.type === 'embed') {
           if (
             name === 'align-left' ||
             name === 'align-right' ||
             name === 'align-center'
           ) {
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.unwrapBlock('align-center');
+            editor.wrapBlock(name);
+          } 
+        }
+
+        // BUTTON
+        if (block.type === 'button') {
+          if (
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
+          ) {
+            
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.unwrapBlock('align-center');
+            editor.wrapBlock(name);
+          } 
+        }
+
+         // FONTSIZE
+         if (block.type === 'paragraph_fontsize') {
+          if (
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
+          ) {
+            
             editor.unwrapBlock('align-left');
             editor.unwrapBlock('align-right');
             editor.unwrapBlock('align-center');
@@ -1039,23 +1246,29 @@ class App extends React.Component {
     }
   };
 
-  toBase64 = file =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-    });
+  onClickButton = (buttonbackground, buttontext, buttonhref, buttonvalue) => {
+    let buttonObj = {
+      object: 'block',
+      type: 'button',
+      data: {
+        buttonbackground: buttonbackground,
+        buttontext: buttontext,
+        buttonhref: buttonhref, 
+        buttonvalue: buttonvalue
+      }
+    };
+    this.editor.insertBlock(buttonObj);
+    this.editor.moveToEnd();
+  }
 
-  onClickButton = (row, col, buttonbackground, buttontext) => {
+  onClickTable = (row, col, classname, name) => {
+
     let tableObj = {
       object: 'block',
       type: 'table',
       nodes: [],
       data: {
-        buttonbackground: buttonbackground,
-        buttontext: buttontext, 
-        className: 'but'
+        className: classname
       }
     };
     let rows = [];
@@ -1066,7 +1279,7 @@ class App extends React.Component {
         let cellID = `cell${i}-${j}`;
         cell.push({
           object: 'block',
-          type: 'table-cell',
+          type: 'table_cell',
           nodes: [
             {
               object: 'text',
@@ -1075,9 +1288,10 @@ class App extends React.Component {
           ],
         });
       }
+
       rows.push({
         object: 'block',
-        type: 'table-row',
+        type: 'table_row',
         nodes: cell,
       });
     }
@@ -1122,7 +1336,65 @@ class App extends React.Component {
 
       this.editor.insertBlock(paraObj);
     }
+  };
+
+  getJsonFromUrl = (url) => {
+    if(!url) url = location.search;
+    var query = url.substr(1);
+    var result = {};
+    query.split("&").forEach((part) => {
+      var item = part.split("=");
+      result[item[0]] = decodeURIComponent(item[1]);
+    });
+    return result;
   }
+
+  onClickEmbed = (videolink) => {
+    if (videolink.includes('youtube')) {
+    let src = 'https://www.youtube.com/embed/' + this.getJsonFromUrl(new URL(videolink).search).v;
+    let embedObj = {
+      object: 'block',
+      type: 'embed',
+      data: {
+        src: src
+      }
+    } 
+    this.editor.insertBlock(embedObj);
+    embedObj.data.src = src;
+    }
+  }
+
+  onDropOrPaste = (event, editor, next) => {
+    const target = editor.findEventRange(event);
+    if (!target && event.type === 'drop') return next();
+
+    const transfer = getEventTransfer(event);
+    const { type, text, files } = transfer;
+
+    if (type === 'files') {
+      for (const file of files) {
+        const reader = new FileReader();
+        const [mime] = file.type.split('/');
+        if (mime !== 'image') continue;
+
+        reader.addEventListener('load', () => {
+          editor.command(insertImage, reader.result, target);
+        });
+
+        reader.readAsDataURL(file);
+      }
+      return;
+    }
+
+    if (type === 'text') {
+      if (!isUrl(text)) return next();
+      if (!isImage(text)) return next();
+      editor.command(insertImage, text, target);
+      return;
+    }
+
+    next();
+  };
 
   onClickTable = (row, col, classname, name) => {
 
@@ -1320,24 +1592,6 @@ class App extends React.Component {
     return value.inlines.some(inline => inline.type === 'link');
   };
 
-  // onKeyDown = (event, editor, next) => {
-  //   const { value } = editor;
-  //   const { document, selection } = value;
-  //   const { start, isCollapsed } = selection;
-  //   const startNode = document.getDescendant(start.key);
-
-  //   switch (event.key) {
-  //     case 'Backspace':
-  //       return this.onBackspace(event, editor, next);
-  //     case 'Delete':
-  //       return this.onDelete(event, editor, next);
-  //     case 'Enter':
-  //       return this.onEnter(event, editor, next);
-  //     default:
-  //       return next();
-  //   }
-  // };
-
   onEnter = (event, editor, node, next, type) => {
     // event.preventDefault();
     const { value } = editor;
@@ -1360,6 +1614,7 @@ class App extends React.Component {
 
   renderInline = (props, editor, next, type) => {
     const { attributes, children, node, isFocused } = props;
+
     switch (node.type) {
       // LINK
       case 'link': {
@@ -1369,6 +1624,17 @@ class App extends React.Component {
           <a {...attributes} href={href}>
             {children}
           </a>
+        );
+      }
+      // EMOJI
+      case 'emoji': {
+        const { data } = node;
+        const fontsize = data.get('fontsize');
+        const value = data.get('value')
+        return (
+          <span style={{ fontSize: fontsize }} {...attributes}>
+            {value}
+          </span>
         );
       }
       // FLOATED_IMAGE
@@ -1420,6 +1686,7 @@ class App extends React.Component {
 
   render() {
     const { as: Component, className, role, children, ...props } = this.props;
+
     return (
       <React.Fragment>
         <Component
@@ -1452,7 +1719,8 @@ class App extends React.Component {
               onClickModal: this.onClickModal,
               toggleModal: this.toggleModal,
               isOpenModal: this.state.isOpenModal,
-              renderModal: this.renderModal
+              renderModal: this.renderModal,
+              onClickFontsize: this.onClickFontsize,
             }}
           >
             {children}

@@ -11,12 +11,10 @@ import {
   Editor,
   Statusbar,
 } from './index';
-// import { ImageButton } from '@slate-editor/image-plugin';
 
 class Default extends React.Component {
   state = {
     value: serializer.deserialize('<p></p>'),
-    offset: '',
   };
 
   onChange = ({ value }) => {
@@ -59,7 +57,7 @@ class Default extends React.Component {
         </Menubar>
         <Toolbar>
           <ToolbarGroup>
-            <ToolbarItem type="mark" tag="b" name="bold">
+            <ToolbarItem type="mark" tag="b" name="bold" id="bold">
               B
             </ToolbarItem>
             <ToolbarItem type="mark" tag="code" name="code">
@@ -74,17 +72,8 @@ class Default extends React.Component {
             <ToolbarItem type="mark" tag="s" name="strikethrough">
               S
             </ToolbarItem>
-            <ToolbarItem type="block" tag="li" name="list-item">
-              Lista
-            </ToolbarItem>
-            <ToolbarItem type="block" tag="ul" name="bulleted-list">
-              Lista 2
-            </ToolbarItem>
-            <ToolbarItem type="block" tag="ol" name="numbered-list">
-              Lista 3
-            </ToolbarItem>
-            <ToolbarItem type="block" tag="blockquote" name="block-quote">
-              Quote
+            <ToolbarItem type="fontsize" tag="fontsize" name="fontsize">
+              Betűméret&nbsp;
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
@@ -113,6 +102,18 @@ class Default extends React.Component {
             </ToolbarItem>
             <ToolbarItem type="align" tag="rignt" name="align-right">
               Align-right
+            </ToolbarItem>
+            <ToolbarItem type="block" tag="li" name="list-item">
+              Lista
+            </ToolbarItem>
+            <ToolbarItem type="block" tag="ul" name="bulleted-list">
+              Lista 2
+            </ToolbarItem>
+            <ToolbarItem type="block" tag="ol" name="numbered-list">
+              Lista 3
+            </ToolbarItem>
+            <ToolbarItem type="block" tag="blockquote" name="block-quote">
+              Quote
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
@@ -146,13 +147,17 @@ class Default extends React.Component {
               Videó beágyazása
             </ToolbarItem>
             <ToolbarItem type="button" tag="button" name="button">
-              Gomb beszúrása
+              Gomb beszúrása 
+            </ToolbarItem>
+            <ToolbarItem type="emoji" tag="emoji" name="emoji">
+              Emoji beszúrása
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
-            <ToolbarItem type="text" tag="${JEGY_ÁR}" name="text">
+            <ToolbarItem type="text" tag="${JEGY_ÁR}" name="text" id="text">
               JEGY_ÁR
             </ToolbarItem>
+           
           </ToolbarGroup>
         </Toolbar>
         <Editor />

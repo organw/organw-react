@@ -140,3 +140,9 @@
 .ow-input {
     align-content: center;
 }
+
+.fontsize {
+    font-size: medium;
+    border: 1px solid grey;
+    background-color: lightgrey;
+}

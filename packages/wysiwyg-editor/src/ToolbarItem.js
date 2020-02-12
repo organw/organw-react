@@ -70,6 +70,7 @@ const ToolbarItem = ({
                 // className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
                   propss.onClickClose(event, name);
+
                 }}
               >
                 {children}
@@ -270,6 +271,25 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   } 
+  
+  // FONTSIZE
+  if (type === 'fontsize') {
+    return (
+      <SharedAppConsumer>
+        {propss => {
+          return (
+            <Component
+              className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+              onMouseDown={() => {propss.onClickFontsize(type);}}
+              id="font"
+            >
+              Betűméret&nbsp;
+            </Component>
+          );
+        }}
+      </SharedAppConsumer>
+    );
+  } 
 
   // TABLE
   if (type === 'table') {
@@ -345,6 +365,24 @@ const ToolbarItem = ({
 
   // BUTTON
   if (type === 'button') {
+      return (
+        <SharedAppConsumer>
+          {propss => {
+            return (
+              <Component
+                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                onMouseDown={() => propss.onClickModal(type)}
+              >
+                {children}
+              </Component>
+            );
+          }}
+        </SharedAppConsumer>
+      ); 
+  }
+
+  // EMOJI
+  if (type === 'emoji') {
     return (
       <SharedAppConsumer>
         {propss => {
