@@ -38,6 +38,7 @@ const ToolbarItem = ({
   const inputFile1 = useRef();
   const inputFile2 = useRef();
   const inputFile3 = useRef();
+
   // MARK
   if (type === 'mark') {
     return (
@@ -57,6 +58,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+
   // BLOCK
   if (type === 'block') {
     if (name === 'close') {
@@ -68,7 +70,7 @@ const ToolbarItem = ({
                 // className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
                   propss.onClickClose(event, name);
-               
+
                 }}
               >
                 {children}
@@ -82,6 +84,7 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             const isActive = propss.hasBlock(name);
+
             return (
               <Component
                 active={toString(isActive)}
@@ -98,6 +101,7 @@ const ToolbarItem = ({
       );
     }
   }
+
   // ALIGN
   if (type === 'align') {
     if (name === 'align-left') {
@@ -155,6 +159,7 @@ const ToolbarItem = ({
       );
     }
   }
+
   // IMAGE
   if (type === 'image') {
     if (name === 'image') {
@@ -266,25 +271,25 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   } 
-
-    // FONTSIZE
-    if (type === 'fontsize') {
-      return (
-        <SharedAppConsumer>
-          {propss => {
-            return (
-              <Component
-                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={() => {propss.onClickFontsize(type);}}
-                id="font"
-              >
-                Betűméret&nbsp;
-              </Component>
-            );
-          }}
-        </SharedAppConsumer>
-      );
-    } 
+  
+  // FONTSIZE
+  if (type === 'fontsize') {
+    return (
+      <SharedAppConsumer>
+        {propss => {
+          return (
+            <Component
+              className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+              onMouseDown={() => {propss.onClickFontsize(type);}}
+              id="font"
+            >
+              Betűméret&nbsp;
+            </Component>
+          );
+        }}
+      </SharedAppConsumer>
+    );
+  } 
 
   // TABLE
   if (type === 'table') {
@@ -394,24 +399,6 @@ const ToolbarItem = ({
     );
   }
 
-  // // FONTSIZE
-  // if (type === 'fontsize') {
-  //   return (
-  //     <SharedAppConsumer>
-  //       {propss => {
-  //         return (
-  //           <Component
-  //             className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-  //             onMouseDown={() => propss.onClickFontsize(type)}
-  //           >
-  //             {children}
-  //           </Component>
-  //         );
-  //       }}
-  //     </SharedAppConsumer>
-  //   );
-  // }
-
   // LINK
   if (type === 'link') {
     return (
@@ -429,6 +416,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+
   // LIST
   if (
     name === 'list-item' ||
@@ -452,6 +440,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   }
+
   // TEXT
   if (type === 'text') {
     return (

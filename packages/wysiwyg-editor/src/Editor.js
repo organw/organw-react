@@ -70,13 +70,10 @@ class Editor extends React.Component {
                   onPaste={propps.onDropOrPaste}
                   renderInline={propps.renderinline}
                 />
-              
               </React.Fragment>
             );
           }}
-
         </SharedAppConsumer>
-        
       </Component>
     );
   }

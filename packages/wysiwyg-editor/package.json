@@ -1,6 +1,6 @@
 {
   "name": "@organw/wysiwyg-editor",
-  "version": "0.7.0",
+  "version": "0.24.4",
   "author": "Gergely Nagy <nagy.gergely@zalaszam.hu>",
   "description": "Rich-text editor powered by React",
   "main": "./dist/index.js",
@@ -23,21 +23,22 @@
     "access": "public"
   },
   "dependencies": {
-    "@slate-editor/image-plugin": "^5.1.1",
-    "@types/slate-react": "^0.22.5",
-    "classnames": "^2.2.6",
-    "emotion": "^10.0.17",
-    "image-extensions": "^1.1.0",
-    "immutable": "^4.0.0-rc.12",
-    "is-hotkey": "^0.1.4",
-    "is-url": "^1.2.4",
-    "prop-types": "^15.7.2",
-    "slate": "^0.47.7",
-    "slate-drop-or-paste-images": "^0.9.1",
-    "slate-editor": "^5.1.1",
-    "slate-html-serializer": "^0.8.10",
-    "slate-insert-block-on-enter": "^0.4.0",
-    "slate-react": "^0.22.7"
+    "@slate-editor/image-plugin": "5.1.1",
+    "@types/slate-react": "0.22.5",
+    "classnames": "2.2.6",
+    "emotion": "10.0.17",
+    "image-extensions": "1.1.0",
+    "immutable": "4.0.0-rc.12",
+    "is-hotkey": "0.1.4",
+    "is-url": "1.2.4",
+    "prop-types": "15.7.2",
+    "react-dropzone": "6.2.2",
+    "slate": "0.47.7",
+    "slate-drop-or-paste-images": "0.9.1",
+    "slate-editor": "5.1.1",
+    "slate-html-serializer": "0.8.10",
+    "slate-insert-block-on-enter": "0.4.0",
+    "slate-react": "0.22.7"
   },
   "gitHead": "f38e6b9f8533af428b20bb90b4c6cc031e5d6f43"
 }

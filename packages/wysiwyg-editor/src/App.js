@@ -7,8 +7,9 @@ import { isKeyHotkey } from 'is-hotkey';
 import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
-import './App.css';
-import { Selection, Value } from 'slate';
+import DropZone from 'react-dropzone';
+import './App.css'
+import './simple-grid.css'
 const json = require('./emoji.json');
 
 const propTypes = {
@@ -455,10 +456,6 @@ const RULES = [
   },
 ];
 
-function insertAfter(referenceNode, newNode) {
-  referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-}
-
 export const serializer = new Html({ rules: RULES });
 
 class App extends React.Component {
@@ -469,6 +466,8 @@ class App extends React.Component {
       value: serializer.deserialize(initialValue),
       isOpenModal: false,
       modalType: '',
+      modalTitle: '',
+      images: [],
       // LINK
       linktext: '',
       linkhref: '',
@@ -477,6 +476,11 @@ class App extends React.Component {
       rows: '',
       classname: '',
       // IMAGE
+      activeImg: {
+        objId: '',
+        url: ''
+      },
+      image: '',
       src: '',
       alt: '',
       // EMBED
@@ -493,7 +497,6 @@ class App extends React.Component {
       select: undefined
     };
   }
-
   ref = editor => {
     this.editor = editor;
   };
@@ -597,8 +600,6 @@ class App extends React.Component {
             <p>{children}</p>
             );
         }
-        
-
       case 'link': {
         const { data } = node;
         const href = data.get('href');
@@ -733,8 +734,17 @@ class App extends React.Component {
   };
 
   onClickModal = (type, name) => {
-    this.toggleModal();
-    this.setState({ modalType: type, buttonname: name });
+    this.setState({ modalType: type, buttonname: name } , async () => {
+        if(type === 'image') {
+            this.setState({ images: await this.props.onImageLoading() }, () => {
+              this.toggleModal();
+            }
+          ); 
+        } else {
+          this.toggleModal();
+        }
+      }
+    )
   }
 
   toggleModal = () => {
@@ -762,26 +772,43 @@ class App extends React.Component {
      } 
   }
 
+  modalTitleChooser = (type) => {
+    if(type) {
+      if(type === 'link'){
+        return "Link beszúrása";
+      } else if(type === 'image'){
+        return "Kép beszúrása";
+      } else if(type === 'table'){
+        return "Táblázat beszúrása";
+      } else if(type === 'embed'){
+        return "Videó beszúrása";
+      } else if(type === 'button'){
+        return "Gomb beszúrása";
+      }
+     } 
+  }
+
   renderModal = () => {
     return(
-        <div className="modal">
-        <div className="modal-body">
-          <div className="modal-content">
+        <div className="ow-modal">
+        <div className="ow-modal-body">
+          <div className="ow-modal-content">
+            <div className="ow-modal-header">
+              {this.modalTitleChooser(this.state.modalType)}
+            </div>
             {this.modalChooser(this.state.modalType)}
+            <button className="ow-btn-success" 
+              onMouseDown={() => { 
+                this.onModalSubmit(this.state.modalType); 
+                setTimeout(() => {
+                  this.toggleModal();
+                }, 200); }}
+              >
+                OK
+              </button>
+              &nbsp;&nbsp;
+              <button className="ow-btn-dismiss" onClick={this.toggleModal}>Mégse</button>
           </div>
-        </div>
-        <div className="modal-footer">
-          <button className="btn-success" 
-          onMouseDown={() => { 
-            this.onModalSubmit(this.state.modalType); 
-            setTimeout(() => {
-              this.toggleModal();
-            }, 200); }}
-          >
-            OK
-          </button>
-          &nbsp;&nbsp;
-          <button className="btn-info" onClick={this.toggleModal}>Mégse</button>
         </div>
         </div>
     )
@@ -791,20 +818,20 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <label> Kérem válassza ki a gomb háttérszínét! </label><br />
-          <input className="color" name="buttonbackground" id="buttonbackground" type="color" value={this.state.buttonbackground} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">Háttérszín</label><br />
+          <input className="ow-input ow-form-control" name="buttonbackground" id="buttonbackground" type="color" value={this.state.buttonbackground} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-          <label> Kérem válassza ki a gomb betűszínét! </label><br />
-          <input className="color" name="buttontext" id="buttontext" type="color" value={this.state.buttontext} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">Betűszín</label><br />
+          <input className="ow-input ow-form-control" name="buttontext" id="buttontext" type="color" value={this.state.buttontext} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-          <label> Kérem illessze be a gomb szövegét! </label><br />
-          <input name="buttonvalue" id="buttonvalue" type="text" value={this.state.buttonvalue} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">Szöveg</label><br />
+          <input className="ow-input ow-form-control" name="buttonvalue" id="buttonvalue" type="text" value={this.state.buttonvalue} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-          <label> Kérem illessze be a gombhoz tartozó linket! </label><br />
-          <input name="buttonhref" id="buttonhref" type="text" value={this.state.buttonhref} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">URL</label><br />
+          <input className="ow-input ow-form-control" name="buttonhref" id="buttonhref" type="text" value={this.state.buttonhref} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
     </div>
     )
@@ -814,29 +841,70 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <label> Kérem illesze be a linket! </label><br />
-          <input name="linkhref" id="linkhref" type="text" value={this.state.linkhref} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">URL</label><br />
+          <input name="linkhref" id="linkhref" type="text" value={this.state.linkhref} onChange={(e) => { this.onChangeValue(e) }} className="ow-form-control ow-input" />
         </div>
         <div>
-        <label> Kérem írja be a link szövegét! </label><br />
-        <input name="linktext" id="linktext" type="text" value={this.state.linktext} onChange={(e) => { this.onChangeValue(e) }} />
+        <label className="ow-label">Megjelenő szöveg</label><br />
+        <input name="linktext" id="linktext" type="text" value={this.state.linktext} onChange={(e) => { this.onChangeValue(e) }} className="ow-input ow-form-control" />
       </div>
     </div>
     )
   }
 
+  onDropImage = (acceptedfiles) => {
+    acceptedfiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const fileAsBinaryString = reader.result;
+        let files = {
+          content: btoa(fileAsBinaryString),
+          uploadDate: new Date(),
+          docname: file.name,
+          preview: file.preview,
+          logo: false,
+          mime: file.type || 'application/octet-stream',
+          new: true,
+          length: file.size,
+          //id: Lib.Browser.uuidv4(),
+        };
+        console.log(files)
+        this.setState({ image: files }, async () => { 
+          this.props.onImageUpload(files);
+          this.setState({ images: await this.props.onImageLoading() });
+        });
+      };
+      reader.readAsBinaryString(file);
+    });
+  }
+
   imageModal = () => {
     return (
-    <div>
       <div>
-        <label> Kérem illesze be a kép linkjét! </label><br />
-        <input type="text" value={this.state.src} onChange={(e) => { this.onChangeValue(e) }} />
+        <div>
+            <div className="ow-row">
+            <div className="ow-col-6" style={{ height: 130, borderStyle: 'dashed', borderColor: 'darkgray' }}>
+                <DropZone id="formPlakat" onDrop={this.onDropImage} accept="image/*">
+                  <div style={{ height: 130, width: '100%', textAlign: 'center' }}>
+                    {'Kép feltötése!'}
+                  </div>
+                </DropZone>
+              </div>
+              {this.state.images.map((image) => {
+                  return (
+                    <div onClick={() => { this.setState({ activeImg: image })}} className="ow-col-6" style={(image.objId === this.state.activeImg.objId) ? { height: 130, border: '2px solid blue' } : { height: 130 }} key={image.objId} >
+                      <img
+                        src={image.url}
+                        alt="photo"
+                        style={{ maxWidth: '100%', maxHeight: '100%', minWidth: '100%' }}
+                      />
+                    </div>
+                  )
+                }
+              )}
+            </div>
+          </div>
       </div>
-      <div>
-        <label> Kérem írja be a kép alt attribútumát! </label><br />
-        <input type="text" value={this.state.alt} onChange={(e) => { this.onChangeValue(e) }} />
-      </div>
-    </div>
     )
   }
 
@@ -844,16 +912,16 @@ class App extends React.Component {
     return (
       <div>
         <div>
-          <label> Kérem adja be hány oszlopos táblázatot szeretne! </label><br />
-          <input name="cols" id="cols" type="text" value={this.state.cols} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">Oszlopok száma</label><br />
+          <input className="ow-input ow-form-control" name="cols" id="cols" type="text" value={this.state.cols} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-          <label> Kérem adja be hány soros táblázatot szeretne! </label><br />
-          <input name="rows" id="rows" type="text" value={this.state.rows} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">Sorok száma</label><br />
+          <input className="ow-input ow-form-control" name="rows" id="rows" type="text" value={this.state.rows} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
         <div>
-          <label> Kérem adja be a táblázat osztálynevét! </label><br />
-          <input name="classname" id="classname" type="text" value={this.state.classname} onChange={(e) => { this.onChangeValue(e) }} />
+          <label className="ow-label">CSS osztálynév</label><br />
+          <input className="ow-input ow-form-control" name="classname" id="classname" type="text" value={this.state.classname} onChange={(e) => { this.onChangeValue(e) }} />
         </div>
       </div>
     )
@@ -862,14 +930,13 @@ class App extends React.Component {
   embedModal = () => {
     return (
       <div>
-        <label> Kérem illesze be a videó linkjét! </label><br />
-        <input name="videolink" id="videolink" type="text" value={this.state.videolink} onChange={(e) => { this.onChangeValue(e) }} />
+        <label className="ow-label">URL</label><br />
+        <input className="ow-input ow-form-control" name="videolink" id="videolink" type="text" value={this.state.videolink} onChange={(e) => { this.onChangeValue(e) }} />
       </div>
     )
   }
 
   renderEmojis = () => {
-  
     return(
       <React.Fragment>
       {
@@ -912,7 +979,7 @@ class App extends React.Component {
       this.onClickLink(this.state.linkhref, this.state.linktext);
     }
     if(type === 'image'){
-      return this.onClickImage(this.state.src, this.state.alt);
+      return this.onClickImage(this.state.activeImg);
     }
     if(type === 'table'){
       return this.onClickTable(this.state.cols, this.state.rows, this.state.classname);
@@ -1179,14 +1246,6 @@ class App extends React.Component {
     }
   };
 
-  toBase64 = file =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-    });
-
   onClickButton = (buttonbackground, buttontext, buttonhref, buttonvalue) => {
     let buttonObj = {
       object: 'block',
@@ -1279,11 +1338,145 @@ class App extends React.Component {
     }
   };
 
-  onClickImage = (file, event, type) => {
-    event.preventDefault();
-    this.toBase64(file).then(data => {
-      this.editor.command(insertImage(this.editor, data, type, name));
+  getJsonFromUrl = (url) => {
+    if(!url) url = location.search;
+    var query = url.substr(1);
+    var result = {};
+    query.split("&").forEach((part) => {
+      var item = part.split("=");
+      result[item[0]] = decodeURIComponent(item[1]);
     });
+    return result;
+  }
+
+  onClickEmbed = (videolink) => {
+    if (videolink.includes('youtube')) {
+    let src = 'https://www.youtube.com/embed/' + this.getJsonFromUrl(new URL(videolink).search).v;
+    let embedObj = {
+      object: 'block',
+      type: 'embed',
+      data: {
+        src: src
+      }
+    } 
+    this.editor.insertBlock(embedObj);
+    embedObj.data.src = src;
+    }
+  }
+
+  onDropOrPaste = (event, editor, next) => {
+    const target = editor.findEventRange(event);
+    if (!target && event.type === 'drop') return next();
+
+    const transfer = getEventTransfer(event);
+    const { type, text, files } = transfer;
+
+    if (type === 'files') {
+      for (const file of files) {
+        const reader = new FileReader();
+        const [mime] = file.type.split('/');
+        if (mime !== 'image') continue;
+
+        reader.addEventListener('load', () => {
+          editor.command(insertImage, reader.result, target);
+        });
+
+        reader.readAsDataURL(file);
+      }
+      return;
+    }
+
+    if (type === 'text') {
+      if (!isUrl(text)) return next();
+      if (!isImage(text)) return next();
+      editor.command(insertImage, text, target);
+      return;
+    }
+
+    next();
+  };
+
+  onClickTable = (row, col, classname, name) => {
+
+    let tableObj = {
+      object: 'block',
+      type: 'table',
+      nodes: [],
+      data: {
+        className: classname
+      }
+    };
+    let rows = [];
+    for (let i = 0; i < row; i++) {
+      let rowID = `row${i}`;
+      let cell = [];
+      for (let j = 0; j < col; j++) {
+        let cellID = `cell${i}-${j}`;
+        cell.push({
+          object: 'block',
+          type: 'table-cell',
+          nodes: [
+            {
+              object: 'text',
+              text: cellID,
+            },
+          ],
+        });
+      }
+
+      rows.push({
+        object: 'block',
+        type: 'table-row',
+        nodes: cell,
+      });
+    }
+
+    tableObj.nodes = rows;
+
+    if (
+      name === 'table_left' ||
+      name === 'table_center' ||
+      name === 'table_right'
+    ) {
+      if (name === 'table_left') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-left',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+      if (name === 'table_center') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-center',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+      if (name === 'table_right') {
+        let paraObj = {
+          object: 'block',
+          type: 'align-right',
+          nodes: [tableObj],
+        };
+        this.editor.insertBlock(paraObj);
+      }
+    } else {
+      let paraObj = {
+        object: 'block',
+        type: 'paragraph',
+        nodes: [tableObj],
+      };
+
+      this.editor.insertBlock(paraObj);
+    }
+  };
+
+  onClickImage = (file, event, type) => {
+    // event.preventDefault();
+    console.log(file)
+    this.editor.command(insertImage(this.editor, file.url, type, name));
   };
 
   getJsonFromUrl = (url) => {
@@ -1534,7 +1727,7 @@ class App extends React.Component {
           </SharedAppContext.Provider>
         </Component>
         {this.state.isOpenModal ? this.renderModal() : ""}
-        </React.Fragment>
+      </React.Fragment>
     );
   }
 }

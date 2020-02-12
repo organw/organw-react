@@ -6,13 +6,13 @@
     "url": "git+ssh://git@github.com:organw/organw-react.git"
   },
   "scripts": {
-    "start": "start-storybook -h 192.168.2.139 -p 8460 -c storybook -s ./storybook/static",
+    "start": "start-storybook -p 8998 -c storybook -s ./storybook/static",
     "build:storybook": "build-storybook -c storybook -o ./storybook/public -s ./storybook/static",
     "release:site": "gh-pages --dist storybook/public",
     "lerna": "lerna",
     "build": "lerna run --parallel build -- --env production",
     "bootstrap": "lerna bootstrap --no-package-locks",
-    "release": "lerna publish",
+    "release": "lerna publish --force-publish=*",
     "release:ci": "lerna publish --yes",
     "release:canary": "lerna publish -c"
   },
