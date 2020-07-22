@@ -15,8 +15,16 @@ const propTypes = {
     'image',
     'text',
     'align',
+    'align-center',
+    'align-right',
+    'align-left',
     'embed',
-    'modal'
+    'modal',
+    'emoji',
+    'fontsize',
+    'button',
+    'float_left',
+    'float_right'
   ]).isRequired,
   name: PropTypes.string,
   tag: PropTypes.string,
@@ -34,42 +42,78 @@ const ToolbarItem = ({
   className,
   children,
   type,
+  tooltip
 }) => {
   const inputFile1 = useRef();
   const inputFile2 = useRef();
   const inputFile3 = useRef();
+
+  // getNames = (name) => {
+  //   let names = [];
+  //   return (
+  //     <SharedAppConsumer>
+  //     {elements => {
+  //         names.push(name);
+  //         elements.names = names;
+  //     }}
+  //   </SharedAppConsumer>
+  //   )
+  // }
+ 
+
   // MARK
   if (type === 'mark') {
     return (
       <SharedAppConsumer>
         {propss => {
+        //  const element = <span id={name} className="dot" style={{height:'10px', width:'10px', backgroundColor:'grey', borderRadius:'50%', display:'inline-block'}} />
+        //  for (let i= 0; i < 1; i++){
+        //   if (propss.value && propss.value.endBlock.type === name) {
+        //     propss.toggleColor(name, element)
+        //   }
+        //  }
+          console.log(tooltip)
           return (
+            <React.Fragment>
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
-                propss.onClickMark(event, name);
+                propss.onClickMark(event, type, name);
+                // propss.toggleColor(name);
               }}
+              data-toggle="tooltip"
+              title={tooltip}
             >
               {children}
             </Component>
+            </React.Fragment>
           );
+          
         }}
       </SharedAppConsumer>
     );
   }
   // BLOCK
   if (type === 'block') {
-    if (name === 'close') {
+    if (name === 'heading-one' || name === 'heading-two' || name === 'heading-three' || name === 'heading-four' || name === 'heading-five') {
       return (
         <SharedAppConsumer>
           {propss => {
+              // const element = <span id={name} className="dot" style={{height:'10px', width:'10px', backgroundColor:'grey', borderRadius:'50%', display:'inline-block'}} />
+              // for (let i= 0; i < 1; i++){
+              //   if (propss.value && propss.value.focusBlock.type === name) {
+              //     propss.toggleColor(name, element)
+              //   }
+              //  }
             return (
               <Component
-                // className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
-                  propss.onClickClose(event, name);
-               
+                  propss.onClickBlock(event, type, name);
+                  // propss.toggleColor(name);
                 }}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -89,6 +133,8 @@ const ToolbarItem = ({
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -110,6 +156,8 @@ const ToolbarItem = ({
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -128,6 +176,8 @@ const ToolbarItem = ({
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -146,6 +196,8 @@ const ToolbarItem = ({
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -163,25 +215,27 @@ const ToolbarItem = ({
           {propss => {
             return (
               <React.Fragment>
-                <input
-                  type="file"
-                  id="imgupload1"
-                  style={{ display: 'none' }}
-                  ref={inputFile1}
-                  onChange={e =>
-                    propss.onChangeFile(e, event, name, type, inputFile1)
-                  }
-                />
-                <Component
-                  className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                  onMouseDown={() => propss.onClickModal(type)}
-                  // onMouseDown={event => {
-                  //   inputFile1.current.click();
-                  // }}
-                >
-                  {children}
-                </Component>
-              </React.Fragment>
+              <input
+                type="file"
+                id="imgupload1"
+                style={{ display: 'none' }}
+                ref={inputFile1}
+                onChange={e =>
+                  propss.onChangeFile(e, event, name, type, inputFile1)
+                }
+              />
+              <Component
+                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                onMouseDown={(e) => propss.onClickModal(type, name)}
+                // onMouseDown={event => {
+                //   inputFile1.current.click();
+                // }}
+                data-toggle="tooltip"
+                title={tooltip}
+              >
+                {children}
+              </Component>
+            </React.Fragment>
             );
           }}
         </SharedAppConsumer>
@@ -204,10 +258,9 @@ const ToolbarItem = ({
                 />
                 <Component
                   className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                  onMouseDown={() => propss.onClickModal(type)}
-                  // onMouseDown={event => {
-                  //   inputFile2.current.click();
-                  // }}
+                  onMouseDown={() => propss.onClickModal(type, name)}
+                  data-toggle="tooltip"
+                  title={tooltip}
                 >
                   {children}
                 </Component>
@@ -234,10 +287,9 @@ const ToolbarItem = ({
                 />
                 <Component
                   className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                  onMouseDown={() => propss.onClickModal(type)}
-                  // onMouseDown={event => {
-                  //   inputFile3.current.click();
-                  // }}
+                  onMouseDown={() => propss.onClickModal(type, name)}
+                  data-toggle="tooltip"
+                  title={tooltip}
                 >
                   {children}
                 </Component>
@@ -257,7 +309,9 @@ const ToolbarItem = ({
           return (
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-              onMouseDown={() => propss.onClickModal(type)}
+              onMouseDown={() => propss.onClickModal(type, name)}
+              data-toggle="tooltip"
+              title={tooltip}
             >
               {children}
             </Component>
@@ -275,8 +329,11 @@ const ToolbarItem = ({
             return (
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={() => {propss.onClickFontsize(type);}}
+                onMouseDown={(e) => {propss.onChangeValue(e, type);}}
+                onClick={(e) => propss.onChangeValue(e, type)}
                 id="font"
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 Betűméret&nbsp;
               </Component>
@@ -297,6 +354,8 @@ const ToolbarItem = ({
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type, name)}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -314,6 +373,8 @@ const ToolbarItem = ({
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type, name)}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -331,6 +392,8 @@ const ToolbarItem = ({
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type, name)}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -348,6 +411,8 @@ const ToolbarItem = ({
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type, name)}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -367,6 +432,8 @@ const ToolbarItem = ({
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type)}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -384,7 +451,9 @@ const ToolbarItem = ({
           return (
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-              onMouseDown={() => propss.onClickModal(type)}
+              onMouseDown={() => propss.onClickModal(type, name)}
+              data-toggle="tooltip"
+              title={tooltip}
             >
               {children}
             </Component>
@@ -421,6 +490,8 @@ const ToolbarItem = ({
             <Component
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={() => propss.onClickModal(type)}
+              data-toggle="tooltip"
+              title={tooltip}
             >
               {children}
             </Component>
@@ -444,6 +515,8 @@ const ToolbarItem = ({
               onMouseDown={event => {
                 propss.onClickBlock(event, name);
               }}
+              data-toggle="tooltip"
+              title={tooltip}
             >
               {children}
             </Component>
@@ -463,6 +536,8 @@ const ToolbarItem = ({
               onMouseDown={event => {
                 propss.onClickBlock(event, type, name, tag);
               }}
+              data-toggle="tooltip"
+              title={tooltip}
             >
               {children}
             </Component>

@@ -19,12 +19,6 @@ const schema = {
     image: {
       isVoid: true,
     },
-    float_left: {
-      isVoid: true,
-    },
-    float_right: {
-      isVoid: true,
-    },
     embed: {
       isVoid: true
     },
@@ -33,13 +27,16 @@ const schema = {
     }
   },
   inlines: {
-    float_left: {
-      isVoid: true,
-    },
-    float_right: {
+    image: {
       isVoid: true,
     },
     emoji: {
+      isVoid: true
+    },
+    float_left: {
+      isVoid: true
+    },
+    float_right: {
       isVoid: true
     }
   },
@@ -63,12 +60,12 @@ class Editor extends React.Component {
                   value={propps.value}
                   onChange={propps.onChange}
                   schema={schema}
-                  onKeyDown={propps.onKeyDown}
-                  renderBlock={propps.renderblock}
-                  renderMark={propps.rendermark}
+                  // onKeyDown={propps.onKeyDown}
+                  renderBlock={propps.renderBlock}
+                  renderMark={propps.renderMark}
                   onDrop={propps.onDropOrPaste}
                   onPaste={propps.onDropOrPaste}
-                  renderInline={propps.renderinline}
+                  renderInline={propps.renderInline}
                 />
               
               </React.Fragment>
