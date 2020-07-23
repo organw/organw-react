@@ -1212,16 +1212,19 @@ class App extends React.Component {
         newStyle['marginRight'] = 'auto';
         newStyle['marginLeft'] = '0px';
         newStyle['textAlign'] = align;
+        newStyle['border'] = '1px solid black';
       }
       if (align === 'center'){
         newStyle['margin'] = '0 auto 0 auto';
         newStyle['textAlign'] = align;
+        newStyle['border'] = '1px solid black';
       }
       if (align === 'right'){
         delete newStyle.margin
         newStyle['marginRight'] = '0px';
         newStyle['marginLeft'] = 'auto';
         newStyle['textAlign'] = align;
+        newStyle['border'] = '1px solid black';
       }
       let tableObj = {
         object: 'block',
@@ -1261,6 +1264,7 @@ class App extends React.Component {
       newStyle['marginRight'] = 'auto';
       newStyle['marginLeft'] = '0px';
       newStyle['textAlign'] = 'left';
+      newStyle['border'] = '1px solid black';
       let tableObj = {
         object: 'block',
         type: 'table',
