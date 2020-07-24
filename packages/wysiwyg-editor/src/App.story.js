@@ -11,19 +11,16 @@ import {
   Editor,
   Statusbar,
 } from './index';
-import { SetSelectionOperation } from 'slate';
 
 class Default extends React.Component {
   state = {
-    value: serializer.deserialize('<p align="left" style="font-size:17px"><strong>félkövér</strong></p><p align="left" style="font-size:17px"><code>blokk</code></p><p align="left" style="font-size:17px"><em>dőlt</em></p><p align="left" style="font-size:17px"><u>aláhúzott</u></p><p align="left" style="font-size:17px"><strike>áthúzott</strike></p><p align="left" style="font-size:17px"><q>idézet őűáőűáőűá</q></p><p align="left" style="font-size:30px"><strike><u><em><strong>teszt esztsadasdasd űűőáéűéőéá 30-as méret</strong></em></u></strike></p><p align="left" style="font-size:23px">betű méret 23</p><h1 style="text-align:left">H1 </h1><h2 style="text-align:left">H2</h2><h3 style="text-align:left">H3</h3><h4 style="text-align:left">H4</h4><h5 style="text-align:left">H5</h5><p align="left" style="font-size:17px">bal 17</p><p align="center" style="font-size:23px">közép 23</p><p align="right" style="font-size:29px">jobb 29</p><p align="left" style="font-size:17px"></p><li>lista1</li><li>lista1</li><ul><ul><li parent="bulleted-list">lista2</li><li parent="bulleted-list">lista2</li></ul></ul><ol><ol><li parent="numbered-list">lista3</li><li parent="numbered-list">lista3</li></ol></ol><p align="left" style="font-size:17px">Tábla1</p><table class="1" style="margin-left:0px;margin-right:auto;text-align:left"><tbody><tr><td>cell0-0</td><td>cell0-1</td></tr><tr><td>cell1-0</td><td>cell1-1</td></tr><tr><td>cell2-0</td><td>cell2-1</td></tr></tbody></table><p align="left" style="font-size:17px">Tábla2</p><table class="2" style="margin-left:0px;margin-right:auto;text-align:left"><tbody><tr><td>cell0-0</td><td>cell0-1</td><td>cell0-2</td></tr><tr><td>cell1-0</td><td>cell1-1</td><td>cell1-2</td></tr><tr><td>cell2-0</td><td>cell2-1</td><td>cell2-2</td></tr></tbody></table><p align="left" style="font-size:17px">Tábla3</p><table class="3" style="margin-left:auto;margin-right:auto;text-align:center;margin:0px auto;margin-bottom:0px;margin-top:0px"><tbody><tr><td>cell0-0</td><td>cell0-1</td><td>cell0-2</td></tr><tr><td>cell1-0</td><td>cell1-1</td><td>cell1-2</td></tr><tr><td>cell2-0</td><td>cell2-1</td><td>cell2-2</td></tr><tr><td>cell3-0</td><td>cell3-1</td><td>cell3-2</td></tr></tbody></table><p align="left" style="font-size:17px">Tábla4</p><table class="4" style="margin-left:auto;margin-right:0px;text-align:right;margin:0px auto;margin-bottom:0px;margin-top:0px"><tbody><tr><td>celasddsaadssaddsasadsadsadl0-0</td><td>cell0-1</td><td>cell0-2</td><td>cell0-3</td></tr><tr><td>cell1-0</td><td>cell1-1</td><td>cell1-2</td><td>cell1-3</td></tr><tr><td>cell2-0</td><td>cell2-1</td><td>cell2-2</td><td>cell2-3</td></tr><tr><td>cell3-0</td><td>cell3-1</td><td>cell3-2</td><td>cell3-3</td></tr></tbody></table><p align="left" style="font-size:17px"><a href="https://www.youtube.com/watch?v=EIolal0VsoE">Youtubelink</a></p><p align="left" style="font-size:17px"></p><img src="https://www.pauliinasiniauer.com/wp-content/uploads/2015/02/IMG_6912-916x687.jpg" style="display:block;margin-left:0px;margin-right:auto" class="css-1evewyj"/><p align="left" style="font-size:17px"></p><p align="left" style="font-size:17px">Kép szöveggel 1</p><p align="left" style="font-size:17px"></p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word"><img align="left" src="https://d1bvpoagx8hqbg.cloudfront.net/originals/nice-places-visit-riga-71f95d3fb7704fc95ba62f07a5201b25.jpg" style="float:left;margin:0px 10px 10px 0px;margin-bottom:10px;margin-left:0px;margin-right:10px;margin-top:0px;width:400px"/>1</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">2</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">3</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">4</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">5</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">6</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">7</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">8</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">9</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">Kép szöveggel 2</p><p align="left" style="font-size:17px"></p><p align="right" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word"><img align="right" src="https://www.ytravelblog.com/wp-content/uploads/2018/04/places-to-visit-in-slovakia-europe-1.jpg" style="float:right;margin:0px 0px 10px 10px;margin-bottom:10px;margin-left:10px;margin-right:0px;margin-top:0px;width:400px"/>1</p><p align="right" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">2</p><p align="right" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">3</p><p align="right" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">4</p><p align="right" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">5</p><p align="right" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">6</p><p align="right" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">7</p><p align="right" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">8</p><p align="left" style="font-size:17px"></p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">Videó beágyazás:</p><p align="left" style="font-size:17px"></p><iframe src="https://www.youtube.com/embed/EIolal0VsoE" style="display:flex;height:400px;margin-left:0px;margin-right:auto;width:560px" class="css-er55u4" allow="accelerometer" allowfullscreen=""></iframe><p align="left" style="font-size:17px"></p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word">CTA:</p><p align="left" style="font-size:17px;overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word"><span>:kissing_heart:</span></p><button class="css-3t65p2" style="background-color:rgb(255, 0, 0);color:black;display:flex;margin-right:auto;text-align:left" href="https://www.youtube.com/watch?v=EIolal0VsoE">gombszöveg</button><p align="left" style="font-size:17px"></p>'),
-    fontsize: '',
-    color: '#bbb'
+    value: serializer.deserialize('<p align="left" style="font-size: 17px"></p>'),
   };
 
   onChange = ({ value }) => {
     this.setState({ value });
   };
-  
+
   render() {
     return (
       <App value={this.state.value} onChange={this.onChange}>
@@ -33,7 +30,6 @@ class Default extends React.Component {
         </Menubar>
         <Toolbar className="position-sticky">
           <ToolbarGroup>
-            
             <ToolbarItem type="mark" tag="b" name="bold" tooltip="Félkövér">
               <i className="fa fa-bold" aria-hidden="true"></i>
             </ToolbarItem>
@@ -139,23 +135,13 @@ class Default extends React.Component {
           <ToolbarGroup>
             <ToolbarItem type="text" tag="${JEGY_ÁR}" name="text" id="text">
               JEGY_ÁR
-            </ToolbarItem>
-           
+            </ToolbarItem>         
           </ToolbarGroup>
         </Toolbar>
         <Editor />
-        <button onClick={() => {
-          let vaa = serializer.serialize(this.state.value);
-          let anyad = serializer.deserialize(vaa);
-          let apad = serializer.serialize(anyad);
-          alert('apad');
-          console.log(apad)
-        }}>AAAAAA</button><br />
         {/* {serializer.serialize(this.state.value)} */}
         <Statusbar />
-       
       </App>
-     
     );
   }
 }

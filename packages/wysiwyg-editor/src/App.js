@@ -1,4 +1,4 @@
-import React, { MouseEvent } from 'react';
+import React from 'react';
 import PropTypes, { element, bool } from 'prop-types';
 import classNames from 'classnames';
 import Html from 'slate-html-serializer';
@@ -8,14 +8,9 @@ import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
 import DropZone from 'react-dropzone';
-import 'font-awesome/css/font-awesome.css';
-
-import './App.css';
+import './App.css'
 import './simple-grid.css'
-import { createEvent } from '@testing-library/react';
-// import './wysiwyg.css'
-// import { Selection, Value } from 'slate';
-// import ToolbarItem from './ToolbarItem';
+import 'font-awesome/css/font-awesome.css';
 const json = require('./emoji.json');
 
 const propTypes = {
@@ -971,7 +966,6 @@ export const serializer = new Html({ rules: RULES });
 class App extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       value: serializer.deserialize(initialValue),
       isOpenModal: false,
@@ -1415,6 +1409,14 @@ class App extends React.Component {
       }
       return;
     }
+  }
+
+  onDropOrPaste = (event, editor, next) => {
+    const target = editor.findEventRange(event);
+    if (!target && event.type === 'drop') return next();
+
+    const transfer = getEventTransfer(event);
+    const { type, text, files } = transfer;
 
     if (type === 'text') {
       if (!isUrl(text)) return next();
@@ -1792,7 +1794,6 @@ class App extends React.Component {
           } 
         }
       }
-
       // EMBED
       if (block.type === 'embed') {
         if (
@@ -2558,6 +2559,7 @@ class App extends React.Component {
               onChange: props.onChange,
               renderBlock: this.renderBlock,
               renderMark: this.renderMark,
+              renderInline: this.renderInline,
               hasBlock: this.hasBlock,
               hasLinks: this.hasLinks,
               onClickBlock: this.onClickBlock,
@@ -2568,7 +2570,6 @@ class App extends React.Component {
               onClickText: this.onClickText,
               onClickImage: this.onClickImage,
               onClickTable: this.onClickTable,
-              renderInline: this.renderInline,
               onChangeFile: this.onChangeFile,
               onClickEmbed: this.onClickEmbed,
               onClickModal: this.onClickModal,
