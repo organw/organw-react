@@ -70,7 +70,6 @@ const ToolbarItem = ({
         //     propss.toggleColor(name, element)
         //   }
         //  }
-          console.log(tooltip)
           return (
             <React.Fragment>
             <Component
@@ -309,8 +308,6 @@ const ToolbarItem = ({
                 onMouseDown={(e) => {propss.onChangeValue(e, type);}}
                 onClick={(e) => propss.onChangeValue(e, type)}
                 id="font"
-                data-toggle="tooltip"
-                title={tooltip}
               >
                 Betűméret&nbsp;
               </Component>
