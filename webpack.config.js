@@ -88,12 +88,6 @@ module.exports = function(env = 'production') {
             limit: 50000,
           },
         },
-      ],
-      loaders: [
-        {
-          test: /\.json$/,
-          loader: 'json-loader'
-        }
       ]
     },
 
