@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.25.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.24.4...@organw/wysiwyg-editor@0.25.0) (2020-07-25)
+
+
+### Bug Fixes
+
+* **ToolbarItem.js:** delete tooltip ([f970a01](https://github.com/organw/organw-react/commit/f970a01352e981b25d2974d896ab2dd60a3c60e3))
+
+
+### Features
+
+* **wysiwyg-editor:** add fontsize and emoji support ([#6](https://github.com/organw/organw-react/issues/6)) ([a56c16b](https://github.com/organw/organw-react/commit/a56c16b2087df687b26c7f75a3c7cdeb0497b647))
+
+
+
+
+
 ## [0.24.4](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.24.3...@organw/wysiwyg-editor@0.24.4) (2020-02-11)
 
 
