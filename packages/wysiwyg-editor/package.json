@@ -38,8 +38,7 @@
     "slate-editor": "^5.1.1",
     "slate-html-serializer": "^0.8.10",
     "slate-insert-block-on-enter": "^0.4.0",
-    "slate-react": "^0.22.7",
-    "font-awesome": "4.7.0"
+    "slate-react": "^0.22.7"
   },
   "gitHead": "f38e6b9f8533af428b20bb90b4c6cc031e5d6f43"
 }
