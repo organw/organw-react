@@ -86,8 +86,6 @@
   .ow-wysiwyg-toolbar {
 
     color: black;
-    position: -webkit-sticky;
-    position: fixed;
     top: 0;
     display: block;
     padding: 20px 0 0 0;
