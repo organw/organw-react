@@ -72,7 +72,7 @@ const ToolbarItem = ({
         //     propss.toggleColor(name, element)
         //   }
         //  }
-          console.log(tooltip)
+         
           return (
             <React.Fragment>
             <Component
@@ -151,16 +151,16 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             return (
+              <span className="tooltip" tabindex="0" data-toggle="tooltip" title={tooltip}>
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
-                data-toggle="tooltip"
-                title={tooltip}
               >
                 {children}
               </Component>
+              </span>
             );
           }}
         </SharedAppConsumer>
@@ -171,16 +171,16 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             return (
+              <span className="tooltip" tabindex="0" data-toggle="tooltip" title={tooltip}>
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
-                data-toggle="tooltip"
-                title={tooltip}
               >
                 {children}
               </Component>
+              </span>
             );
           }}
         </SharedAppConsumer>
@@ -191,16 +191,16 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             return (
+              <span className="tooltip" tabindex="0" data-toggle="tooltip" title={tooltip}>
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
-                data-toggle="tooltip"
-                title={tooltip}
               >
                 {children}
               </Component>
+              </span>
             );
           }}
         </SharedAppConsumer>

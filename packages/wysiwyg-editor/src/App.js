@@ -42,11 +42,11 @@ const isStriketroughHotkey = isKeyHotkey('mod+s');
 
 function insertImage(editor, file, type, name, target) {
  
- 
+  
   if (name === 'float_left' || name === 'float_right') {
     let style = {};
     let blockStyle = {};
-    let src = file.url;
+    let src = 'data:image/jpeg;base64,' + file.url;
     let float = name.slice(6, name.length);
     if (float === 'left') {
       style['float'] = float;
@@ -115,7 +115,7 @@ function insertImage(editor, file, type, name, target) {
       type: 'image',
       isVoid: true,
       data: { 
-        src: src,
+        src: file.url,
         style: style,
         type: 'image'
       }
@@ -195,9 +195,8 @@ const RULES = [
       const block = BLOCK_TAGS[el.tagName.toLowerCase()];
       const mark = MARK_TAGS[el.tagName.toLowerCase()];
       const inline = INLINE_TAGS[el.tagName.toLowerCase()];
-     
+    
       if (block) {
-        
         let stilus = el.style;
         let style = Object.assign({}, stilus)
         let tagName = el.tagName === 'IMG' ? (el.getAttribute('align') ? 'float' : 'image') : el.tagName;
@@ -365,11 +364,8 @@ const RULES = [
         }
         if (el.tagName === 'BUTTON') {
           let style = getStilus(el.tagName);
-          let value = el.innerText;
+          let value = el.innerText
           let href = el.getAttribute('href');
-          el.addEventListener('click', function () { window.open(href) })
-          // createEvent(el, "click", () => window.open(href));
-          // el.setAttribute('onClick', () => window.open(href))
           if (style && value) {
             if (href) {
               return {
@@ -379,7 +375,7 @@ const RULES = [
                   className: el.getAttribute('class'),
                   style: style,
                   value: value,
-                  href: href 
+                  href: href, 
                 },
               }
             } else {
@@ -495,7 +491,7 @@ const RULES = [
           }
         }
         if (el.tagName === 'UL') {
-          let style = el.getAttribute('style');
+          // let style = el.getAttribute('style');
             return {
               object: 'block',
               type: 'bulleted-list',
@@ -506,7 +502,7 @@ const RULES = [
             }
         }
         if (el.tagName === 'OL') {
-          let style = el.getAttribute('style');
+          // let style = el.getAttribute('style');
             return {
               object: 'block',
               type: 'numbered-list',
@@ -762,22 +758,28 @@ const RULES = [
           }
           case 'list-item': {
             let parent = obj.data.get('parent');
-            if (parent) {
-              if (parent === 'bulleted-list') {
+            let style = obj.data.get('style');
+    
+            if(typeof style === "object"){
+              console.log(style)
+              if (parent) {
+                if (parent === 'bulleted-list') {
+                  return (
+                    <li style={style} parent={parent} {...attributes}>{children}</li>
+                  );
+                }
+                if (parent === 'numbered-list') {
+                  return (
+                    <li style={style} parent={parent} {...attributes}>{children}</li>
+                  );
+                }
+              } else {
                 return (
-                  <li parent={parent} {...attributes}>{children}</li>
+                  <li style={style} {...attributes}>{children}</li>
                 );
               }
-              if (parent === 'numbered-list') {
-                return (
-                  <li parent={parent} {...attributes}>{children}</li>
-                );
-              }
-            } else {
-              return (
-                <li {...attributes}>{children}</li>
-              );
             }
+           
           }
           case 'bulleted-list': {
               return (
@@ -854,28 +856,21 @@ const RULES = [
             if(style && value){
               if (href) {
                 return (
-                  <button 
-                  className={css`
-                    max-height: 20em;
-                    box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
-                  `}
-                  style={style} 
+                  <button
+                  type="submit"
+                  className={css`max-height: 20em;box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}`}
                   href={href}
-                  onClick={() => window.open(href)}
-                  {...attributes}
+                  style={style}
                   >
-                    {value}
+                  <a href={href} style={{ textDecoration: 'none', color: style.color }} target="_blank">{value}</a>
                   </button>
                 );
               } else {
                 return (
-                  <button 
-                  className={css`
-                    max-height: 20em;
-                    box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
-                  `}
-                  style={style} 
-                  {...attributes}
+                  <button
+                  type="submit"
+                  className={css`max-height: 20em;box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}`}
+                  style={style}
                   >
                     {value}
                   </button>
@@ -1085,13 +1080,9 @@ class App extends React.Component {
       
     }
     if(name === 'image'){
-      let newObj = {
-        objid: "55",
-        url: "https://d1hlpam123zqko.cloudfront.net/657/306/991/710003019-1qi5oe8-kdbkd8e1mmn3j0p/original/nzdfiamegykcsg.jpg",
-      }
-      this.setState((prevState) => ({
-        images: [...prevState.images, newObj]
-      }))
+      this.onDropImage(e.target.files)
+     
+     
     } else {
       this.setState({
         [name]: value
@@ -1144,14 +1135,117 @@ class App extends React.Component {
     } 
       newStyle['fontSize'] = fontsize
       if(windowSelection.type === 'Range'){
-        this.editor.setBlocks({
-          object: 'block',
-          type: focusBlockType,
-          data: {
-            style: newStyle,
-          },
-        });
+        console.log(focusBlockType)
+        console.log(this.editor.value.focusBlock)
+        if (focusBlockType === 'list-item') {
+          console.log('font2');
+          this.editor.setNodeByKey(this.editor.value.focusBlock.key, {
+            object: 'block',
+            type: 'list-item',
+            data: {
+              style: newStyle,
+            }
+          })
+           
+        //   this.editor.value.document.nodes.forEach((block) => {
+        //     if (block.type === 'numbered-list' || block.type === 'bulleted-list') {
+        //       this.editor
+        //       .unwrapBlock(block.type)
+        //       .unwrapBlock('list-item')
+        //       .setBlocks({
+        //         object: 'block',
+        //         type: 'list-item',
+        //         data: {
+        //           style: newStyle,
+        //         }
+        //       })
+        //       .wrapBlock(block.type);
+        //       console.log('numbered-list')
+        //     } else {
+        //       if (block.type === 'list-item')
+        //       console.log('list-item')
+        //       this.editor
+        //     .unwrapBlock(block.type)
+        //     .setBlocks({
+        //       object: 'block',
+        //       type: 'list-item',
+        //       data: {
+        //         style: newStyle,
+        //       },
+        //     })
+        //   }
+
+        //     // if (block.type === 'bulleted-list') {
+        //     //   console.log('bulleted-list');
+        //     //   this.editor
+        //     //   .unwrapBlock(block.type)
+        //     //   .unwrapBlock('list-item')
+        //     //   .setBlocks({
+        //     //     object: 'block',
+        //     //     type: 'list-item',
+        //     //     data: {
+        //     //       style: newStyle,
+        //     //     },
+        //     //   })
+        //     //   .wrapBlock(block.type);
+        //     // }
+        // })
+        } else {
+          this.editor.setBlocks({
+            object: 'block',
+            type: focusBlockType,
+            data: {
+              style: newStyle,
+            },
+          });
+        }
+       
       } else if (style && style.fontSize !== fontsize) {
+        console.log(focusBlockType)
+        if (focusBlockType === 'list-item') {
+          console.log('font2');
+          // this.editor.value.document.nodes.forEach((block) => {
+          //   if (block.type === 'numbered-list') {
+          //     this.editor
+          //     .unwrapBlock(block.type)
+          //     .unwrapBlock('list-item')
+          //     .setBlocks({
+          //       object: 'block',
+          //       type: 'list-item',
+          //       data: {
+          //         style: newStyle,
+          //       },
+          //     })
+          //     .wrapBlock(block.type);
+          //     console.log('numbered-list')
+          //   }
+          //   if (block.type === 'bulleted-list') {
+          //     console.log('bulleted-list');
+          //     this.editor
+          //     .unwrapBlock(block.type)
+          //     .unwrapBlock('list-item')
+          //     .setBlocks({
+          //       object: 'block',
+          //       type: 'list-item',
+          //       data: {
+          //         style: newStyle,
+          //       },
+          //     })
+          //     .wrapBlock(block.type);
+          //   }
+          //   if (block.type === 'list-item')
+          //       console.log('list-item')
+          //       this.editor
+          //     .unwrapBlock(block.type)
+          //     .setBlocks({
+          //       object: 'block',
+          //       type: 'list-item',
+          //       data: {
+          //         style: newStyle,
+          //       },
+          //     })
+          //   })
+        } else {
           this.editor.setBlocks({
             object: 'block',
             type: startBlockType, 
@@ -1159,6 +1253,8 @@ class App extends React.Component {
               style: newStyle,
             },
             });
+        }
+         
       }    
   }
 
@@ -1192,6 +1288,7 @@ class App extends React.Component {
         style: style,
         value: buttonvalue,
         href: buttonhref,
+        onclick: `window.open(${buttonhref})`
       }
     };
     this.editor.insertBlock(buttonObj);
@@ -1382,10 +1479,10 @@ class App extends React.Component {
 
   onImageUpload = (file) => {
     return {
-      content: "",
+      url: file.url,
       docname: "",
-      mime: "",
-      length: "",
+      mime: file.mime,
+      length: file.length,
       alt: ""
     };
   };
@@ -1404,7 +1501,7 @@ class App extends React.Component {
         if (mime !== 'image') continue;
 
         reader.addEventListener('load', () => {
-          editor.command(insertImage, reader.result, target);
+         this.editor.command(insertImage(editor, reader.result));
         });
 
         reader.readAsDataURL(file);
@@ -1428,7 +1525,7 @@ class App extends React.Component {
       reader.onload = () => {
         const fileAsBinaryString = reader.result;
         let files = {
-          content: btoa(fileAsBinaryString),
+          url: btoa(fileAsBinaryString),
           uploadDate: new Date(),
           docname: file.name,
           preview: file.preview,
@@ -1436,16 +1533,19 @@ class App extends React.Component {
           mime: file.type || 'application/octet-stream',
           new: true,
           length: file.size,
-          //id: Lib.Browser.uuidv4(),
+          id: 111,
         };
-        console.log(files)
-        this.setState({ image: files }, async () => { 
-          this.onImageUpload(files);
-          this.setState({ images: await this.onImageLoading() });
+        let newObj = {
+          objid: files.id,
+          url: 'data:image/jpeg;base64,' + files.url,
+        }
+        this.setState((prevState) => ({ images: [...prevState.images, newObj] }), async () => {
+          await this.onImageLoading(this.state.images)
         });
       };
       reader.readAsBinaryString(file);
     });
+  
   }
 
   onClickLink =(linkhref, linktext) => {
@@ -1874,7 +1974,7 @@ class App extends React.Component {
             data: {
               style: newStyle,
               value: text,
-              href: href
+              href: href,
             }
           }
           editor.setBlocks(buttonObj);
@@ -2107,22 +2207,26 @@ class App extends React.Component {
       }
       case 'list-item': {
         let parent = node.data.get('parent');
-        if (parent) {
+        let style = node.data.get('style');
+        if (style && typeof style === "object"){
+           if (parent) {
           if (parent === 'bulleted-list') {
             return (
-              <li parent={parent} {...attributes}>{children}</li>
+              <li style={style} parent={parent} {...attributes}>{children}</li>
             );
           }
           if (parent === 'numbered-list') {
             return (
-              <li parent={parent} {...attributes}>{children}</li>
+              <li style={style} parent={parent} {...attributes}>{children}</li>
             );
           }
         } else {
           return (
-            <li {...attributes}>{children}</li>
+            <li style={style} {...attributes}>{children}</li>
           );
         }
+        }
+       
       }
       case 'bulleted-list': {
           return (
@@ -2201,26 +2305,30 @@ class App extends React.Component {
         let style = node.data.get('style');
         let value = node.data.get('value') ? node.data.get('value') : node.text;
         let href = node.data.get('href');
+     
         if (style && value) {
           if (href) {
             return (
               <button
+              type="submit"
               className={css`
                 max-height: 20em;
                 box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
               `}
               style={style}
               href={href}
-              onClick={() => window.open(href)}
               {...attributes}
+             
               >
-                {value}
+                <a href={href} style={{ textDecoration: 'none', color: style.color }} target="_blank">{value}</a>
               </button>
             );
           } else {
             return (
               <button
+              type="submit"
               className={css`
+                max-height: 20em;
                 box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
               `}
               style={style}
