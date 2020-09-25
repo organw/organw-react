@@ -147,7 +147,6 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             return (
-              <span className="tooltip" tabindex="0" data-toggle="tooltip" title={tooltip}>
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
@@ -156,7 +155,6 @@ const ToolbarItem = ({
               >
                 {children}
               </Component>
-              </span>
             );
           }}
         </SharedAppConsumer>
@@ -167,7 +165,6 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             return (
-              <span className="tooltip" tabindex="0" data-toggle="tooltip" title={tooltip}>
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
@@ -176,7 +173,6 @@ const ToolbarItem = ({
               >
                 {children}
               </Component>
-              </span>
             );
           }}
         </SharedAppConsumer>
@@ -187,7 +183,6 @@ const ToolbarItem = ({
         <SharedAppConsumer>
           {propss => {
             return (
-              <span className="tooltip" tabindex="0" data-toggle="tooltip" title={tooltip}>
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
@@ -196,7 +191,6 @@ const ToolbarItem = ({
               >
                 {children}
               </Component>
-              </span>
             );
           }}
         </SharedAppConsumer>
