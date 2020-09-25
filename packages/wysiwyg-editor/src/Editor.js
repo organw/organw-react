@@ -27,9 +27,6 @@ const schema = {
     }
   },
   inlines: {
-    link: {
-      isVoid: true,
-    },
     image: {
       isVoid: true,
     },

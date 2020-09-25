@@ -11,16 +11,18 @@ import {
   Editor,
   Statusbar,
 } from './index';
+import { SetSelectionOperation } from 'slate';
 
 class Default extends React.Component {
   state = {
-    value: serializer.deserialize('<p align="left" style="font-size: 17px"></p>'),
+    value: serializer.deserialize('<p align="left" style="font-size:17px"></p>'),
+    fontsize: '',
+    color: '#bbb'
   };
 
   onChange = ({ value }) => {
     this.setState({ value });
   };
-
   render() {
     return (
       <App value={this.state.value} onChange={this.onChange}>
