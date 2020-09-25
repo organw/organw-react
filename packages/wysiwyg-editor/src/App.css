@@ -67,7 +67,6 @@
   visibility: visible;
   opacity: 1;
 }
-
 .ow-wysiwyg-menubar {
     background: #fff;
     background-color: #fff;
@@ -115,7 +114,7 @@
     padding-top: inherit;
     display: flex;
     flex: 1;
-    padding-top: 150px;
+    padding-top: 0px;
     -ms-flex-preferred-size: auto;
     overflow: hidden;
     position: relative;

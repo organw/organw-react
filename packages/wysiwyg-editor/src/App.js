@@ -9,7 +9,6 @@ import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
 import DropZone from 'react-dropzone';
 import 'font-awesome/css/font-awesome.css';
-
 import './App.css';
 import './simple-grid.css'
 import { createEvent } from '@testing-library/react';
@@ -46,7 +45,7 @@ function insertImage(editor, file, type, name, target) {
   if (name === 'float_left' || name === 'float_right') {
     let style = {};
     let blockStyle = {};
-    let src = 'data:image/jpeg;base64,' + file.url;
+    let src = file.url;
     let float = name.slice(6, name.length);
     if (float === 'left') {
       style['float'] = float;
@@ -491,7 +490,7 @@ const RULES = [
           }
         }
         if (el.tagName === 'UL') {
-          // let style = el.getAttribute('style');
+          let style = el.getAttribute('style');
             return {
               object: 'block',
               type: 'bulleted-list',
@@ -502,7 +501,7 @@ const RULES = [
             }
         }
         if (el.tagName === 'OL') {
-          // let style = el.getAttribute('style');
+          let style = el.getAttribute('style');
             return {
               object: 'block',
               type: 'numbered-list',
@@ -779,7 +778,6 @@ const RULES = [
                 );
               }
             }
-           
           }
           case 'bulleted-list': {
               return (
@@ -1003,7 +1001,6 @@ class App extends React.Component {
       select: undefined,
     };
   }
-
   ref = editor => {
     this.editor = editor;
   };
@@ -1508,7 +1505,6 @@ class App extends React.Component {
       }
       return;
     }
-
     if (type === 'text') {
       if (!isUrl(text)) return next();
       if (!isImage(text)) return next();
@@ -1533,6 +1529,7 @@ class App extends React.Component {
           mime: file.type || 'application/octet-stream',
           new: true,
           length: file.size,
+
           id: 111,
         };
         let newObj = {
@@ -1541,11 +1538,11 @@ class App extends React.Component {
         }
         this.setState((prevState) => ({ images: [...prevState.images, newObj] }), async () => {
           await this.onImageLoading(this.state.images)
+
         });
       };
       reader.readAsBinaryString(file);
     });
-  
   }
 
   onClickLink =(linkhref, linktext) => {
@@ -1888,7 +1885,6 @@ class App extends React.Component {
           } 
         }
       }
-
       // EMBED
       if (block.type === 'embed') {
         if (
@@ -2226,7 +2222,6 @@ class App extends React.Component {
           );
         }
         }
-       
       }
       case 'bulleted-list': {
           return (
@@ -2662,6 +2657,7 @@ class App extends React.Component {
               onChange: props.onChange,
               renderBlock: this.renderBlock,
               renderMark: this.renderMark,
+              renderInline: this.renderInline,
               hasBlock: this.hasBlock,
               hasLinks: this.hasLinks,
               onClickBlock: this.onClickBlock,
@@ -2672,7 +2668,6 @@ class App extends React.Component {
               onClickText: this.onClickText,
               onClickImage: this.onClickImage,
               onClickTable: this.onClickTable,
-              renderInline: this.renderInline,
               onChangeFile: this.onChangeFile,
               onClickEmbed: this.onClickEmbed,
               onClickModal: this.onClickModal,

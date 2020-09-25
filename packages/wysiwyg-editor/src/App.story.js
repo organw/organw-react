@@ -23,7 +23,6 @@ class Default extends React.Component {
   onChange = ({ value }) => {
     this.setState({ value });
   };
-  
   render() {
     return (
       <App value={this.state.value} onChange={this.onChange}>
@@ -33,7 +32,6 @@ class Default extends React.Component {
         </Menubar>
         <Toolbar className="position-sticky">
           <ToolbarGroup>
-            
             <ToolbarItem type="mark" tag="b" name="bold" tooltip="Félkövér">
               <i className="fa fa-bold" aria-hidden="true"></i>
             </ToolbarItem>
@@ -139,23 +137,13 @@ class Default extends React.Component {
           <ToolbarGroup>
             <ToolbarItem type="text" tag="${JEGY_ÁR}" name="text" id="text">
               JEGY_ÁR
-            </ToolbarItem>
-           
+            </ToolbarItem>         
           </ToolbarGroup>
         </Toolbar>
         <Editor />
-        <button onClick={() => {
-          let vaa = serializer.serialize(this.state.value);
-          let anyad = serializer.deserialize(vaa);
-          let apad = serializer.serialize(anyad);
-          alert(anyad);
-          console.log(apad)
-        }}>AAAAAA</button><br />
         {/* {serializer.serialize(this.state.value)} */}
         <Statusbar />
-       
       </App>
-     
     );
   }
 }

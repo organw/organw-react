@@ -59,8 +59,6 @@ const ToolbarItem = ({
   //   </SharedAppConsumer>
   //   )
   // }
- 
-
   // MARK
   if (type === 'mark') {
     return (
@@ -72,7 +70,6 @@ const ToolbarItem = ({
         //     propss.toggleColor(name, element)
         //   }
         //  }
-         
           return (
             <React.Fragment>
             <Component
@@ -88,7 +85,6 @@ const ToolbarItem = ({
             </Component>
             </React.Fragment>
           );
-          
         }}
       </SharedAppConsumer>
     );
@@ -320,8 +316,7 @@ const ToolbarItem = ({
       </SharedAppConsumer>
     );
   } 
-
-    // FONTSIZE
+  // FONTSIZE
     if (type === 'fontsize') {
       return (
         <SharedAppConsumer>
@@ -342,7 +337,6 @@ const ToolbarItem = ({
         </SharedAppConsumer>
       );
     } 
-
   // TABLE
   if (type === 'table') {
     // NORMAL TABLE

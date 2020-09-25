@@ -71,9 +71,7 @@ class Editor extends React.Component {
               </React.Fragment>
             );
           }}
-
         </SharedAppConsumer>
-        
       </Component>
     );
   }
