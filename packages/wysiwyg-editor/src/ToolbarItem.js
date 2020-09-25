@@ -152,6 +152,8 @@ const ToolbarItem = ({
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -170,6 +172,8 @@ const ToolbarItem = ({
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
@@ -188,6 +192,8 @@ const ToolbarItem = ({
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
                 }}
+                data-toggle="tooltip"
+                title={tooltip}
               >
                 {children}
               </Component>
