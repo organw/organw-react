@@ -7,14 +7,9 @@ import { isKeyHotkey } from 'is-hotkey';
 import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
-import DropZone from 'react-dropzone';
 import 'font-awesome/css/font-awesome.css';
 import './App.css';
 import './simple-grid.css'
-import { createEvent } from '@testing-library/react';
-// import './wysiwyg.css'
-// import { Selection, Value } from 'slate';
-// import ToolbarItem from './ToolbarItem';
 const json = require('./emoji.json');
 
 const propTypes = {
@@ -446,7 +441,7 @@ const RULES = [
         if (el.tagName === 'LI') {
           let parent = el.getAttribute('parent');
           let style = el.getAttribute('style');
-          if (parent) {
+          if (parent && style) {
             if (parent === 'bulleted-list') {
               return {
                 object: 'block',
@@ -479,18 +474,22 @@ const RULES = [
               }
             }
           } else {
-            return {
-              object: 'block',
-              type: 'list-item',
-              data: {
-                style: style
-              },
-              nodes: next(el.childNodes)
+            let style = el.getAttribute('style');
+            if (style) {
+              return {
+                object: 'block',
+                type: 'list-item',
+                data: {
+                  style: style
+                },
+                nodes: next(el.childNodes)
+              }
             }
           }
         }
         if (el.tagName === 'UL') {
           let style = el.getAttribute('style');
+          if (style) {
             return {
               object: 'block',
               type: 'bulleted-list',
@@ -499,9 +498,11 @@ const RULES = [
               },
               nodes: next(el.childNodes)
             }
+          }
         }
         if (el.tagName === 'OL') {
           let style = el.getAttribute('style');
+          if (style) {
             return {
               object: 'block',
               type: 'numbered-list',
@@ -510,6 +511,7 @@ const RULES = [
               },
               nodes: next(el.childNodes)
             }
+          }
         }
         if (el.tagName === 'BR') {
             return {
@@ -759,8 +761,7 @@ const RULES = [
             let parent = obj.data.get('parent');
             let style = obj.data.get('style');
     
-            if(typeof style === "object"){
-              console.log(style)
+            if(style && typeof style === "object"){
               if (parent) {
                 if (parent === 'bulleted-list') {
                   return (
@@ -1078,8 +1079,6 @@ class App extends React.Component {
     }
     if(name === 'image'){
       this.onDropImage(e.target.files)
-     
-     
     } else {
       this.setState({
         [name]: value
@@ -1132,8 +1131,6 @@ class App extends React.Component {
     } 
       newStyle['fontSize'] = fontsize
       if(windowSelection.type === 'Range'){
-        console.log(focusBlockType)
-        console.log(this.editor.value.focusBlock)
         if (focusBlockType === 'list-item') {
           console.log('font2');
           this.editor.setNodeByKey(this.editor.value.focusBlock.key, {
@@ -1143,50 +1140,6 @@ class App extends React.Component {
               style: newStyle,
             }
           })
-           
-        //   this.editor.value.document.nodes.forEach((block) => {
-        //     if (block.type === 'numbered-list' || block.type === 'bulleted-list') {
-        //       this.editor
-        //       .unwrapBlock(block.type)
-        //       .unwrapBlock('list-item')
-        //       .setBlocks({
-        //         object: 'block',
-        //         type: 'list-item',
-        //         data: {
-        //           style: newStyle,
-        //         }
-        //       })
-        //       .wrapBlock(block.type);
-        //       console.log('numbered-list')
-        //     } else {
-        //       if (block.type === 'list-item')
-        //       console.log('list-item')
-        //       this.editor
-        //     .unwrapBlock(block.type)
-        //     .setBlocks({
-        //       object: 'block',
-        //       type: 'list-item',
-        //       data: {
-        //         style: newStyle,
-        //       },
-        //     })
-        //   }
-
-        //     // if (block.type === 'bulleted-list') {
-        //     //   console.log('bulleted-list');
-        //     //   this.editor
-        //     //   .unwrapBlock(block.type)
-        //     //   .unwrapBlock('list-item')
-        //     //   .setBlocks({
-        //     //     object: 'block',
-        //     //     type: 'list-item',
-        //     //     data: {
-        //     //       style: newStyle,
-        //     //     },
-        //     //   })
-        //     //   .wrapBlock(block.type);
-        //     // }
-        // })
         } else {
           this.editor.setBlocks({
             object: 'block',
@@ -1198,51 +1151,7 @@ class App extends React.Component {
         }
        
       } else if (style && style.fontSize !== fontsize) {
-        console.log(focusBlockType)
-        if (focusBlockType === 'list-item') {
-          console.log('font2');
-          // this.editor.value.document.nodes.forEach((block) => {
-          //   if (block.type === 'numbered-list') {
-          //     this.editor
-          //     .unwrapBlock(block.type)
-          //     .unwrapBlock('list-item')
-          //     .setBlocks({
-          //       object: 'block',
-          //       type: 'list-item',
-          //       data: {
-          //         style: newStyle,
-          //       },
-          //     })
-          //     .wrapBlock(block.type);
-          //     console.log('numbered-list')
-          //   }
-          //   if (block.type === 'bulleted-list') {
-          //     console.log('bulleted-list');
-          //     this.editor
-          //     .unwrapBlock(block.type)
-          //     .unwrapBlock('list-item')
-          //     .setBlocks({
-          //       object: 'block',
-          //       type: 'list-item',
-          //       data: {
-          //         style: newStyle,
-          //       },
-          //     })
-          //     .wrapBlock(block.type);
-          //   }
-          //   if (block.type === 'list-item')
-          //       console.log('list-item')
-          //       this.editor
-          //     .unwrapBlock(block.type)
-          //     .setBlocks({
-          //       object: 'block',
-          //       type: 'list-item',
-          //       data: {
-          //         style: newStyle,
-          //       },
-          //     })
-          //   })
-        } else {
+  
           this.editor.setBlocks({
             object: 'block',
             type: startBlockType, 
@@ -1250,7 +1159,7 @@ class App extends React.Component {
               style: newStyle,
             },
             });
-        }
+
          
       }    
   }
@@ -1284,8 +1193,7 @@ class App extends React.Component {
       data: {
         style: style,
         value: buttonvalue,
-        href: buttonhref,
-        onclick: `window.open(${buttonhref})`
+        href: buttonhref
       }
     };
     this.editor.insertBlock(buttonObj);
@@ -2490,8 +2398,8 @@ class App extends React.Component {
     }
     this.state.images.forEach((item) => {
       if (item.objid !== id) {
-        let otherElemeent = document.getElementById(item.objid);
-        let style = otherElemeent.style;
+        let otherElement = document.getElementById(item.objid);
+        let style = otherElement.style;
         style.border = 'none'
       }
     })
