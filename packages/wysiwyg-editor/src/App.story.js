@@ -23,9 +23,15 @@ class Default extends React.Component {
   onChange = ({ value }) => {
     this.setState({ value });
   };
+
+  getImages = (callback) => {}
+
+  insertImage = (file, callback) => {}  
+
+
   render() {
     return (
-      <App value={this.state.value} onChange={this.onChange}>
+      <App value={this.state.value} onChange={this.onChange} gallery={{listImages: this.getImages, addImage: this.insertImage}}>
         <Menubar>
           <MenuItem>File</MenuItem>
           <MenuItem>Help</MenuItem>
