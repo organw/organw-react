@@ -63,7 +63,7 @@ function insertImage(editor, file, type, name, target) {
     }
     blockStyle['whiteSpace'] = 'pre-wrap';
     blockStyle['overflowWrap'] = 'break-word';
-    // blockStyle[clear] = 'both';  NEM ENGEDI AZ MÁSIK BEKEZDÉST AZ ELŐZŐ KÉPHEZ "BEFOLYNI"
+    // blockStyle['clear'] = 'both';  // NEM ENGEDI AZ MÁSIK BEKEZDÉST AZ ELŐZŐ KÉPHEZ "BEFOLYNI"
     editor.insertInline({
       object: 'inline',
       type: 'image',
@@ -82,6 +82,7 @@ function insertImage(editor, file, type, name, target) {
     });
   } else {
     let style = {}
+    style['width'] = "400px"
     let src = file.url;
     let align = editor.value.focusBlock.type.slice(6, editor.value.focusBlock.type.length);
     delete style.float
@@ -817,6 +818,7 @@ const RULES = [
           case 'image': {
             const src = obj.data.get('src');
             const style = obj.data.get('style');
+            console.log(style)
             return (
               <img
                 {...attributes}
@@ -888,11 +890,13 @@ const RULES = [
             let src = obj.data.get('src');
             let style = obj.data.get('style');
             let float = obj.data.get('float');
+            console.log(style)
               if (src) {
                 if (style) {
                   return (
                     <img
                       {...attributes}
+                      width={style.width}
                       align={float}
                       src={src}
                       style={style}
@@ -979,7 +983,10 @@ class App extends React.Component {
       classname: '',
       text: '',
       // IMAGE
-      selectedImage: {},
+      activeImg: {
+        objid: '',
+        url: ''
+      },
       images: [],
       image: '',
       src: '',
@@ -1071,6 +1078,8 @@ class App extends React.Component {
           [name]: value
         }, () => this.onClickFontsize(value))
       }
+
+      
     }
     if(name === 'image'){
       this.onDropImage(e.target.files)
@@ -1360,6 +1369,33 @@ class App extends React.Component {
     }
   }
 
+  onImageLoading = () => {
+    return [
+      {
+        objid: "1",
+        url: "https://www.pauliinasiniauer.com/wp-content/uploads/2015/02/IMG_6912-916x687.jpg",
+      },
+      {
+        objid: "2",
+        url: "https://d1bvpoagx8hqbg.cloudfront.net/originals/nice-places-visit-riga-71f95d3fb7704fc95ba62f07a5201b25.jpg",
+      },
+      {
+        objid: "3",
+        url: "https://www.ytravelblog.com/wp-content/uploads/2018/04/places-to-visit-in-slovakia-europe-1.jpg",
+      }
+    ];
+  };
+
+  onImageUpload = (file) => {
+    return {
+      url: file.url,
+      docname: "",
+      mime: file.mime,
+      length: file.length,
+      alt: ""
+    };
+  };
+
   onDropOrPaste = (event, editor, next) => {
     const target = editor.findEventRange(event);
     if (!target && event.type === 'drop') return next();
@@ -1391,40 +1427,13 @@ class App extends React.Component {
     next();
   };
 
-  onImageInsert = (files) => {
-    const {gallery} = this.props;
-    gallery.addImage(files[0], (res, err) => {
-      if(!err){ 
-        gallery.listImages((resImgs, err) => {
-          if(!err){ 
-            this.setState({images: resImgs});
-          }
-        });    
-      }
-    });
-  }
-
-  onImageLoading = () => {
-    const {gallery} = this.props;
-    gallery.listImages((res, err) => {
-      if(!err){
-        this.setState({images: res}, () => {
-          this.toggleModal();
-        });
-      }
-    });
-  }
-
   onDropImage = (acceptedfiles) => {
-    acceptedfiles.forEach((file) => {
+    acceptedfiles.forEach((file, idx) => {
       const reader = new FileReader();
       reader.onload = () => {
         const fileAsBinaryString = reader.result;
-        const content = btoa(fileAsBinaryString);
-        let files = [];
-        files.push({
-          content: content,
-          url: 'data:image/jpeg;base64,' + content,
+        let files = {
+          url: btoa(fileAsBinaryString),
           uploadDate: new Date(),
           docname: file.name,
           preview: file.preview,
@@ -1432,8 +1441,16 @@ class App extends React.Component {
           mime: file.type || 'application/octet-stream',
           new: true,
           length: file.size,
+          id: file.size + new Date(),
+        };
+        let newObj = {
+          objid: files.id,
+          url: 'data:image/jpeg;base64,' + files.url,
+        }
+        this.setState((prevState) => ({ images: [...prevState.images, newObj] }), async () => {
+          await this.onImageLoading(this.state.images)
+
         });
-        this.onImageInsert(files);
       };
       reader.readAsBinaryString(file);
     });
@@ -2309,7 +2326,10 @@ class App extends React.Component {
   onClickModal = (type, name, e) => {
     this.setState({ modalType: type, buttonname: name } , async () => {
         if(type === 'image') {
-          this.onImageLoading();
+            this.setState({ images: await this.onImageLoading() }, () => {
+              this.toggleModal();
+            }
+          ); 
         } else {
           this.toggleModal();
         }
@@ -2367,8 +2387,8 @@ class App extends React.Component {
     )
   }
 
-  showFileSelector = () => {
-   document.getElementById('file').click();
+  showImages = () => {
+    document.getElementById('file').click();
   }
 
   getActive = (id) => {
@@ -2380,9 +2400,9 @@ class App extends React.Component {
       style.border = 'none'
     }
     this.state.images.forEach((item) => {
-      if (item.id !== id) {
-        let otherElement = document.getElementById(item.id);
-        let style = otherElement.style;
+      if (item.objid !== id) {
+        let otherElemeent = document.getElementById(item.objid);
+        let style = otherElemeent.style;
         style.border = 'none'
       }
     })
@@ -2390,27 +2410,25 @@ class App extends React.Component {
 
   imageModal = () => {
     return (
-        <div className="ow-row">
-          <div className="ow-col-6" style={{ height: 130, borderStyle: 'dashed', borderColor: 'darkgray'}} onClick={() => this.showFileSelector()}>
-            <i class="fa fa-upload" aria-hidden="true"></i>
-            <input className="ow-input ow-form-control" type='file' id='file' name='image' onChange={(e) => this.onChangeValue(e)} accept="image/*" style={{ display: 'none' }} />
-          </div>
-        {this.state.images.length !== 0 && this.state.images.map(image => {
-          const divKey = image.id;
-          const imageKey = image.objId;
-          return (
-            <div key={divKey} id={divKey} className="ow-col-6" style={{ height: 130, border: 'none', marginBottom: '10px', marginTop: '10px' }} >
-              <img
-                key={imageKey}
-                src={image.url}
-                alt={image.alt}
-                style={{ maxWidth: '100%', maxHeight: '100%', minWidth: '100%', minHeight: '100%'}}
-                onClick={() => {this.setState({ selectedImage: image }, () => this.getActive(image.id)) }}
-              />
-              {/* <input id={'alt-input'} name={'alt-input'} className="ow-input ow-form-control" style={{maxWidth: '100%', minWidth: '100%'}} disabled={!image.new} type='text' onChange={(e) => this.onChangeValue(e)} /> */}
-            </div>
-          )
-        })}
+      <div className="ow-row">
+        <div className="ow-col-6" style={{ height: 130, borderStyle: 'dashed', borderColor: 'darkgray' }} onClick={() => this.showImages()}>
+          <label className="ow-label">{'Kép feltötése!'}</label>
+          <input className="ow-input ow-form-control" type='file' id="file" name='image' onChange={(e) => this.onChangeValue(e)} onClick={() => this.showImages()} accept="image/*" style={{ display: 'none' }} />
+        </div>
+        {this.state.images.length !== 0 && (
+          this.state.images.map((image) => {
+            return (
+              <div key={image.objid} id={image.objid} onClick={() => { this.setState({ activeImg: image }, () => this.getActive(image.objid)) } } className="ow-col-6" style={{ height: 130, border: 'none' }} >
+                <img
+                  src={image.url}
+                  alt="photo"
+                  style={{ maxWidth: '100%', maxHeight: '100%', minWidth: '100%'}}
+                  key={image.url}
+                />
+              </div>
+            )
+          })
+        )}
       </div>
     )
   }
@@ -2517,7 +2535,7 @@ class App extends React.Component {
       this.onClickLink(this.state.linkhref, this.state.linktext);
     }
     if(type === 'image'){
-      return this.onClickImage(this.state.selectedImage);
+      return this.onClickImage(this.state.activeImg);
     }
     if(type === 'table'){
       return this.onClickTable(this.state.cols, this.state.rows, this.state.classname, this.state.buttonname);

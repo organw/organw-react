@@ -222,7 +222,7 @@ const ToolbarItem = ({
               />
               <Component
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
-                onMouseDown={(e) => propss.onClickModal(type, name)}
+                onMouseDown={(e) => propss.onClickModal(type, name, e)}
                 // onMouseDown={event => {
                 //   inputFile1.current.click();
                 // }}

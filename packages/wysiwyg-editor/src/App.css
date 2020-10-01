@@ -76,7 +76,8 @@
     flex: 1;
     padding-top: 0px;
     -ms-flex-preferred-size: auto;
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: hidden;
     position: relative;
   }
 
