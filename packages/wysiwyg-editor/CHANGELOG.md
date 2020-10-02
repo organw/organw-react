@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.36.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.32.0...@organw/wysiwyg-editor@0.36.0) (2020-10-02)
+
+
+### Bug Fixes
+
+* **wysiwyg-editor:** Add image upload logic ([b7d8636](https://github.com/organw/organw-react/commit/b7d863687374d27cdd1a08ab56b3fb42d05769b4))
+* **wysiwyg-editor:** fix image upload and image props ([50ba068](https://github.com/organw/organw-react/commit/50ba068df86c77347bb1d7d87de5d091bd8613e9))
+
+
+### Features
+
+* **wysiwyg-editor:** add release ([0af08f3](https://github.com/organw/organw-react/commit/0af08f324b5e248b110aee7efbf60e813f679f0d))
+
+
+
+
+
 # [0.32.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.30.0...@organw/wysiwyg-editor@0.32.0) (2020-09-29)
 
 
