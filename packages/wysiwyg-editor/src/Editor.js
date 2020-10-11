@@ -63,7 +63,7 @@ class Editor extends React.Component {
                   value={propps.value}
                   onChange={propps.onChange}
                   schema={schema}
-                  // onKeyDown={propps.onKeyDown}
+                  onKeyDown={propps.onKeyDown}
                   renderBlock={propps.renderBlock}
                   renderMark={propps.renderMark}
                   onDrop={propps.onDropOrPaste}

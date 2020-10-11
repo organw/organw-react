@@ -3,13 +3,14 @@ import PropTypes, { element, bool } from 'prop-types';
 import classNames from 'classnames';
 import Html from 'slate-html-serializer';
 import { getEventTransfer } from 'slate-react';
-import { isKeyHotkey } from 'is-hotkey';
+import isHotkey, { isKeyHotkey } from 'is-hotkey';
 import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
 import 'font-awesome/css/font-awesome.css';
 import './App.css';
 import './simple-grid.css'
+import { Block } from 'slate';
 const json = require('./emoji.json');
 
 const propTypes = {
@@ -28,29 +29,34 @@ const defaultProps = {
 // const DEFAULT_NODE = '';
 const initialValue = '<div></div>';
 const SharedAppContext = React.createContext({});
-const isBoldHotkey = isKeyHotkey('mod+b');
-const isItalicHotkey = isKeyHotkey('mod+i');
-const isUnderlinedHotkey = isKeyHotkey('mod+u');
-const isCodeHotkey = isKeyHotkey('mod+q');
-const isStriketroughHotkey = isKeyHotkey('mod+s');
+// const isBoldHotkey = isKeyHotkey('mod+b');
+// const isItalicHotkey = isKeyHotkey('mod+i');
+// const isUnderlinedHotkey = isKeyHotkey('mod+u');
+// const isCodeHotkey = isKeyHotkey('mod+q');
+// const isStriketroughHotkey = isKeyHotkey('mod+s');
 
-function insertImage(editor, file, type, name, target) {
+function insertImage(editor, file, type, name, target, width, height, alt) {
  
-  console.log(file)
   if (name === 'float_left' || name === 'float_right') {
     let style = {};
     let blockStyle = {};
+    let newBlockStyle = {};
     let src = file.url;
     let float = name.slice(6, name.length);
     if (float === 'left') {
+      style['display'] = "inline";
       style['float'] = float;
       style['margin'] = '0px 10px 10px 0px';
-      style['width'] = '400px';
+      style['width'] = width;
+      style['height'] = height;
+      
     }
     if (float === 'right') {
+      style['display'] = "inline";
       style['float'] = float;
       style['margin'] = '0px 0px 10px 10px';
       style['width'] = '400px';
+
     }
     let obj = {
       object: 'inline',
@@ -63,21 +69,30 @@ function insertImage(editor, file, type, name, target) {
     }
     blockStyle['whiteSpace'] = 'pre-wrap';
     blockStyle['overflowWrap'] = 'break-word';
-    // blockStyle['clear'] = 'both';  // NEM ENGEDI AZ MÁSIK BEKEZDÉST AZ ELŐZŐ KÉPHEZ "BEFOLYNI"
-    editor.insertInline({
-      object: 'inline',
-      type: 'image',
-      data: { 
-        src: src,
-        style: style,
-        float: float
+    blockStyle['fontSize'] = "17px"
+    newBlockStyle['clear'] = 'both';   // NEM ENGEDI AZ MÁSIK BEKEZDÉST AZ ELŐZŐ KÉPHEZ "BEFOLYNI"
+    editor.insertBlock({
+      object: "block",
+      type: `align-left`,
+      data: {
+        style: blockStyle
       },
+      nodes: [{
+        object: 'inline',
+        type: 'image',
+        data: { 
+          src: src,
+          style: style,
+          float: float,
+          alt: alt
+        },
+      }]
     });
-    editor.wrapBlock({
+    editor.insertBlock({
       object: 'block',
       type: 'align-left',
       data: {
-        style: blockStyle
+        style: newBlockStyle
       }
     });
   } else {
@@ -441,41 +456,49 @@ const RULES = [
         }
         if (el.tagName === 'LI') {
           let parent = el.getAttribute('parent');
-          let style = el.getAttribute('style');
-          if (parent && style) {
-            if (parent === 'bulleted-list') {
-              return {
-                object: 'block',
-                type: 'list-item',
-                data: {
-                  parent: parent,
-                  style: style
-                },
-                nodes: next(el.childNodes)
+          let style = getStilus(el.tagName);
+          console.log(style)
+          if (parent) {
+            if (style) {
+              if (parent === 'bulleted-list') {
+                return {
+                  object: 'block',
+                  type: 'list-item',
+                  data: {
+                    parent: parent,
+                    style: style
+                  },
+                  nodes: next(el.childNodes)
+                }
               }
-            }
-            if (parent === 'numbered-list') {
-              return {
-                object: 'block',
-                type: 'list-item',
-                data: {
-                  parent: parent,
-                  style: style
-                },
-                nodes: next(el.childNodes)
+              if (parent === 'numbered-list') {
+                return {
+                  object: 'block',
+                  type: 'list-item',
+                  data: {
+                    parent: parent,
+                    style: style
+                  },
+                  nodes: next(el.childNodes)
+                }
+              } else {
+                return {
+                  object: 'block',
+                  type: 'list-item',
+                  data: {
+                    style: style
+                  },
+                  nodes: next(el.childNodes)
+                }
               }
             } else {
               return {
                 object: 'block',
                 type: 'list-item',
-                data: {
-                  style: style
-                },
                 nodes: next(el.childNodes)
               }
             }
           } else {
-            let style = el.getAttribute('style');
             if (style) {
               return {
                 object: 'block',
@@ -485,9 +508,15 @@ const RULES = [
                 },
                 nodes: next(el.childNodes)
               }
+            } else {
+              return {
+                object: 'block',
+                type: 'list-item',
+                nodes: next(el.childNodes)
+              }
             }
           }
-        }
+          }
         if (el.tagName === 'UL') {
           let style = el.getAttribute('style');
           if (style) {
@@ -497,6 +526,12 @@ const RULES = [
               data: {
                 style: style
               },
+              nodes: next(el.childNodes)
+            }
+          } else {
+            return {
+              object: 'block',
+              type: 'bulleted-list',
               nodes: next(el.childNodes)
             }
           }
@@ -510,6 +545,12 @@ const RULES = [
               data: {
                 style: style
               },
+              nodes: next(el.childNodes)
+            }
+          } else {
+            return {
+              object: 'block',
+              type: 'numbered-list',
               nodes: next(el.childNodes)
             }
           }
@@ -779,6 +820,23 @@ const RULES = [
                   <li style={style} {...attributes}>{children}</li>
                 );
               }
+            } else {
+              if (parent) {
+                if (parent === 'bulleted-list') {
+                  return (
+                    <li style={style} parent={parent} {...attributes}>{children}</li>
+                  );
+                }
+                if (parent === 'numbered-list') {
+                  return (
+                    <li style={style} parent={parent} {...attributes}>{children}</li>
+                  );
+                }
+              } else {
+                return (
+                  <li style={style} {...attributes}>{children}</li>
+                );
+              }
             }
           }
           case 'bulleted-list': {
@@ -818,11 +876,12 @@ const RULES = [
           case 'image': {
             const src = obj.data.get('src');
             const style = obj.data.get('style');
-            console.log(style)
+            const alt = obj.data.get('alt');
             return (
               <img
                 {...attributes}
                 src={src}
+                alt={alt ? alt : ''}
                 style={style}
                 className={css`
                   display: block;
@@ -881,7 +940,7 @@ const RULES = [
             }
           }
           default:
-            return <p align="left">{children}</p>;
+            return <br />;
         }
       }
       if (obj.object === 'inline') {
@@ -890,14 +949,16 @@ const RULES = [
             let src = obj.data.get('src');
             let style = obj.data.get('style');
             let float = obj.data.get('float');
-            console.log(style)
+            let alt = obj.data.get('alt');
               if (src) {
                 if (style) {
                   return (
                     <img
                       {...attributes}
                       width={style.width}
+                      height={style.height}
                       align={float}
+                      alt={alt ? alt : ""}
                       src={src}
                       style={style}
                     />
@@ -1313,7 +1374,10 @@ class App extends React.Component {
     // this.toBase64(file, event).then((data) => {
     //   this.editor.command(insertImage(this.editor, data, type, this.state.buttonname, ''));
     // });
-    this.editor.command(insertImage(this.editor, file, type, this.state.buttonname, ''));
+    let width = document.getElementById(`width${file.objId}`).value;
+    let height = document.getElementById(`height${file.objId}`).value;
+    let alt = document.getElementById(`alt-input${file.objId}`).value;
+    this.editor.command(insertImage(this.editor, file, type, this.state.buttonname, '', width, height, alt));
   };
 
   getJsonFromUrl = (url) => {
@@ -1520,7 +1584,7 @@ class App extends React.Component {
           mime: file.type || 'application/octet-stream',
           new: true,
           length: file.size,
-          id: new Date() + file.length
+          id:  new Date() + file.size
         });
         if (gallery && gallery.addImage && gallery.listImages) {
           this.onImageInsert(files);
@@ -2034,31 +2098,35 @@ class App extends React.Component {
   //   editor.delete();
   // };
 
-  // onKeyDown = (event, editor, next) => {
-  //   // Return with no changes if the keypress is not '&'
-  //   if (event.key !== 'Enter') return next()
+  onKeyDown = (event, editor, next) => {
 
-  //   // Prevent the ampersand character from being inserted.
-  //   event.preventDefault()
-
-  //   // Change the value by inserting 'and' at the cursor's position.
-  //   // overflow-wrap:break-word;white-space:pre-wrap;word-wrap:break-word"
-  //   let style = this.editor.value.previousBlock
-  //   // delete style.overflowWrap;
-  //   // delete style.whiteSpace;
-  //   // delete style.wordWrap;
-  //   // if(style.text === ''){
-  //   //   style.
-  //   // }
-  //   editor.setBlocks({
-  //     object: 'block',
-  //     type: 'align-left',
-  //     data: {
-  //       style: {}
-  //     }
-  //   });
-  //   editor.insertBlock('align-left')
-  // }
+  
+    if (event.key === "Enter" && event.shiftKey === false) {
+      let style = editor.value.startBlock.data.get("style");
+      event.preventDefault();
+      const newLine = {
+          type: "paragraph",
+          children: [
+              {
+                  text: "",
+                  marks: []
+              }
+          ]
+      };
+      Block.create({
+        object: "block",
+        type: "align-left",
+        data: {
+          style: style
+        }
+      })
+    } 
+    if (event.key === "Enter" && event.shiftKey === true) {
+    editor.insertText('')
+    } else {
+      return next()
+    }
+  }
 
   renderMark = (props, editor, next) => {
     const { children, mark, attributes } = props;
@@ -2208,6 +2276,23 @@ class App extends React.Component {
             <li style={style} {...attributes}>{children}</li>
           );
         }
+        } else {
+          if (parent) {
+            if (parent === 'bulleted-list') {
+              return (
+                <li style={style} parent={parent} {...attributes}>{children}</li>
+              );
+            }
+            if (parent === 'numbered-list') {
+              return (
+                <li style={style} parent={parent} {...attributes}>{children}</li>
+              );
+            }
+          } else {
+            return (
+              <li style={style} {...attributes}>{children}</li>
+            );
+          }
         }
       }
       case 'bulleted-list': {
@@ -2324,7 +2409,7 @@ class App extends React.Component {
         }
       }
       default:
-        return <p align="left">{children}</p>;
+        return <br />;
     }
   };
 
@@ -2373,11 +2458,13 @@ class App extends React.Component {
         const src = node.data.get('src');
         const style = node.data.get('style');
         let float = node.data.get('float');
+        let alt = node.data.get('alt');
         return (
           <img
             {...attributes}
             align={float}
             src={src}
+            alt = {alt ? alt : ""} 
             style={style}
             className={css`
               display: block;
@@ -2489,17 +2576,18 @@ class App extends React.Component {
     const {gallery} = this.props;
     return (
         <div className="ow-row">
-          <div className="ow-col-6" style={{ height: 130, borderStyle: 'dashed', borderColor: 'darkgray'}} onClick={() => this.showFileSelector()}>
+          <div className="ow-col-12" style={{ height: 130, borderStyle: 'dashed', borderColor: 'darkgray'}} onClick={() => this.showFileSelector()}>
             <i className="fa fa-upload" aria-hidden="true"></i>
             <input className="ow-input ow-form-control" type='file' id='file' name='image' onChange={(e) => this.onChangeValue(e)} accept="image/*" style={{ display: 'none' }} />
           </div>
 
 
-              {this.state.images && this.state.images.length !== 0 && this.state.images.map(image => {
+              {this.state.images && this.state.images.length !== 0 && this.state.images.map((image) => {
                 const divKey = image.id;
                 const imageKey = image.objId;
                 return (
-                  <div key={divKey} id={divKey} className="ow-col-6" style={{ height: 130, border: 'none', marginBottom: '10px', marginTop: '10px' }} >
+                  <div>
+                  <div key={divKey} id={divKey} className="ow-col-12" style={{ height: 130, border: 'none', marginBottom: '10px', marginTop: '10px' }} >
                     <img
                       key={imageKey}
                       src={image.url}
@@ -2507,7 +2595,28 @@ class App extends React.Component {
                       style={{ maxWidth: '100%', maxHeight: '100%', minWidth: '100%', minHeight: '100%'}}
                       onClick={() => {this.setState({ selectedImage: image }, () => this.getActive(image.id)) }}
                     />
-                    {/* <input id={'alt-input'} name={'alt-input'} className="ow-input ow-form-control" style={{maxWidth: '100%', minWidth: '100%'}} disabled={!image.new} type='text' onChange={(e) => this.onChangeValue(e)} /> */}
+                  </div>
+                  <br />
+                  <div className="row" key={`row${image.objId}`} hidden={imageKey !== this.state.selectedImage.objId}>
+                    <div className='col-md-4'>
+                      <label for={`width${image.objId}`}>
+                        Szélesség:
+                      </label>
+                      <input id={`width${image.objId}`} name={`width${image.objId}`} className="ow-input ow-form-control" type='text' onChange={(e) => this.onChangeValue(e)} />
+                    </div>
+                    <div className='col-md-4'>
+                      <label for={`height${image.objId}`}>
+                        Magasság:
+                      </label>
+                      <input id={`height${image.objId}`} name={`height${image.objId}`} className="ow-input ow-form-control" type='text' onChange={(e) => this.onChangeValue(e)} />
+                    </div>
+                    <div className='col-md-4'>
+                      <label for={`alt-input${image.objId}`}>
+                        Alt:
+                      </label>
+                      <input id={`alt-input${image.objId}`} name={`alt-input${image.objId}`} className="ow-input ow-form-control" type='text' onChange={(e) => this.onChangeValue(e)} />
+                      </div>
+                    </div>
                   </div>
                 )
               })}
@@ -2588,8 +2697,10 @@ class App extends React.Component {
   }
 
   renderModal = () => {
-    return(
-      <div className="ow-modal">
+  const { modalType } = this.state;
+  if (modalType === 'image') {
+    return (
+      <div className="ow-modal" style={{ minHeight: '90%', minWidth: '90%' }}>
       <div className="ow-modal-body">
         <div className="ow-modal-content">
           <div className="ow-modal-header">
@@ -2612,14 +2723,40 @@ class App extends React.Component {
         </div>
       </div>
       </div>
-    )
-  }
+    );
+  } else {
+    return (
+      <div className="ow-modal">
+      <div className="ow-modal-body">
+        <div className="ow-modal-content">
+          <div className="ow-modal-header">
+            {this.modalTitleChooser(this.state.modalType)}
+          </div>
+          {this.modalChooser(this.state.modalType)}
+          <button className="ow-btn-success" 
+            onMouseDown={() => { 
+              this.onModalSubmit(this.state.modalType); 
+              setTimeout(() => {
+                this.toggleModal();
+              }, 10); }}
+            >
+              OK
+            </button>
+            &nbsp;&nbsp;
+            <button className="ow-btn-dismiss" onClick={this.toggleModal}>Mégse</button>
+        </div>
+      </div>
+      </div>
+    );
+  }}
 
   onModalSubmit = (type) => {
     if(type === 'link'){
       this.onClickLink(this.state.linkhref, this.state.linktext);
     }
     if(type === 'image'){
+      console.log(this.state.selectedImage);
+      console.log(this.state.selectedImage.id);
       return this.onClickImage(this.state.selectedImage);
     }
     if(type === 'table'){
