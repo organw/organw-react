@@ -55,7 +55,8 @@ function insertImage(editor, file, type, name, target, width, height, alt) {
       style['display'] = "inline";
       style['float'] = float;
       style['margin'] = '0px 0px 10px 10px';
-      style['width'] = '400px';
+      style['width'] = width;
+      style['height'] = height;
 
     }
     let obj = {
@@ -97,7 +98,8 @@ function insertImage(editor, file, type, name, target, width, height, alt) {
     });
   } else {
     let style = {}
-    style['width'] = "400px"
+    style['width'] = width;
+    style['height'] = height;
     let src = file.url;
     let align = editor.value.focusBlock.type.slice(6, editor.value.focusBlock.type.length);
     delete style.float
