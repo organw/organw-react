@@ -10,7 +10,7 @@ import isUrl from 'is-url';
 import 'font-awesome/css/font-awesome.css';
 import './App.css';
 import './simple-grid.css'
-import { Block } from 'slate';
+import { Block, Text } from 'slate';
 const json = require('./emoji.json');
 
 const propTypes = {
@@ -433,13 +433,15 @@ const RULES = [
           let float = el.getAttribute('align');
           if (!float) {
             let src = el.getAttribute('src');
-            let style = getStilus('image')
+            let style = getStilus('image');
+            let alt = el.getAttribute('alt');
             return {
               object: 'block',
               type: 'image',
               data: {
                 src: src,
-                style: style
+                style: style,
+                alt: alt
               }
             }
           }
@@ -599,6 +601,7 @@ const RULES = [
           if (float) {
             let style = getStilus('float')
             const src = el.getAttribute('src');
+            let alt = el.getAttribute('alt');
             delete style.height
             if (src) {
               if (style) {
@@ -608,7 +611,8 @@ const RULES = [
                   data: {
                     src: src,
                     style: style,
-                    float: float
+                    float: float,
+                    alt: alt
                   },
                   nodes: next(el.childNodes)
                 };    
@@ -941,8 +945,7 @@ const RULES = [
             
             }
           }
-          default:
-            return <br />;
+          default: return <p align="left">{children}</p>;
         }
       }
       if (obj.object === 'inline') {
@@ -1149,14 +1152,6 @@ class App extends React.Component {
       });
     }
   }
-
-  onClickText = (event, type, tag) => {
-    event.preventDefault();
-    const { editor } = this;
-    const { value } = editor;
-    const { document } = value;
-    editor.insertText(tag);
-  };
 
   onClickEmoji = (value) => {
     if (value) {
@@ -1669,414 +1664,427 @@ class App extends React.Component {
     }
   };
 
-  onClickBlock = (event, type, name, tag) => {
+  onClickText = (event, type, name, tag) => {
     event.preventDefault();
+    if (tag) {
+      console.log(event)
+      this.editor.insertText(tag)
+    }
+  }
+
+  onClickBlock = (event, type, name, tag) => {
+    
     const { editor } = this;
     const { value } = editor;
     let { blocks } = 'undefined';
-
-    if (type === 'text') editor.insertText(tag);
-    blocks = value.blocks.some(block => {
-      // ALIGN
-      if (
-        block.type === 'align-left' ||
-        block.type === 'align-right' ||
-        block.type === 'align-center'
-      ) {
+    console.log(tag)
+    if (type === 'text') {
+      event.preventDefault();
+     editor.insertText(tag);
+    } else {
+      blocks = value.blocks.some(block => {
+        // ALIGN
         if (
-          name === 'align-left' ||
-          name === 'align-right' ||
-          name === 'align-center'
+          block.type === 'align-left' ||
+          block.type === 'align-right' ||
+          block.type === 'align-center'
         ) {
-          let style = block.data.get('style');
-          editor.setBlocks({
-            object: 'block',
-            type: name,
-            data: {
-              style: style,
-              align: name.slice(6, name.length)
-            }
-          });
-        } 
-        if (
-          name === 'heading-one' ||
-          name === 'heading-two' ||
-          name === 'heading-three' ||
-          name === 'heading-four' ||
-          name === 'heading-five'
-        ) {
-          let style = block.data.get('style');
-          let align = block.type.slice(6, block.type.length);
-          let newStyle = {};
-          if (style && style !== {}){
-            for (const [key, value] of Object.entries(style)) {
-              newStyle[key] = style[key];
-            }
-          }
-          delete newStyle.fontSize;
-          newStyle['textAlign'] = align;
-          editor.setBlocks({
-            object: 'block',
-            type: name,
-            data: {
-              style: newStyle
-            }
-          })
-          .unwrapBlock('align-center')
-          .unwrapBlock('align-left')
-          .unwrapBlock('align-right')
-        } 
-        if (name === 'quote') {
-          editor.setBlocks(name);
-          editor.wrapBlock(block.type);
-        } 
-      }
-      // HEADING
-      if (
-        block.type === 'heading-one' ||
-        block.type === 'heading-two' ||
-        block.type === 'heading-three' ||
-        block.type === 'heading-four' ||
-        block.type === 'heading-five'
-      ) {
-        if (
-          name === 'heading-one' ||
-          name === 'heading-two' ||
-          name === 'heading-three' ||
-          name === 'heading-four' ||
-          name === 'heading-five'
-        ) {
-          let style = block.data.get('style');
-          let newStyle = {};
-          let align = '';
-          for (const [key, value] of Object.entries(style)) {
-            if (key === 'textAlign') {
-              align = value
-            }
-            newStyle[key] = style[key];
-          }
-          delete newStyle.textAlign;
-          editor
-            .unwrapBlock('heading-one')
-            .unwrapBlock('heading-two')
-            .unwrapBlock('heading-three')
-            .unwrapBlock('heading-four')
-            .unwrapBlock('heading-five')
-            .unwrapBlock('align-center')
-            .unwrapBlock('align-left')
-            .unwrapBlock('align-right')
-            .setBlocks({
+          if (
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
+          ) {
+            let style = block.data.get('style');
+            editor.setBlocks({
               object: 'block',
-              type: `align-${align}`,
+              type: name,
+              data: {
+                style: style,
+                align: name.slice(6, name.length)
+              }
+            });
+          } 
+          if (
+            name === 'heading-one' ||
+            name === 'heading-two' ||
+            name === 'heading-three' ||
+            name === 'heading-four' ||
+            name === 'heading-five'
+          ) {
+            let style = block.data.get('style');
+            let align = block.type.slice(6, block.type.length);
+            let newStyle = {};
+            if (style && style !== {}){
+              for (const [key, value] of Object.entries(style)) {
+                newStyle[key] = style[key];
+              }
+            }
+            delete newStyle.fontSize;
+            newStyle['textAlign'] = align;
+            editor.setBlocks({
+              object: 'block',
+              type: name,
               data: {
                 style: newStyle
               }
             })
+            .unwrapBlock('align-center')
+            .unwrapBlock('align-left')
+            .unwrapBlock('align-right')
+          } 
+          if (name === 'quote') {
+            editor.setBlocks(name);
+            editor.wrapBlock(block.type);
+          } 
         }
+        // HEADING
         if (
-          name === 'align-center' ||
-          name === 'align-right' ||
-          name === 'align-left'
+          block.type === 'heading-one' ||
+          block.type === 'heading-two' ||
+          block.type === 'heading-three' ||
+          block.type === 'heading-four' ||
+          block.type === 'heading-five'
         ) {
-          editor.unwrapBlock('align-center');
-          editor.unwrapBlock('align-left');
-          editor.unwrapBlock('align-right');
-          let style = block.data.get('style');
-          let align = name.slice(6, name.length);
-          let newStyle = {};
-          for (const [key, value] of Object.entries(style)) {
-            newStyle[key] = style[key];
-          }
-          newStyle['textAlign'] = align;
-          editor.setBlocks({
-            object: 'block',
-            type: block.type,
-            data : {
-              style: newStyle
-            }
-          });
-        }
-      }
-      // LIST
-      if (
-        block.type === 'bulleted-list' ||
-        block.type === 'numbered-list' ||
-        block.type === 'list-item'
-      ) {
           if (
-            name === 'bulleted-list' ||
-            name === 'numbered-list' ||
-            name === 'list-item'
+            name === 'heading-one' ||
+            name === 'heading-two' ||
+            name === 'heading-three' ||
+            name === 'heading-four' ||
+            name === 'heading-five'
           ) {
-            editor
-            .unwrapBlock('bulleted-list')
-            .unwrapBlock('numbered-list')
-            .unwrapBlock('list-item')
-            .setBlocks('align-left');
-          }
-          // if (
-          //   name === 'align-center' ||
-          //   name === 'align-left' ||
-          //   name === 'align-right'
-          // ) {
-          //   let align = name.slice(6, name.length);
-          //   newStyle = {};
-          //   if (align) {
-          //     if (align === 'left') {
-          //       newStyle['margin'] = '0px';
-          //       newStyle['display'] = 'block';
-          //       newStyle['paddingLeft'] = '40%';
-          //       newStyle['paddingRight'] = '40%';
-          //       newStyle['textAlign'] = align
-          //     }
-          //     if (align === 'center') {
-          //       newStyle['margin'] = '0px';
-          //       newStyle['display'] = 'block';
-          //       newStyle['paddingLeft'] = '40%';
-          //       newStyle['paddingRight'] = '40%';
-          //       newStyle['textAlign'] = align
-          //     }
-          //     if (align === 'right') {
-          //       newStyle['margin'] = '0px';
-          //       newStyle['display'] = 'block';
-          //       newStyle['paddingLeft'] = '40%';
-          //       newStyle['paddingRight'] = '40%';
-          //       newStyle['textAlign'] = align
-          //     }
-          //   }
-          //   editor
-          //   .unwrapBlock('align-center')
-          //   .unwrapBlock('align-left')
-          //   .unwrapBlock('align-right')
-          //   .setBlocks(block.type)
-          //   .wrapBlock(name)
-          // } 
-          // else {
-          //   editor
-          //   .unwrapBlock('bulleted-list')
-          //   .unwrapBlock('numbered-list')
-          //   .unwrapBlock('list-item')
-          //   .setBlocks('align-left')
-          // }
-        } 
-      if (
-        block.type === 'align-left' ||
-        block.type === 'align-center' ||
-        block.type === 'align-right'
-        ) {
-        if (name === 'bulleted-list' || name === 'numbered-list') {
-          editor
-          .setBlocks({
-            object: 'block',
-            type: 'list-item',
-            data: {
-              parent: name
-            }
-          })
-          .wrapBlock(name);
-        } else {
-          editor.setBlocks(name)
-        }
-      }
-      // QUOTE
-      if (block.type === 'quote') {
-        if (
-          name === 'align-center' ||
-          name === 'align-left' ||
-          name === 'align-right'
-        ) {
-          editor.setBlocks(name)
-        }
-        if (name === 'quote') {
-          editor.unwrapBlock('align-center');
-          editor.unwrapBlock('align-left');
-          editor.unwrapBlock('align-right');
-          editor.setBlocks('align-left');
-        }
-      }
-      // IMAGE
-      if (block.type === 'image') {
-        if (
-          name === 'align-center' ||
-          name === 'align-left' ||
-          name === 'align-right'
-        ) {
-          let style = block.data.get('style');
-          let align = name.slice(6, name.length);
-          let src = block.data.get('src');
-          let newStyle = {};
-          if (style !== {}) {
+            let style = block.data.get('style');
+            let newStyle = {};
+            let align = '';
             for (const [key, value] of Object.entries(style)) {
-              newStyle[key] = style[key]
-              if (align) {
-                delete newStyle.float
-                if (align === 'left') {
-                  delete newStyle.margin;
-                  newStyle['marginLeft'] = '0px';
-                  newStyle['marginRight'] = 'auto';
+              if (key === 'textAlign') {
+                align = value
+              }
+              newStyle[key] = style[key];
+            }
+            delete newStyle.textAlign;
+            editor
+              .unwrapBlock('heading-one')
+              .unwrapBlock('heading-two')
+              .unwrapBlock('heading-three')
+              .unwrapBlock('heading-four')
+              .unwrapBlock('heading-five')
+              .unwrapBlock('align-center')
+              .unwrapBlock('align-left')
+              .unwrapBlock('align-right')
+              .setBlocks({
+                object: 'block',
+                type: `align-${align}`,
+                data: {
+                  style: newStyle
                 }
-                if (align === 'center') {
-                  newStyle['marginLeft'] = 'auto';
-                  newStyle['marginRight'] = 'auto';
-                }
-                if (align === 'right') {
-                  delete newStyle.margin;
-                  newStyle['marginRight'] = '0px';
-                  newStyle['marginLeft'] = 'auto';
+              })
+          }
+          if (
+            name === 'align-center' ||
+            name === 'align-right' ||
+            name === 'align-left'
+          ) {
+            editor.unwrapBlock('align-center');
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            let style = block.data.get('style');
+            let align = name.slice(6, name.length);
+            let newStyle = {};
+            for (const [key, value] of Object.entries(style)) {
+              newStyle[key] = style[key];
+            }
+            newStyle['textAlign'] = align;
+            editor.setBlocks({
+              object: 'block',
+              type: block.type,
+              data : {
+                style: newStyle
+              }
+            });
+          }
+        }
+        // LIST
+        if (
+          block.type === 'bulleted-list' ||
+          block.type === 'numbered-list' ||
+          block.type === 'list-item'
+        ) {
+            if (
+              name === 'bulleted-list' ||
+              name === 'numbered-list' ||
+              name === 'list-item'
+            ) {
+              editor
+              .unwrapBlock('bulleted-list')
+              .unwrapBlock('numbered-list')
+              .unwrapBlock('list-item')
+              .setBlocks('align-left');
+            }
+            // if (
+            //   name === 'align-center' ||
+            //   name === 'align-left' ||
+            //   name === 'align-right'
+            // ) {
+            //   let align = name.slice(6, name.length);
+            //   newStyle = {};
+            //   if (align) {
+            //     if (align === 'left') {
+            //       newStyle['margin'] = '0px';
+            //       newStyle['display'] = 'block';
+            //       newStyle['paddingLeft'] = '40%';
+            //       newStyle['paddingRight'] = '40%';
+            //       newStyle['textAlign'] = align
+            //     }
+            //     if (align === 'center') {
+            //       newStyle['margin'] = '0px';
+            //       newStyle['display'] = 'block';
+            //       newStyle['paddingLeft'] = '40%';
+            //       newStyle['paddingRight'] = '40%';
+            //       newStyle['textAlign'] = align
+            //     }
+            //     if (align === 'right') {
+            //       newStyle['margin'] = '0px';
+            //       newStyle['display'] = 'block';
+            //       newStyle['paddingLeft'] = '40%';
+            //       newStyle['paddingRight'] = '40%';
+            //       newStyle['textAlign'] = align
+            //     }
+            //   }
+            //   editor
+            //   .unwrapBlock('align-center')
+            //   .unwrapBlock('align-left')
+            //   .unwrapBlock('align-right')
+            //   .setBlocks(block.type)
+            //   .wrapBlock(name)
+            // } 
+            // else {
+            //   editor
+            //   .unwrapBlock('bulleted-list')
+            //   .unwrapBlock('numbered-list')
+            //   .unwrapBlock('list-item')
+            //   .setBlocks('align-left')
+            // }
+          } 
+        if (
+          block.type === 'align-left' ||
+          block.type === 'align-center' ||
+          block.type === 'align-right'
+          ) {
+          if (name === 'bulleted-list' || name === 'numbered-list') {
+            editor
+            .setBlocks({
+              object: 'block',
+              type: 'list-item',
+              data: {
+                parent: name
+              }
+            })
+            .wrapBlock(name);
+          } else {
+            editor.setBlocks(name)
+          }
+        }
+        // QUOTE
+        if (block.type === 'quote') {
+          if (
+            name === 'align-center' ||
+            name === 'align-left' ||
+            name === 'align-right'
+          ) {
+            editor.setBlocks(name)
+          }
+          if (name === 'quote') {
+            editor.unwrapBlock('align-center');
+            editor.unwrapBlock('align-left');
+            editor.unwrapBlock('align-right');
+            editor.setBlocks('align-left');
+          }
+        }
+        // IMAGE
+        if (block.type === 'image') {
+          if (
+            name === 'align-center' ||
+            name === 'align-left' ||
+            name === 'align-right'
+          ) {
+            let style = block.data.get('style');
+            let align = name.slice(6, name.length);
+            let src = block.data.get('src');
+            let newStyle = {};
+            if (style !== {}) {
+              for (const [key, value] of Object.entries(style)) {
+                newStyle[key] = style[key]
+                if (align) {
+                  delete newStyle.float
+                  if (align === 'left') {
+                    delete newStyle.margin;
+                    newStyle['marginLeft'] = '0px';
+                    newStyle['marginRight'] = 'auto';
+                  }
+                  if (align === 'center') {
+                    newStyle['marginLeft'] = 'auto';
+                    newStyle['marginRight'] = 'auto';
+                  }
+                  if (align === 'right') {
+                    delete newStyle.margin;
+                    newStyle['marginRight'] = '0px';
+                    newStyle['marginLeft'] = 'auto';
+                  }
                 }
               }
-            }
-            let newObj = {
+              let newObj = {
+                object: 'block',
+                type: 'image',
+                data: {
+                  style: newStyle,
+                  src: src
+                }
+              }
+              editor.setBlocks(newObj)
+            } 
+          }
+        }
+        // EMBED
+        if (block.type === 'embed') {
+          if (
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
+          ) {
+            let align = name.slice(6, name.length);
+            let style = block.data.get('style');
+            let src = block.data.get('src');
+            let newStyle = {};
+            if (style !== {}) {
+              for (const [key, value] of Object.entries(style)) {
+                newStyle[key] = style[key]
+                if (align) {
+                  if (align === 'left') {
+                    delete newStyle.margin
+                    newStyle['marginLeft'] = '0px';
+                    newStyle['marginRight'] = 'auto';
+                  }
+                  if (align === 'center') {
+                    newStyle['marginLeft'] = 'auto';
+                    newStyle['marginRight'] = 'auto';
+                  }
+                  if (align === 'right') {
+                    delete newStyle.margin
+                    newStyle['marginRight'] = '0px';
+                    newStyle['marginLeft'] = 'auto';
+                  }
+                }
+              }
+            } 
+            editor.setBlocks({
               object: 'block',
-              type: 'image',
+              type: 'embed',
               data: {
                 style: newStyle,
                 src: src
               }
+            });
             }
-            editor.setBlocks(newObj)
-          } 
-        }
-      }
-      // EMBED
-      if (block.type === 'embed') {
-        if (
-          name === 'align-left' ||
-          name === 'align-right' ||
-          name === 'align-center'
-        ) {
-          let align = name.slice(6, name.length);
-          let style = block.data.get('style');
-          let src = block.data.get('src');
-          let newStyle = {};
-          if (style !== {}) {
-            for (const [key, value] of Object.entries(style)) {
-              newStyle[key] = style[key]
-              if (align) {
-                if (align === 'left') {
-                  delete newStyle.margin
-                  newStyle['marginLeft'] = '0px';
-                  newStyle['marginRight'] = 'auto';
-                }
-                if (align === 'center') {
-                  newStyle['marginLeft'] = 'auto';
-                  newStyle['marginRight'] = 'auto';
-                }
-                if (align === 'right') {
-                  delete newStyle.margin
-                  newStyle['marginRight'] = '0px';
-                  newStyle['marginLeft'] = 'auto';
-                }
-              }
             }
-          } 
-          editor.setBlocks({
-            object: 'block',
-            type: 'embed',
-            data: {
-              style: newStyle,
-              src: src
-            }
-          });
-          }
-          }
-
-      // BUTTON
-      if (block.type === 'button') {
-        if (
-          name === 'align-left' ||
-          name === 'align-right' ||
-          name === 'align-center'
-        ) {
-          let align = name.slice(6, name.length);
-          let style = block.data.get('style');
-          let href = block.data.get('href');
-          let text = block.data.get('value') ? block.data.get('value') : block.text;
-          let newStyle = {};
-          if (style !== {}) {
-            for (const [key, value] of Object.entries(style)) {
-              newStyle[key] = style[key]
-              if (align) {
-                if (align === 'left') {
-                  delete newStyle['marginLeft'];
-                  delete newStyle.margin
-                  newStyle['textAlign'] = align;
-                  newStyle['marginRight'] = 'auto';
-                }
-                if (align === 'center') {
-                  newStyle['textAlign'] = align;
-                  newStyle['marginLeft'] = 'auto';
-                  newStyle['marginRight'] = 'auto';
-                }
-                if (align === 'right') {
-                  delete newStyle.margin
-                  delete newStyle['marginRight'];
-                  newStyle['textAlign'] = align;
-                  newStyle['marginLeft'] = 'auto';
+  
+        // BUTTON
+        if (block.type === 'button') {
+          if (
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
+          ) {
+            let align = name.slice(6, name.length);
+            let style = block.data.get('style');
+            let href = block.data.get('href');
+            let text = block.data.get('value') ? block.data.get('value') : block.text;
+            let newStyle = {};
+            if (style !== {}) {
+              for (const [key, value] of Object.entries(style)) {
+                newStyle[key] = style[key]
+                if (align) {
+                  if (align === 'left') {
+                    delete newStyle['marginLeft'];
+                    delete newStyle.margin
+                    newStyle['textAlign'] = align;
+                    newStyle['marginRight'] = 'auto';
+                  }
+                  if (align === 'center') {
+                    newStyle['textAlign'] = align;
+                    newStyle['marginLeft'] = 'auto';
+                    newStyle['marginRight'] = 'auto';
+                  }
+                  if (align === 'right') {
+                    delete newStyle.margin
+                    delete newStyle['marginRight'];
+                    newStyle['textAlign'] = align;
+                    newStyle['marginLeft'] = 'auto';
+                  }
                 }
               }
+            } 
+            let buttonObj = {
+              object: 'block',
+              type: 'button',
+              data: {
+                style: newStyle,
+                value: text,
+                href: href,
+              }
             }
+            editor.setBlocks(buttonObj);
           } 
-          let buttonObj = {
-            object: 'block',
-            type: 'button',
-            data: {
-              style: newStyle,
-              value: text,
-              href: href,
-            }
-          }
-          editor.setBlocks(buttonObj);
-        } 
-      }
-      // PARAGRAPH && DEFAULT
-      if (block.type === 'paragraph') {
-        editor.unwrapBlock('heading-one');
-        editor.unwrapBlock('heading-two');
-        editor.unwrapBlock('heading-three');
-        editor.unwrapBlock('heading-four');
-        editor.unwrapBlock('heading-five');
-        editor.unwrapBlock('align-center');
-        editor.unwrapBlock('align-left');
-        editor.unwrapBlock('align-right');
-        editor.unwrapBlock('bulleted-list');
-        editor.unwrapBlock('numbered-list');
-        editor.unwrapBlock('list-item');
-        editor.unwrapBlock('paragraph');
-        if (
-          name === 'heading-one' ||
-          name === 'heading-two' ||
-          name === 'heading-three' ||
-          name === 'heading-four' ||
-          name === 'heading-five'
-        ) {
-          editor.setBlocks(name);
-        } if (
-          name === 'align-left' ||
-          name === 'align-right' ||
-          name === 'align-center'
-        ) {
-          editor.setBlocks(name)
-        } 
-        if (name === 'bulleted-list' || name === 'numbered-list') {
-          editor
-          .setBlocks({
-            object: 'block',
-            type: 'list-item',
-            data: {
-              parent: name
-            }
-          })
-          .wrapBlock(name);
-        } else {
-          let style = block.data.get('style');
-          editor.setBlocks(name);
-          editor.wrapBlock('align-left')
         }
-      }
+        // PARAGRAPH && DEFAULT
+        if (block.type === 'paragraph') {
+          editor.unwrapBlock('heading-one');
+          editor.unwrapBlock('heading-two');
+          editor.unwrapBlock('heading-three');
+          editor.unwrapBlock('heading-four');
+          editor.unwrapBlock('heading-five');
+          editor.unwrapBlock('align-center');
+          editor.unwrapBlock('align-left');
+          editor.unwrapBlock('align-right');
+          editor.unwrapBlock('bulleted-list');
+          editor.unwrapBlock('numbered-list');
+          editor.unwrapBlock('list-item');
+          editor.unwrapBlock('paragraph');
+          if (
+            name === 'heading-one' ||
+            name === 'heading-two' ||
+            name === 'heading-three' ||
+            name === 'heading-four' ||
+            name === 'heading-five'
+          ) {
+            editor.setBlocks(name);
+          } if (
+            name === 'align-left' ||
+            name === 'align-right' ||
+            name === 'align-center'
+          ) {
+            editor.setBlocks(name)
+          } 
+          if (name === 'bulleted-list' || name === 'numbered-list') {
+            editor
+            .setBlocks({
+              object: 'block',
+              type: 'list-item',
+              data: {
+                parent: name
+              }
+            })
+            .wrapBlock(name);
+          } else {
+            let style = block.data.get('style');
+            editor.setBlocks(name);
+            editor.wrapBlock('align-left')
+          }
+        }
+  
+        return blocks;
+      });
+    }
 
-      return blocks;
-    });
   };
 
   // onEnter = (event, editor, node, next, type) => {
@@ -2103,7 +2111,7 @@ class App extends React.Component {
   onKeyDown = (event, editor, next) => {
 
   
-    if (event.key === "Enter" && event.shiftKey === false) {
+    if (event.key == "Enter" && event.shiftKey === false) {
       let style = editor.value.startBlock.data.get("style");
       event.preventDefault();
       const newLine = {
@@ -2122,9 +2130,11 @@ class App extends React.Component {
           style: style
         }
       })
+      editor.moveToEndOfBlock();
     } 
-    if (event.key === "Enter" && event.shiftKey === true) {
-    editor.insertText('')
+    if (event.key == "Enter" && event.shiftKey === true) {
+      event.preventDefault();
+      editor.insertText('\n')
     } else {
       return next()
     }
@@ -2335,13 +2345,17 @@ class App extends React.Component {
       case 'image': {
           let style = node.data.get('style');
           const src = node.data.get('src');
+          let alt = node.data.get('alt');
           if (src) {
             if (style) {
               return (
                 <img
                   {...attributes}
                   src={src}
+                  alt={alt}
                   style={style}
+                  width={style.width}
+                  height={style.height}
                   className={css`
                     display: block;
                     box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
@@ -2410,8 +2424,10 @@ class App extends React.Component {
          
         }
       }
-      default:
-        return <br />;
+      default: return <p align="left">{children}</p>;
+       
+      
+       
     }
   };
 
@@ -2468,6 +2484,8 @@ class App extends React.Component {
             src={src}
             alt = {alt ? alt : ""} 
             style={style}
+            width={style.width}
+            height={style.height}
             className={css`
               display: block;
               box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
@@ -2811,7 +2829,8 @@ class App extends React.Component {
               renderModal: this.renderModal,
               onClickFontsize: this.onClickFontsize,
               onChangeValue: this.onChangeValue,
-              onKeyDown: this.onKeyDown
+              onKeyDown: this.onKeyDown,
+              // onClickText: this.onClickText
               // toggleColor: this.toggleColor
             }}
           >
