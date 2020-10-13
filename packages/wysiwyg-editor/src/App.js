@@ -71,6 +71,7 @@ function insertImage(editor, file, type, name, target, width, height, alt) {
     blockStyle['whiteSpace'] = 'pre-wrap';
     blockStyle['overflowWrap'] = 'break-word';
     blockStyle['fontSize'] = "17px"
+    newBlockStyle['fontSize'] = "17px"
     newBlockStyle['clear'] = 'both';   // NEM ENGEDI AZ MÁSIK BEKEZDÉST AZ ELŐZŐ KÉPHEZ "BEFOLYNI"
     editor.insertBlock({
       object: "block",
@@ -129,7 +130,8 @@ function insertImage(editor, file, type, name, target, width, height, alt) {
       data: { 
         src: file.url,
         style: style,
-        type: 'image'
+        type: 'image',
+        alt: alt
       }
     });
   }
@@ -218,11 +220,9 @@ const RULES = [
           if(align){
             let style =  getStilus(el.tagName) ? getStilus(el.tagName) : {}
             if (align) {
-              if (el.innerText === ''){
-                delete style.overflowWrap;
-                delete style.whiteSpace;
-                delete style.wordWrap;
-              }
+              if (el.innerText !== ''){
+                delete style.clear;
+              } 
               return {
                 object: 'block',
                 type: `align-${align}`,
@@ -601,10 +601,14 @@ const RULES = [
           if (float) {
             let style = getStilus('float')
             const src = el.getAttribute('src');
+            let width = el.getAttribute('width');
+            let height = el.getAttribute('height');
             let alt = el.getAttribute('alt');
             delete style.height
             if (src) {
               if (style) {
+                style.width = width;
+                style.height = height;
                 return {
                   object: 'inline',
                   type: `image`,
@@ -759,6 +763,8 @@ const RULES = [
             return <q>{children}</q>;
           case 'align-left': {
             let style = obj.data.get('style');
+            console.log(obj)
+            console.log(style)
             if (style) {
               return (
                 <p align="left" style={style}>
@@ -889,6 +895,8 @@ const RULES = [
                 src={src}
                 alt={alt ? alt : ''}
                 style={style}
+                width={style.width}
+                height={style.height}
                 className={css`
                   display: block;
                   box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
@@ -945,7 +953,12 @@ const RULES = [
             
             }
           }
-          default: return <p align="left">{children}</p>;
+          default: {
+            let fontsize = this.state.fontsize;
+            let style = {};
+            style['fontSize'] = fontsize
+            return <p align="left" style={style}>{children}</p>;
+          } 
         }
       }
       if (obj.object === 'inline') {
@@ -1006,8 +1019,12 @@ const RULES = [
               );
             }
           }
-          default:
-            return <p align="left">{children}</p>;
+          default: {
+            let fontsize = this.state.fontsize;
+            let style = {};
+            style['fontSize'] = fontsize
+            return <p align="left" style={style}>{children}</p>;
+          } 
         }
       }
       if (obj.object == 'mark') {
@@ -2113,6 +2130,20 @@ class App extends React.Component {
   
     if (event.key == "Enter" && event.shiftKey === false) {
       let style = editor.value.startBlock.data.get("style");
+      console.log(style)
+      let newStyle = {};
+      if (style && style !== {}){
+        for (const [key, value] of Object.entries(style)) {
+          console.log(key, value)
+          if (key !== "clear") {
+            newStyle[key] = style[key];
+          }
+        }
+      }
+
+      // if (style.clear) {
+      //   style.clear = "none";
+      // }
       event.preventDefault();
       const newLine = {
           type: "paragraph",
@@ -2123,19 +2154,26 @@ class App extends React.Component {
               }
           ]
       };
-      Block.create({
+      editor.insertBlock({
         object: "block",
         type: "align-left",
         data: {
-          style: style
+          style: newStyle
         }
       })
-      editor.moveToEndOfBlock();
+      // Block.create({
+      //   object: "block",
+      //   type: "align-left",
+      //   data: {
+      //     style: style
+      //   }
+      // })
     } 
-    if (event.key == "Enter" && event.shiftKey === true) {
-      event.preventDefault();
-      editor.insertText('\n')
-    } else {
+    // if (event.key == "Enter" && event.shiftKey === true) {
+    //   event.preventDefault();
+    //   editor.insertText('\n')
+    // } 
+    else {
       return next()
     }
   }
@@ -2424,7 +2462,15 @@ class App extends React.Component {
          
         }
       }
-      default: return <p align="left">{children}</p>;
+      default: {
+        let fontsize = this.state.fontsize;
+        let style = {};
+        style['fontSize'] = fontsize
+        if (style['clear']) {
+          delete style.clear;
+        }
+        return <p align="left" style={style}>{children}</p>;
+      } 
        
       
        
