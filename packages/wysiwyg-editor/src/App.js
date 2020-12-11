@@ -1,16 +1,15 @@
-import React, { MouseEvent } from 'react';
-import PropTypes, { element, bool } from 'prop-types';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Html from 'slate-html-serializer';
 import { getEventTransfer } from 'slate-react';
-import isHotkey, { isKeyHotkey } from 'is-hotkey';
+// import isHotkey, { isKeyHotkey } from 'is-hotkey';
 import { css } from 'emotion';
 import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
 import 'font-awesome/css/font-awesome.css';
 import './App.css';
 import './simple-grid.css'
-import { Block, Text } from 'slate';
 const json = require('./emoji.json');
 
 const propTypes = {
@@ -58,15 +57,6 @@ function insertImage(editor, file, type, name, target, width, height, alt) {
       style['width'] = width;
       style['height'] = height;
 
-    }
-    let obj = {
-      object: 'inline',
-      type: 'image',
-      data: { 
-        src: src,
-        style: style,
-        float: float
-      },
     }
     blockStyle['whiteSpace'] = 'pre-wrap';
     blockStyle['overflowWrap'] = 'break-word';
@@ -763,8 +753,6 @@ const RULES = [
             return <q>{children}</q>;
           case 'align-left': {
             let style = obj.data.get('style');
-            console.log(obj)
-            console.log(style)
             if (style) {
               return (
                 <p align="left" style={style}>
@@ -881,10 +869,48 @@ const RULES = [
               );
             }
           }
-          case 'table_row':
-            return <tr {...attributes}>{children}</tr>;
-          case 'table_cell':
-              return <td {...attributes}>{children}</td>;
+          case 'table_row': {
+            let style = obj.data.get('style');
+            if (style) {
+              return ( 
+                <tr
+                  style={style}
+                  {...attributes}
+                >
+                  {children}
+                </tr>
+              );
+            } else {
+              return ( 
+                <tr
+                  {...attributes}
+                >
+                  {children}
+                </tr>
+              );
+            }
+          }
+          case 'table_cell': {
+            let style = obj.data.get('style');
+            if (style) {
+              return ( 
+                <td
+                  style={style}
+                  {...attributes}
+                >
+                  {children}
+                </td>
+              );
+            } else {
+              return ( 
+                <td
+                  {...attributes}
+                >
+                  {children}
+                </td>
+              );
+            }
+          }
           case 'image': {
             const src = obj.data.get('src');
             const style = obj.data.get('style');
@@ -1091,7 +1117,7 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    this.fontsizeGenerator(17, 40)
+    this.fontsizeGenerator(12, 40)
   }
 
   
@@ -1142,10 +1168,7 @@ class App extends React.Component {
   }
 
   onChangeFile = (e, event, name, type, inputFile) => {
-    // let file = e.target.files[0];
-    // this.setState({ file });
     this.onClickImage(file, event, name, type, inputFile);
-    /// if you want to upload latter
   };
 
   onChangeValue = (e, type) => {
@@ -1208,7 +1231,6 @@ class App extends React.Component {
       newStyle['fontSize'] = fontsize
       if(windowSelection.type === 'Range'){
         if (focusBlockType === 'list-item') {
-          console.log('font2');
           this.editor.setNodeByKey(this.editor.value.focusBlock.key, {
             object: 'block',
             type: 'list-item',
@@ -1227,7 +1249,6 @@ class App extends React.Component {
         }
        
       } else if (style && style.fontSize !== fontsize) {
-  
           this.editor.setBlocks({
             object: 'block',
             type: startBlockType, 
@@ -1235,8 +1256,6 @@ class App extends React.Component {
               style: newStyle,
             },
             });
-
-         
       }    
   }
 
@@ -1285,11 +1304,13 @@ class App extends React.Component {
     ) {
       let align = name.slice(6, name.length);
       let newStyle = {};
+      newStyle['border'] = 'solid black 1px';
       if (align === 'left'){
         delete newStyle.margin
         newStyle['marginRight'] = 'auto';
         newStyle['marginLeft'] = '0px';
         newStyle['textAlign'] = align;
+       
       }
       if (align === 'center'){
         newStyle['margin'] = '0 auto 0 auto';
@@ -1319,10 +1340,13 @@ class App extends React.Component {
           cell.push({
             object: 'block',
             type: 'table_cell',
+            data: {
+              style: { border: 'solid black 1px' },
+            },
             nodes: [
               {
                 object: 'text',
-                text: cellID,
+                text: cellID
               },
             ],
           });
@@ -1330,12 +1354,16 @@ class App extends React.Component {
         rows.push({
           object: 'block',
           type: 'table_row',
+          data: {
+            style: { border: 'solid black 1px' },
+          },
           nodes: cell,
         });
       }
       tableObj.nodes = rows;
       this.editor.insertBlock(tableObj)
     } else {
+      newStyle['border'] = 'solid black 1px';
       newStyle['marginRight'] = 'auto';
       newStyle['marginLeft'] = '0px';
       newStyle['textAlign'] = 'left';
@@ -1357,17 +1385,24 @@ class App extends React.Component {
           cell.push({
             object: 'block',
             type: 'table_cell',
+            data: {
+              style: { border: 'solid black 1px' },
+            },
             nodes: [
               {
                 object: 'text',
-                text: cellID,
-              },
+                text: cellID
+              }
             ],
           });
         }
         rows.push({
           object: 'block',
           type: 'table_row',
+          data: {
+            style: { border: 'solid black 1px' },
+          },
+          style: { border: 'solid black 1px' },
           nodes: cell,
         });
       }
@@ -1385,9 +1420,6 @@ class App extends React.Component {
   });
 
   onClickImage = (file, event, name, type) => {
-    // this.toBase64(file, event).then((data) => {
-    //   this.editor.command(insertImage(this.editor, data, type, this.state.buttonname, ''));
-    // });
     let width = document.getElementById(`width${file.objId}`).value;
     let height = document.getElementById(`height${file.objId}`).value;
     let alt = document.getElementById(`alt-input${file.objId}`).value;
@@ -1443,23 +1475,6 @@ class App extends React.Component {
     this.editor.insertBlock(embedObj);
     }
   }
-
-  // onImageLoading = () => {
-  //   return [
-  //     {
-  //       objid: "1",
-  //       url: "https://www.pauliinasiniauer.com/wp-content/uploads/2015/02/IMG_6912-916x687.jpg",
-  //     },
-  //     {
-  //       objid: "2",
-  //       url: "https://d1bvpoagx8hqbg.cloudfront.net/originals/nice-places-visit-riga-71f95d3fb7704fc95ba62f07a5201b25.jpg",
-  //     },
-  //     {
-  //       objid: "3",
-  //       url: "https://www.ytravelblog.com/wp-content/uploads/2018/04/places-to-visit-in-slovakia-europe-1.jpg",
-  //     }
-  //   ];
-  // };
 
   onImageInsert = (files) => {
     const {gallery} = this.props;
@@ -1526,60 +1541,6 @@ class App extends React.Component {
     next();
   };
 
-  // onDropImage = (acceptedfiles) => {
-  //   const {gallery} = this.props;
-  //   if(gallery && gallery.addImage && gallery.listImages){
-  //   acceptedfiles.forEach((file) => {
-  //     const reader = new FileReader();
-  //     reader.onload = () => {
-  //       const fileAsBinaryString = reader.result;
-  //       const content = btoa(fileAsBinaryString);
-  //       let files = [];
-  //       files.push({
-  //         content: content,
-  //         url: 'data:image/jpeg;base64,' + content,
-  //         uploadDate: new Date(),
-  //         docname: file.name,
-  //         preview: file.preview,
-  //         logo: false,
-  //         mime: file.type || 'application/octet-stream',
-  //         new: true,
-  //         length: file.size,
-  //         id: new Date() + file.length
-  //       });
-        
-  //         this.onImageInsert(files);
-  //       }
-  //       reader.readAsBinaryString(file);
-  //     })
-     
-  //   } else {
-  //     acceptedfiles.forEach((file, idx) => {
-  //       const reader = new FileReader();
-  //       reader.onload = () => {
-  //         const fileAsBinaryString = reader.result;
-  //         let files = {
-  //           url: btoa(fileAsBinaryString),
-  //           uploadDate: new Date(),
-  //           docname: file.name,
-  //           preview: file.preview,
-  //           logo: false,
-  //           mime: file.type || 'application/octet-stream',
-  //           new: true,
-  //           length: file.size,
-  //           id: file.size + new Date(),
-  //         };
-  //         let newObj = {
-  //           objid: files.id,
-  //           url: 'data:image/jpeg;base64,' + files.url,
-  //         }
-  //         this.setState((prevState) => ({ images: [...prevState.images, newObj] }));
-  //       };
-  //       reader.readAsBinaryString(file);
-  //     });
-  //   }
-  // }
-
   onDropImage = (acceptedfiles) => {
     const {gallery} = this.props;
     acceptedfiles.forEach((file) => {
@@ -1616,7 +1577,6 @@ class App extends React.Component {
     let markTypes = [];
     const href = linkhref;
     const text = linktext;
-    let startKey = editor.value.startText.key;
     editor.value.startBlock.nodes.map(node => {
       if(node.marks){
         node.marks.map((item) => {
@@ -1642,7 +1602,6 @@ class App extends React.Component {
         marks: markTypes
       }]
     });
-    // editor.removeMarkByKey(startKey, markTypes.length, markTypes.length, 'bold');
     editor.moveToEndOfBlock()
   };
 
@@ -1681,20 +1640,11 @@ class App extends React.Component {
     }
   };
 
-  onClickText = (event, type, name, tag) => {
-    event.preventDefault();
-    if (tag) {
-      console.log(event)
-      this.editor.insertText(tag)
-    }
-  }
-
   onClickBlock = (event, type, name, tag) => {
     
     const { editor } = this;
     const { value } = editor;
     let { blocks } = 'undefined';
-    console.log(tag)
     if (type === 'text') {
       event.preventDefault();
      editor.insertText(tag);
@@ -1837,50 +1787,6 @@ class App extends React.Component {
               .unwrapBlock('list-item')
               .setBlocks('align-left');
             }
-            // if (
-            //   name === 'align-center' ||
-            //   name === 'align-left' ||
-            //   name === 'align-right'
-            // ) {
-            //   let align = name.slice(6, name.length);
-            //   newStyle = {};
-            //   if (align) {
-            //     if (align === 'left') {
-            //       newStyle['margin'] = '0px';
-            //       newStyle['display'] = 'block';
-            //       newStyle['paddingLeft'] = '40%';
-            //       newStyle['paddingRight'] = '40%';
-            //       newStyle['textAlign'] = align
-            //     }
-            //     if (align === 'center') {
-            //       newStyle['margin'] = '0px';
-            //       newStyle['display'] = 'block';
-            //       newStyle['paddingLeft'] = '40%';
-            //       newStyle['paddingRight'] = '40%';
-            //       newStyle['textAlign'] = align
-            //     }
-            //     if (align === 'right') {
-            //       newStyle['margin'] = '0px';
-            //       newStyle['display'] = 'block';
-            //       newStyle['paddingLeft'] = '40%';
-            //       newStyle['paddingRight'] = '40%';
-            //       newStyle['textAlign'] = align
-            //     }
-            //   }
-            //   editor
-            //   .unwrapBlock('align-center')
-            //   .unwrapBlock('align-left')
-            //   .unwrapBlock('align-right')
-            //   .setBlocks(block.type)
-            //   .wrapBlock(name)
-            // } 
-            // else {
-            //   editor
-            //   .unwrapBlock('bulleted-list')
-            //   .unwrapBlock('numbered-list')
-            //   .unwrapBlock('list-item')
-            //   .setBlocks('align-left')
-            // }
           } 
         if (
           block.type === 'align-left' ||
@@ -2104,56 +2010,18 @@ class App extends React.Component {
 
   };
 
-  // onEnter = (event, editor, node, next, type) => {
-  //   // event.preventDefault();
-  //   // const { value } = editor;
-  //   // editor.setBlocks('line-break');
-  // };
-
-  // onDelete = (event, editor, next) => {
-  //   const { value } = editor;
-  //   const { selection } = value;
-  //   if (selection.end.offset !== value.startText.text.length) return next();
-  // };
-
-  // onBackspace = (event, editor, next) => {
-  //   // event.preventDefault();
-  //   const { value } = editor;
-  //   const { selection } = value;
-  //   if (selection.start.offset !== 0) return next();
-
-  //   editor.delete();
-  // };
-
   onKeyDown = (event, editor, next) => {
-
-  
     if (event.key == "Enter" && event.shiftKey === false) {
       let style = editor.value.startBlock.data.get("style");
-      console.log(style)
       let newStyle = {};
       if (style && style !== {}){
         for (const [key, value] of Object.entries(style)) {
-          console.log(key, value)
           if (key !== "clear") {
             newStyle[key] = style[key];
           }
         }
       }
-
-      // if (style.clear) {
-      //   style.clear = "none";
-      // }
       event.preventDefault();
-      const newLine = {
-          type: "paragraph",
-          children: [
-              {
-                  text: "",
-                  marks: []
-              }
-          ]
-      };
       editor.insertBlock({
         object: "block",
         type: "align-left",
@@ -2376,10 +2244,50 @@ class App extends React.Component {
           )
         }
       }
-      case 'table_row':
-        return <tr {...attributes}>{children}</tr>;
-      case 'table_cell':
-          return <td {...attributes}>{children}</td>;
+      case 'table_row': {
+        let style = node.data.get('style');
+        console.log(style);
+        if (style) {
+          return ( 
+            <tr
+              style={style}
+              {...attributes}
+            >
+              {children}
+            </tr>
+          );
+        } else {
+          return ( 
+            <tr
+              {...attributes}
+            >
+              {children}
+            </tr>
+          );
+        }
+      }
+      case 'table_cell': {
+        let style = node.data.get('style');
+        console.log(style);
+        if (style) {
+          return ( 
+            <td
+              style={style}
+              {...attributes}
+            >
+              {children}
+            </td>
+          );
+        } else {
+          return ( 
+            <td
+              {...attributes}
+            >
+              {children}
+            </td>
+          );
+        }
+      }
       case 'image': {
           let style = node.data.get('style');
           const src = node.data.get('src');
@@ -2646,8 +2554,6 @@ class App extends React.Component {
             <i className="fa fa-upload" aria-hidden="true"></i>
             <input className="ow-input ow-form-control" type='file' id='file' name='image' onChange={(e) => this.onChangeValue(e)} accept="image/*" style={{ display: 'none' }} />
           </div>
-
-
               {this.state.images && this.state.images.length !== 0 && this.state.images.map((image) => {
                 const divKey = image.id;
                 const imageKey = image.objId;
@@ -2686,7 +2592,6 @@ class App extends React.Component {
                   </div>
                 )
               })}
-      
       </div>
     )
   }
@@ -2821,8 +2726,6 @@ class App extends React.Component {
       this.onClickLink(this.state.linkhref, this.state.linktext);
     }
     if(type === 'image'){
-      console.log(this.state.selectedImage);
-      console.log(this.state.selectedImage.id);
       return this.onClickImage(this.state.selectedImage);
     }
     if(type === 'table'){
@@ -2864,7 +2767,6 @@ class App extends React.Component {
               onDrop: this.onDropOrPaste,
               onPaste: this.onDropOrPaste,
               onClickLink: this.onClickLink,
-              onClickText: this.onClickText,
               onClickImage: this.onClickImage,
               onClickTable: this.onClickTable,
               onChangeFile: this.onChangeFile,
@@ -2876,8 +2778,6 @@ class App extends React.Component {
               onClickFontsize: this.onClickFontsize,
               onChangeValue: this.onChangeValue,
               onKeyDown: this.onKeyDown,
-              // onClickText: this.onClickText
-              // toggleColor: this.toggleColor
             }}
           >
             {children}

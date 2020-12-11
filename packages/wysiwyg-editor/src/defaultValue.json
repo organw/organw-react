@@ -5,7 +5,10 @@
     "nodes": [
       {
         "object": "block",
-        "type": "paragraph",
+        "type": "align-left",
+        "data": {
+          "style": { "fontSize": "17px" }
+        },
         "nodes": [
           {
             "object": "text",

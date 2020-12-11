@@ -147,7 +147,7 @@ class Default extends React.Component {
           </ToolbarGroup>
         </Toolbar>
         <Editor />
-        <button onClick={() => {
+        {/* <button onClick={() => {
           let serialized = serializer.serialize(this.state.value);
           alert(serialized);
           let deserialized = serializer.deserialize(serialized);
@@ -155,7 +155,7 @@ class Default extends React.Component {
           console.log(reserialized);
         }}>
           AAAA
-        </button>
+        </button> */}
         <Statusbar />
       </App>
     );
