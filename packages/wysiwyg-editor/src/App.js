@@ -37,7 +37,6 @@ const SharedAppContext = React.createContext({});
 // const isStriketroughHotkey = isKeyHotkey('mod+s');
 
 function insertImage(editor, file, type, name, target, width, height, alt, event) {
-  console.log(event.preventDefault);
   if (name === 'float_left' || name === 'float_right') {
     let style = {};
     let blockStyle = {};
@@ -209,31 +208,6 @@ function getStilus(style) {
   return stilus;
 }
 
-// function getStilus(style) {
-
-//   if (style){
-
-//     stilusok.map((stilus) => {
-//       if(tagName = "P"){
-//         console.log(stilus);
-//       }
-//       let activeStyles = stilus.style;
-//       if(stilus.tagName == tagName){
-//         let newObj = {}
-//         for (const [key, value] of Object.entries(activeStyles)) {
-//           if(activeStyles[key] && isNaN(key)){
-//             newObj[key] = activeStyles[key];
-//             style[key] = newObj[key];
-//           } 
-//         }
-//       }
-//     });
-//   }
-
-//   style = el.style;
-//   return style;
-// }
-
 const RULES = [
   {
     deserialize(el, next) {
@@ -249,21 +223,12 @@ const RULES = [
       }
 
       if (block) {
-        // let stilus = el.style;
-        // let styles = Object.assign({}, stilus);
-        // let tagName = el.tagName;
-        // let tagName = el.tagName === 'IMG' ? (el.getAttribute('align') ? 'float' : 'image') : el.tagName;
-        // if ( styles ) { stilusok.push({styles, tagName}); }
         if (el.tagName === 'P') {
-          console.log("getStilus: ", getStilus(el.style));
           const align = el.getAttribute('align');
           if(align){
             let style = {};
             style = getStilus(el.style)
-            // let style = el.style;
-            console.log(style);
             delete style.textAlign;
-            console.log("DESERIALIZE ALIGNS STYLE: ", style);
               return {
                 object: 'block',
                 type: `align-${align}`,
@@ -839,7 +804,6 @@ const RULES = [
           }
           case 'align-left': {
             let style = obj.data.get('style');
-            console.log("serialize-left: ", style);
             if (style) {
               return (
                 <p align="left" style={style}>
@@ -856,7 +820,6 @@ const RULES = [
           }
           case 'align-center': {
             let style = obj.data.get('style');
-            console.log("serialize-center: ", style);
             if (style) {
               return (
                 <p align="center" style={style} {...attributes }>
@@ -873,7 +836,6 @@ const RULES = [
           }
           case 'align-right': {
             let style = obj.data.get('style');
-            console.log("serialize-right: ", style);
             if (style) {
               return (
                 <p align="right" style={style} {...attributes}>
@@ -1004,7 +966,6 @@ const RULES = [
             const src = obj.data.get('src');
             const style = obj.data.get('style');
             const alt = obj.data.get('alt');
-            console.log("serialize float: ", style);
             if (style.float) {
               return (
                 <img
@@ -1833,7 +1794,6 @@ class App extends React.Component {
             let newStyle = {};
             if (style && style !== {}){
               for (const [key, value] of Object.entries(style)) {
-                console.log(key, key === 'fontSize');
                 if (key !== "fontSize" || value !== "fontSize" || key !== "font-size" || value !== "font-size") {
                   newStyle[key] = style[key];
                 } else {
@@ -2189,24 +2149,6 @@ class App extends React.Component {
           }
         }
       });
-      
-       // let inlines = editor.value.startBlock.getInlines();
-      // inlines.forEach((inline) => {
-      //   console.log("inline: ", inline);
-      //   if (inline.type === "image") {
-      //     event.preventDefault();
-      //     editor.insertBlock({
-      //       object: "block",
-      //       type: "align-left",
-      //       data: {
-      //         style: {
-      //           fontSize: "17px"
-      //         }
-      //       }
-      //     });
-      //   }
-      // });
-
     }
 
     if (event.key == "Enter" && event.shiftKey === false) {
