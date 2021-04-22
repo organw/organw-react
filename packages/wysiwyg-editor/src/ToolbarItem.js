@@ -73,6 +73,7 @@ const ToolbarItem = ({
           return (
             <React.Fragment>
             <Component
+              type="button"
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
                 propss.onClickMark(event, type, name);
@@ -103,6 +104,7 @@ const ToolbarItem = ({
               //  }
             return (
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
@@ -124,6 +126,7 @@ const ToolbarItem = ({
             const isActive = propss.hasBlock(name);
             return (
               <Component
+                type="button"
                 active={toString(isActive)}
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
@@ -148,6 +151,7 @@ const ToolbarItem = ({
           {propss => {
             return (
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
@@ -168,6 +172,7 @@ const ToolbarItem = ({
           {propss => {
             return (
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
@@ -188,6 +193,7 @@ const ToolbarItem = ({
           {propss => {
             return (
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={event => {
                   propss.onClickBlock(event, type, name);
@@ -221,6 +227,7 @@ const ToolbarItem = ({
                 }
               />
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={(e) => propss.onClickModal(type, name, e)}
                 // onMouseDown={event => {
@@ -253,6 +260,7 @@ const ToolbarItem = ({
                   }
                 />
                 <Component
+                  type="button"
                   className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                   onMouseDown={() => propss.onClickModal(type, name)}
                   data-toggle="tooltip"
@@ -282,6 +290,7 @@ const ToolbarItem = ({
                   }
                 />
                 <Component
+                  type="button"
                   className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                   onMouseDown={() => propss.onClickModal(type, name)}
                   data-toggle="tooltip"
@@ -304,6 +313,7 @@ const ToolbarItem = ({
         {propss => {
           return (
             <Component
+              type="button"
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={() => propss.onClickModal(type, name)}
               data-toggle="tooltip"
@@ -323,10 +333,12 @@ const ToolbarItem = ({
           {propss => {
             return (
               <Component
-                className={classNames(className, 'ow-wysiwyg-toolbar-item')}
+                type="button"
+                id={propss.fontId}
+                className={classNames(className, 'ow-wysiwyg-toolbar-item fontsize')}
                 onMouseDown={(e) => {propss.onChangeValue(e, type);}}
                 onClick={(e) => propss.onChangeValue(e, type)}
-                id="font"
+               
                 data-toggle="tooltip"
                 title={tooltip}
               >
@@ -346,6 +358,7 @@ const ToolbarItem = ({
           {propss => {
             return (
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type, name)}
                 data-toggle="tooltip"
@@ -365,6 +378,7 @@ const ToolbarItem = ({
           {propss => {
             return (
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type, name)}
                 data-toggle="tooltip"
@@ -384,6 +398,7 @@ const ToolbarItem = ({
           {propss => {
             return (
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type, name)}
                 data-toggle="tooltip"
@@ -403,6 +418,7 @@ const ToolbarItem = ({
           {propss => {
             return (
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type, name)}
                 data-toggle="tooltip"
@@ -424,6 +440,7 @@ const ToolbarItem = ({
           {propss => {
             return (
               <Component
+                type="button"
                 className={classNames(className, 'ow-wysiwyg-toolbar-item')}
                 onMouseDown={() => propss.onClickModal(type)}
                 data-toggle="tooltip"
@@ -444,6 +461,7 @@ const ToolbarItem = ({
         {propss => {
           return (
             <Component
+              type="button"
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={() => propss.onClickModal(type, name)}
               data-toggle="tooltip"
@@ -482,6 +500,7 @@ const ToolbarItem = ({
         {propss => {
           return (
             <Component
+              type="button"
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={() => propss.onClickModal(type)}
               data-toggle="tooltip"
@@ -505,6 +524,7 @@ const ToolbarItem = ({
         {propss => {
           return (
             <Component
+              type="button"
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
                 propss.onClickBlock(event, name);
@@ -526,6 +546,7 @@ const ToolbarItem = ({
         {propss => {
           return (
             <Component
+              type="button"
               className={classNames(className, 'ow-wysiwyg-toolbar-item')}
               onMouseDown={event => {
                 propss.onClickBlock(event, type, name, tag);

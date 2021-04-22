@@ -24,6 +24,9 @@ const schema = {
     },
     button: {
       isVoid: true
+    },
+    linebreak: {
+      isVoid: true
     }
   },
   inlines: {

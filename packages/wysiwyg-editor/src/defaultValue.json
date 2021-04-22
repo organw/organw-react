@@ -1,4 +1,5 @@
-{
+[
+  {
   "object": "value",
   "document": {
     "object": "document",
@@ -9,13 +10,17 @@
         "data": {
           "style": { "fontSize": "17px" }
         },
+        "marks": [],
         "nodes": [
           {
             "object": "text",
-            "text": ""
+            "marks": [],
+            "text": "Ide írd a szöveget..."
           }
         ]
       }
-    ]
+    ],
+    "data": {}
   }
 }
+]

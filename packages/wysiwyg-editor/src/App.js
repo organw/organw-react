@@ -9,7 +9,8 @@ import imageExtensions from 'image-extensions';
 import isUrl from 'is-url';
 import 'font-awesome/css/font-awesome.css';
 import './App.css';
-import './simple-grid.css'
+import './simple-grid.css';
+import { Value } from 'slate'; 
 const json = require('./emoji.json');
 
 const propTypes = {
@@ -17,7 +18,8 @@ const propTypes = {
   as: PropTypes.elementType,
   role: PropTypes.string,
   children: PropTypes.array,
-  value: PropTypes.object.isRequired
+  value: PropTypes.object.isRequired,
+  fontId: PropTypes.string.isRequired
 };
 
 const defaultProps = {
@@ -34,8 +36,8 @@ const SharedAppContext = React.createContext({});
 // const isCodeHotkey = isKeyHotkey('mod+q');
 // const isStriketroughHotkey = isKeyHotkey('mod+s');
 
-function insertImage(editor, file, type, name, target, width, height, alt) {
- 
+function insertImage(editor, file, type, name, target, width, height, alt, event) {
+  console.log(event.preventDefault);
   if (name === 'float_left' || name === 'float_right') {
     let style = {};
     let blockStyle = {};
@@ -61,16 +63,26 @@ function insertImage(editor, file, type, name, target, width, height, alt) {
     blockStyle['whiteSpace'] = 'pre-wrap';
     blockStyle['overflowWrap'] = 'break-word';
     blockStyle['fontSize'] = "17px"
-    newBlockStyle['fontSize'] = "17px"
-    newBlockStyle['clear'] = 'both';   // NEM ENGEDI AZ MÁSIK BEKEZDÉST AZ ELŐZŐ KÉPHEZ "BEFOLYNI"
+    // blockStyle['clear'] = "both";
+    // newBlockStyle['fontSize'] = "17px"
+    // newBlockStyle['clear'] = 'both';   // NEM ENGEDI AZ MÁSIK BEKEZDÉST AZ ELŐZŐ KÉPHEZ "BEFOLYNI"
+   
+    editor.deleteBackward(1);
+    editor.insertText("\n");
+    event.preventDefault();
+    // editor.insertBlock({
+    //   object: "block",
+    //   type: "align-left",
+    //   data: {
+    //     style: {
+    //       fontSize: "17px",
+
+    //     }
+    //   }
+    // });
+    // editor.insertText("\n");
     editor.insertBlock({
-      object: "block",
-      type: `align-left`,
-      data: {
-        style: blockStyle
-      },
-      nodes: [{
-        object: 'inline',
+        object: 'block',
         type: 'image',
         data: { 
           src: src,
@@ -78,13 +90,15 @@ function insertImage(editor, file, type, name, target, width, height, alt) {
           float: float,
           alt: alt
         },
-      }]
     });
     editor.insertBlock({
-      object: 'block',
-      type: 'align-left',
+      object: "block",
+      type: "align-left",
       data: {
-        style: newBlockStyle
+        style: {
+          fontSize: "17px",
+
+        }
       }
     });
   } else {
@@ -113,7 +127,7 @@ function insertImage(editor, file, type, name, target, width, height, alt) {
       style['marginLeft'] = 'auto';
     }
     delete style.float
-    editor.insertBlock({
+    editor.setBlocks({
       object: 'block',
       type: 'image',
       isVoid: true,
@@ -124,6 +138,15 @@ function insertImage(editor, file, type, name, target, width, height, alt) {
         alt: alt
       }
     });
+    editor.insertBlock({
+      object: "block",
+      type: "default",
+      nodes: [{
+        object: "text",
+        marks: [],
+        text: ""
+      }]
+    })
   }
 }
 
@@ -155,7 +178,7 @@ const BLOCK_TAGS = {
   td: 'table_cell',
   button: 'button',
   iframe: 'embed',
-  br: 'line-break'
+  br: 'line-break',
 };
 
 const MARK_TAGS = {
@@ -167,31 +190,49 @@ const MARK_TAGS = {
 };
 
 const INLINE_TAGS = {
-  img: 'image',
   a: 'link',
   span: 'emoji'
 };
 
-let stilusok = [];
+// let stilusok = [];
+function getStilus(style) {
 
-function getStilus(tagName) {
-  let style = {};
-  if (stilusok.length !== 0){
-    stilusok.map((stilus) => {
-      let activeStyles = stilus.style;
-      if(stilus.tagName == tagName){
-        let newObj = {}
-        for (const [key, value] of Object.entries(activeStyles)) {
-          if(activeStyles[key] && isNaN(key)){
-            newObj[key] = activeStyles[key];
-            style[key] = newObj[key];
-          } 
-        }
-      }
-    });
+  let stilus = {};
+
+  if (style){
+    for (const [key, value] of Object.entries(style)) {
+      if(style[key] && isNaN(key)){
+        stilus[key] = style[key];
+      } 
+    }
   }
-  return style;
+  return stilus;
 }
+
+// function getStilus(style) {
+
+//   if (style){
+
+//     stilusok.map((stilus) => {
+//       if(tagName = "P"){
+//         console.log(stilus);
+//       }
+//       let activeStyles = stilus.style;
+//       if(stilus.tagName == tagName){
+//         let newObj = {}
+//         for (const [key, value] of Object.entries(activeStyles)) {
+//           if(activeStyles[key] && isNaN(key)){
+//             newObj[key] = activeStyles[key];
+//             style[key] = newObj[key];
+//           } 
+//         }
+//       }
+//     });
+//   }
+
+//   style = el.style;
+//   return style;
+// }
 
 const RULES = [
   {
@@ -199,20 +240,30 @@ const RULES = [
       const block = BLOCK_TAGS[el.tagName.toLowerCase()];
       const mark = MARK_TAGS[el.tagName.toLowerCase()];
       const inline = INLINE_TAGS[el.tagName.toLowerCase()];
-    
+
+      if (el.tagName === "BR") {
+        return {
+          object: "text",
+          text: "\n"
+        }
+      }
+
       if (block) {
-        let stilus = el.style;
-        let style = Object.assign({}, stilus)
-        let tagName = el.tagName === 'IMG' ? (el.getAttribute('align') ? 'float' : 'image') : el.tagName;
-        stilusok.push({style, tagName});
+        // let stilus = el.style;
+        // let styles = Object.assign({}, stilus);
+        // let tagName = el.tagName;
+        // let tagName = el.tagName === 'IMG' ? (el.getAttribute('align') ? 'float' : 'image') : el.tagName;
+        // if ( styles ) { stilusok.push({styles, tagName}); }
         if (el.tagName === 'P') {
+          console.log("getStilus: ", getStilus(el.style));
           const align = el.getAttribute('align');
           if(align){
-            let style =  getStilus(el.tagName) ? getStilus(el.tagName) : {}
-            if (align) {
-              if (el.innerText !== ''){
-                delete style.clear;
-              } 
+            let style = {};
+            style = getStilus(el.style)
+            // let style = el.style;
+            console.log(style);
+            delete style.textAlign;
+            console.log("DESERIALIZE ALIGNS STYLE: ", style);
               return {
                 object: 'block',
                 type: `align-${align}`,
@@ -222,21 +273,10 @@ const RULES = [
                 },
                 nodes: next(el.childNodes),
               }
-            } else {
-              return {
-                object: 'block',
-                type: 'paragraph',
-                data: {
-                  className: el.getAttribute('class'),
-                  style: style !== {} ? style : { fontSize: '17px' } 
-                },
-                nodes: next(el.childNodes),
-              }
             }
-          }
         }
         if (el.tagName === 'H1') {
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           return {
             object: 'block',
             type: 'heading-one',
@@ -248,7 +288,7 @@ const RULES = [
           };
         }
         if (el.tagName === 'H2') {
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           return {
             object: 'block',
             type: 'heading-two',
@@ -260,7 +300,7 @@ const RULES = [
           };
         }
         if (el.tagName === 'H3') {
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           return {
             object: 'block',
             type: 'heading-three',
@@ -272,7 +312,7 @@ const RULES = [
           };
         }
         if (el.tagName === 'H4') {
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           return {
             object: 'block',
             type: 'heading-four',
@@ -284,7 +324,7 @@ const RULES = [
           };
         }
         if (el.tagName === 'H5') {
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           return {
             object: 'block',
             type: 'heading-five',
@@ -296,7 +336,7 @@ const RULES = [
           };
         }
         if (el.tagName === 'TABLE'){
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           if (style) {
             return {
               object: 'block',
@@ -319,7 +359,7 @@ const RULES = [
           }
         }
         if (el.tagName === 'TR'){
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           if (style) {
             return {
               object: 'block',
@@ -342,7 +382,7 @@ const RULES = [
           }
         }
         if (el.tagName === 'TD'){
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           if (style) {
             return {
               object: 'block',
@@ -365,22 +405,9 @@ const RULES = [
           }
         }
         if (el.tagName === 'BUTTON') {
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           let value = el.innerText
-          let href = el.getAttribute('href');
           if (style && value) {
-            if (href) {
-              return {
-                object: 'block',
-                type: 'button',
-                data: {
-                  className: el.getAttribute('class'),
-                  style: style,
-                  value: value,
-                  href: href, 
-                },
-              }
-            } else {
               return {
                 object: 'block',
                 type: 'button',
@@ -390,11 +417,15 @@ const RULES = [
                   value: value,
                 },
               }
+          } else {
+            return {
+              object: 'block',
+              type: 'button'
             }
           }
         }
         if (el.tagName === 'IFRAME') {
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
           let src = el.getAttribute('src');
           if (src) {
             if (style) {
@@ -420,11 +451,10 @@ const RULES = [
           }
         }
         if (el.tagName === 'IMG') {
-          let float = el.getAttribute('align');
-          if (!float) {
-            let src = el.getAttribute('src');
-            let style = getStilus('image');
-            let alt = el.getAttribute('alt');
+          let style = getStilus(el.style)
+          let src = el.getAttribute('src');
+          let alt = el.getAttribute('alt');
+          if (style) {
             return {
               object: 'block',
               type: 'image',
@@ -434,10 +464,20 @@ const RULES = [
                 alt: alt
               }
             }
+          } else {
+            return {
+              object: 'block',
+              type: 'image',
+              data: {
+                src: src,
+                alt: alt
+              }
+            }
           }
         }
         if (el.tagName === 'Q') {
-          let style = getStilus(el.tagName);
+          let style = getStilus(el.style)
+          if (style) {
             return {
               object: 'block',
               type: 'quote',
@@ -447,11 +487,20 @@ const RULES = [
               },
               nodes: next(el.childNodes)
             }
+          } else {
+            return {
+              object: 'block',
+              type: 'quote',
+              data: {
+                className: el.getAttribute('class'),
+              },
+              nodes: next(el.childNodes)
+            }
+          }   
         }
         if (el.tagName === 'LI') {
           let parent = el.getAttribute('parent');
-          let style = getStilus(el.tagName);
-          console.log(style)
+          let style = getStilus(el.style)
           if (parent) {
             if (style) {
               if (parent === 'bulleted-list') {
@@ -512,7 +561,7 @@ const RULES = [
           }
           }
         if (el.tagName === 'UL') {
-          let style = el.getAttribute('style');
+          let style = getStilus(el.style)
           if (style) {
             return {
               object: 'block',
@@ -531,7 +580,7 @@ const RULES = [
           }
         }
         if (el.tagName === 'OL') {
-          let style = el.getAttribute('style');
+          let style = getStilus(el.style)
           if (style) {
             return {
               object: 'block',
@@ -549,15 +598,10 @@ const RULES = [
             }
           }
         }
-        if (el.tagName === 'BR') {
-            return {
-              object: 'block',
-              type: 'line-break'
-            }
-        }
       } 
       if (mark) {
-        const align = el.getAttribute('align');
+        let align = el.getAttribute('align');
+        let style = getStilus(el.style)
         if (align) {
           return {
             object: 'block',
@@ -586,62 +630,95 @@ const RULES = [
         }
       }
       if (inline) {
-        if (el.tagName === 'IMG') {
-          let float = el.getAttribute('align');
-          if (float) {
-            let style = getStilus('float')
-            const src = el.getAttribute('src');
-            let width = el.getAttribute('width');
-            let height = el.getAttribute('height');
-            let alt = el.getAttribute('alt');
-            delete style.height
-            if (src) {
-              if (style) {
-                style.width = width;
-                style.height = height;
-                return {
-                  object: 'inline',
-                  type: `image`,
-                  data: {
-                    src: src,
-                    style: style,
-                    float: float,
-                    alt: alt
-                  },
-                  nodes: next(el.childNodes)
-                };    
-              }
-            }    
-          }
-      } 
+      //   if (el.tagName === 'IMG') {
+      //     let float = el.getAttribute('align');
+      //     if (float) {
+      //       let style = getStilus('float')
+      //       const src = el.getAttribute('src');
+      //       let width = el.getAttribute('width');
+      //       let height = el.getAttribute('height');
+      //       let alt = el.getAttribute('alt');
+      //       delete style.height
+      //       if (src) {
+      //         if (style) {
+      //           style.width = width;
+      //           style.height = height;
+      //           return {
+      //             object: 'inline',
+      //             type: `image`,
+      //             data: {
+      //               src: src,
+      //               style: style,
+      //               float: float,
+      //               alt: alt
+      //             },
+      //             nodes: next(el.childNodes)
+      //           };    
+      //         }
+      //       }    
+      //     }
+      // } 
       if (el.tagName.toLowerCase() === 'a') {
-        let style = getStilus(el.tagName);
-        let text = el.innerText;
-        if (style) {
-          return {
-            object: 'inline',
-            type: 'link',
-            nodes: next(el.childNodes),
-            data: {
-              href: el.getAttribute('href'),
-              style: style,
-              text: text
-            },
-          };
+        let style = getStilus(el.style)
+        let buttonText = el.children[0].innerText;
+        let buttonStyle = el.children[0].style;
+        let newObj = {}
+        for (const [key, value] of Object.entries(buttonStyle)) {
+          if(buttonStyle[key] && isNaN(key)){
+            newObj[key] = buttonStyle[key];
+          } 
+        }
+        let isButton = el.children[0] && true;
+        if (style && buttonText && buttonStyle) {
+          if (isButton) {
+            return {
+              object: 'inline',
+              type: 'link',
+              data: {
+                href: el.getAttribute('href'),
+                style: style,
+                buttonStyle: newObj,
+                value: buttonText,
+                isButton: isButton
+              },
+              nodes: next(el.childNodes)
+            };
+          } else {
+            return {
+              object: 'inline',
+              type: 'link',
+              nodes: next(el.childNodes),
+              data: {
+                href: el.getAttribute('href'),
+                style: style,
+              },
+            };
+          }
         } else {
-          return {
-            object: 'inline',
-            type: 'link',
-            nodes: next(el.childNodes),
-            data: {
-              href: el.getAttribute('href'),
-              text: text
-            },
-          };
+          if (isButton) {
+            return {
+              object: 'inline',
+              type: 'link',
+              nodes: next(el.childNodes),
+              data: {
+                href: el.getAttribute('href'),
+              },
+            };
+          } else {
+            return {
+              object: 'inline',
+              type: 'link',
+              nodes: next(el.childNodes),
+              data: {
+                href: el.getAttribute('href'),
+                text: text
+              },
+            };
+          }
         }
       }
       if (el.tagName.toLowerCase() === 'span') {
-        let style = getStilus(el.tagName);
+        let style = getStilus(el.style)
         let value = el.innerText;
         if (style) {
           return {
@@ -667,7 +744,7 @@ const RULES = [
         }
       }
       else {
-        let style = getStilus(el.tagName);
+        let style = getStilus(el.style)
         if(style) {
           return {
             object: 'inline',
@@ -689,6 +766,9 @@ const RULES = [
       }}
     },
     serialize(obj, children, next, attributes, isFocused) {
+      if (children === "\n"){
+        return <br />;
+      }
       if (obj.object == 'block') {
         switch (obj.type) {
           case 'span':
@@ -749,10 +829,17 @@ const RULES = [
                 );
             }        
           }
-          case 'quote':
-            return <q>{children}</q>;
+          case 'quote': {
+            let style = obj.data.get('style');
+            if (style) {
+              return <q style={style} {...attributes}>{children}</q>;
+            } else {
+              return <q {...attributes}>{children}</q>;
+            }
+          }
           case 'align-left': {
             let style = obj.data.get('style');
+            console.log("serialize-left: ", style);
             if (style) {
               return (
                 <p align="left" style={style}>
@@ -769,6 +856,7 @@ const RULES = [
           }
           case 'align-center': {
             let style = obj.data.get('style');
+            console.log("serialize-center: ", style);
             if (style) {
               return (
                 <p align="center" style={style} {...attributes }>
@@ -785,6 +873,7 @@ const RULES = [
           }
           case 'align-right': {
             let style = obj.data.get('style');
+            console.log("serialize-right: ", style);
             if (style) {
               return (
                 <p align="right" style={style} {...attributes}>
@@ -828,7 +917,7 @@ const RULES = [
                   );
                 }
                 if (parent === 'numbered-list') {
-                  return (
+                  ulreturn (
                     <li style={style} parent={parent} {...attributes}>{children}</li>
                   );
                 }
@@ -915,20 +1004,39 @@ const RULES = [
             const src = obj.data.get('src');
             const style = obj.data.get('style');
             const alt = obj.data.get('alt');
-            return (
-              <img
-                {...attributes}
-                src={src}
-                alt={alt ? alt : ''}
-                style={style}
-                width={style.width}
-                height={style.height}
-                className={css`
-                  display: block;
-                  box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
-                `}
-              />
-            );
+            console.log("serialize float: ", style);
+            if (style.float) {
+              return (
+                <img
+                  {...attributes}
+                  src={src}
+                  alt={alt ? alt : ''}
+                  style={style}
+                  width={style.width}
+                  height={style.height}
+                  className={css`
+                    display: block;
+                    box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+                  `}
+                />
+              );
+            } else {
+              return (
+                <img
+                  {...attributes}
+                  src={src}
+                  alt={alt ? alt : ''}
+                  style={style}
+                  width={style.width}
+                  height={style.height}
+                  className={css`
+                    display: block;
+                    box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'};
+                  `}
+                />
+              );
+            }
+           
           }
           case 'embed': {
             let src = obj.data.get('src');
@@ -951,38 +1059,22 @@ const RULES = [
           }
           case 'button': {
             let style = obj.data.get('style');
-            let href = obj.data.get('href');
             let value = obj.data.get('value') ? obj.data.get('value') : obj.text;
             if(style && value){
-              if (href) {
                 return (
                   <button
-                  type="submit"
-                  className={css`max-height: 20em;box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}`}
-                  href={href}
-                  style={style}
-                  >
-                  <a href={href} style={{ textDecoration: 'none', color: style.color }} target="_blank">{value}</a>
-                  </button>
-                );
-              } else {
-                return (
-                  <button
-                  type="submit"
+                  type="button"
                   className={css`max-height: 20em;box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}`}
                   style={style}
                   >
                     {value}
                   </button>
                 );
-              }
-            
             }
           }
           default: {
-            let fontsize = this.state.fontsize;
             let style = {};
-            style['fontSize'] = fontsize
+            style['fontSize'] = '17px';
             return <p align="left" style={style}>{children}</p>;
           } 
         }
@@ -1011,18 +1103,21 @@ const RULES = [
             }
           }
           case 'link': {
+            const isButton = obj.data.get('isButton');
             const href = obj.data.get('href');
             const style = obj.data.get('style');
+            const buttonStyle = obj.data.get('buttonStyle');
             const text = obj.data.get('text');
-            if (style) {
+            const value = obj.data.get('value');
+            if (isButton) {
               return (
-                <a {...attributes} href={href}>
-                  {text}
+                <a style={style && style} {...attributes} href={href}>
+                  <button style={buttonStyle} type="button">{value}</button>
                 </a>
               );
             } else {
               return (
-                <a {...attributes} href={href}>
+                <a style={style && style} {...attributes} href={href}>
                   {text}
                 </a>
               );
@@ -1046,7 +1141,7 @@ const RULES = [
             }
           }
           default: {
-            let fontsize = this.state.fontsize;
+            let fontsize = this.state.fontsize ? this.state.fontsize : '17px';
             let style = {};
             style['fontSize'] = fontsize
             return <p align="left" style={style}>{children}</p>;
@@ -1074,6 +1169,7 @@ const RULES = [
 ];
 
 export const serializer = new Html({ rules: RULES });
+export const ValueJson = Value;
 
 class App extends React.Component {
   constructor(props) {
@@ -1108,7 +1204,7 @@ class App extends React.Component {
       buttonhref: '',
       buttonvalue: '',
       // FONT
-      fontsize: '17px',
+      fontsize: "17px",
       select: undefined,
     };
   }
@@ -1141,11 +1237,9 @@ class App extends React.Component {
   // }
 
   renderFontsizeOptions = (select) => {
-    let font = document.getElementById('font');
-    let fontbutton = document.getElementsByClassName('ow-wysiwyg-toolbar-group').item(0);
+    let font = document.getElementById(this.props.fontId);
     if(font) {
       font.appendChild(select);
-      fontbutton.appendChild(font);
     }
   } 
 
@@ -1162,6 +1256,9 @@ class App extends React.Component {
         opt.setAttribute('key', i);
         opt.value = i + 'px';
         opt.text = i;
+        if (opt.value === this.state.fontsize) {
+          opt.selected
+        }
           select.appendChild(opt);
       };
       this.renderFontsizeOptions(select);
@@ -1261,37 +1358,59 @@ class App extends React.Component {
 
   onClickButton = (buttonbackground, buttontext, buttonhref, buttonvalue) => {
     let align = this.editor.value.focusBlock.type.slice(6,  this.editor.value.startBlock.type.length);
-    let style = {
+    let buttonStyle = {
       backgroundColor: buttonbackground,
       color: buttontext ? buttontext : 'black'
     }
+
+    let linkStyle = {
+      textDecoration: 'none',
+    }
+
     if (align) {
       if (align === 'left'){
-        style['display'] = 'flex';
-        style['marginRight'] = 'auto';
-        style['textAlign'] = align
+        buttonStyle['display'] = 'inline-block';
+        buttonStyle['marginRight'] = 'auto';
+        buttonStyle['textAlign'] = align;
       }
       if (align === 'center'){
-        style['margin'] = 'auto';
-        style['display'] = 'flex';
-        style['textAlign'] = align
+        buttonStyle['margin'] = '0 auto';
+        buttonStyle['display'] = 'inline-block';
+        buttonStyle['textAlign'] = align;
+        linkStyle['margin'] = '0 auto';
       }
       if (align === 'right'){
-        style['display'] = 'flex';
-        style['marginLeft'] = 'auto';
-        style['textAlign'] = align
+        buttonStyle['display'] = 'inline-block';
+        buttonStyle['marginLeft'] = 'auto';
+        buttonStyle['textAlign'] = align
       }
     }
-    let buttonObj = {
-      object: 'block',
-      type: 'button',
+    let buttonLinkObj = {
+      object: 'inline',
+      type: 'link',
+      isVoid: true,
       data: {
-        style: style,
+        style: linkStyle,
+        buttonStyle: buttonStyle,
+        href: buttonhref,
+        isButton: true,
         value: buttonvalue,
-        href: buttonhref
-      }
-    };
-    this.editor.insertBlock(buttonObj);
+        text: buttontext
+      },
+      nodes: [
+        {
+          object: 'block',
+          type: 'button',
+          isVoid: true,
+        }
+      ]
+    }
+  
+    this.editor.insertInline(buttonLinkObj);
+
+
+    // this.editor.wrapBlock(buttonLinkObj);
+
     this.editor.moveToEnd();
   }
 
@@ -1423,7 +1542,7 @@ class App extends React.Component {
     let width = document.getElementById(`width${file.objId}`).value;
     let height = document.getElementById(`height${file.objId}`).value;
     let alt = document.getElementById(`alt-input${file.objId}`).value;
-    this.editor.command(insertImage(this.editor, file, type, this.state.buttonname, '', width, height, alt));
+    this.editor.command(insertImage(this.editor, file, type, this.state.buttonname, '', width, height, alt, event));
   };
 
   getJsonFromUrl = (url) => {
@@ -1589,7 +1708,8 @@ class App extends React.Component {
       type: 'link',
       data: { 
         href: href,
-        text: text
+        text: text,
+        isButton: false
       },
       isVoid: true,
       marks: [],
@@ -1662,6 +1782,7 @@ class App extends React.Component {
             name === 'align-center'
           ) {
             let style = block.data.get('style');
+            // delete style.textAlign;
             editor.setBlocks({
               object: 'block',
               type: name,
@@ -1671,6 +1792,35 @@ class App extends React.Component {
               }
             });
           } 
+
+          if (name === 'bulleted-list' || name === 'numbered-list') {
+            event.preventDefault();
+            let listitemObj = {
+              object: "block",
+              type: "list-item",
+                data: {
+                  style: {
+                    fontSize: "17px"
+                  },
+                  parent: name
+                }
+            }
+            editor
+            .setBlocks(listitemObj)
+            .wrapBlock(name);
+          }
+          if (name === "list-item") {
+            editor.setBlocks({
+              object: "block",
+              type: name,
+              data: {
+                style: {
+                  fontSize: "17px"
+                }
+              }
+            })
+          }
+
           if (
             name === 'heading-one' ||
             name === 'heading-two' ||
@@ -1683,25 +1833,38 @@ class App extends React.Component {
             let newStyle = {};
             if (style && style !== {}){
               for (const [key, value] of Object.entries(style)) {
-                newStyle[key] = style[key];
+                console.log(key, key === 'fontSize');
+                if (key !== "fontSize" || value !== "fontSize" || key !== "font-size" || value !== "font-size") {
+                  newStyle[key] = style[key];
+                } else {
+                  delete newStyle[key];
+                }
               }
             }
-            delete newStyle.fontSize;
             newStyle['textAlign'] = align;
-            editor.setBlocks({
+            editor
+            .setBlocks({
               object: 'block',
               type: name,
               data: {
-                style: newStyle
-              }
-            })
-            .unwrapBlock('align-center')
-            .unwrapBlock('align-left')
-            .unwrapBlock('align-right')
-          } 
+                style: {
+                  textAlign: align,
+                }
+              },
+            });
+          }
+
           if (name === 'quote') {
             editor.setBlocks(name);
-            editor.wrapBlock(block.type);
+            editor.wrapBlock({
+              object: "block",
+              type: block.type,
+              data: {
+                style: {
+                  fontSize: "17px"
+                }
+              }
+            });
           } 
         }
         // HEADING
@@ -1729,15 +1892,16 @@ class App extends React.Component {
               newStyle[key] = style[key];
             }
             delete newStyle.textAlign;
+            newStyle.fontSize = "17px"
             editor
-              .unwrapBlock('heading-one')
-              .unwrapBlock('heading-two')
-              .unwrapBlock('heading-three')
-              .unwrapBlock('heading-four')
-              .unwrapBlock('heading-five')
-              .unwrapBlock('align-center')
-              .unwrapBlock('align-left')
-              .unwrapBlock('align-right')
+             // .unwrapBlock('heading-one')
+             // .unwrapBlock('heading-two')
+             // .unwrapBlock('heading-three')
+             // .unwrapBlock('heading-four')
+             // .unwrapBlock('heading-five')
+             // .unwrapBlock('align-center')
+             // .unwrapBlock('align-left')
+             // .unwrapBlock('align-right')
               .setBlocks({
                 object: 'block',
                 type: `align-${align}`,
@@ -1751,16 +1915,16 @@ class App extends React.Component {
             name === 'align-right' ||
             name === 'align-left'
           ) {
-            editor.unwrapBlock('align-center');
-            editor.unwrapBlock('align-left');
-            editor.unwrapBlock('align-right');
             let style = block.data.get('style');
             let align = name.slice(6, name.length);
             let newStyle = {};
             for (const [key, value] of Object.entries(style)) {
-              newStyle[key] = style[key];
+              if (key === "textAlign") {
+                newStyle.textAlign = align;
+              } else {
+                newStyle[key] = style[key];
+              }
             }
-            newStyle['textAlign'] = align;
             editor.setBlocks({
               object: 'block',
               type: block.type,
@@ -1787,25 +1951,7 @@ class App extends React.Component {
               .unwrapBlock('list-item')
               .setBlocks('align-left');
             }
-          } 
-        if (
-          block.type === 'align-left' ||
-          block.type === 'align-center' ||
-          block.type === 'align-right'
-          ) {
-          if (name === 'bulleted-list' || name === 'numbered-list') {
-            editor
-            .setBlocks({
-              object: 'block',
-              type: 'list-item',
-              data: {
-                parent: name
-              }
-            })
-            .wrapBlock(name);
-          } else {
-            editor.setBlocks(name)
-          }
+          
         }
         // QUOTE
         if (block.type === 'quote') {
@@ -1814,7 +1960,28 @@ class App extends React.Component {
             name === 'align-left' ||
             name === 'align-right'
           ) {
-            editor.setBlocks(name)
+            editor
+            .unwrapBlock("align-left")
+            .unwrapBlock("align-center")
+            .unwrapBlock("align-right");
+            editor.setBlocks({
+              object: "block",
+              type: block.type,
+              data: {
+                style: {
+                  fontSize:"17px"
+                }
+              }
+            })
+            editor.wrapBlock({
+              object: "block",
+              type: name,
+              data: {
+                style: {
+                  fontSize:"17px"
+                }
+              }
+            });
           }
           if (name === 'quote') {
             editor.unwrapBlock('align-center');
@@ -2010,39 +2177,96 @@ class App extends React.Component {
 
   };
 
-  onKeyDown = (event, editor, next) => {
-    if (event.key == "Enter" && event.shiftKey === false) {
-      let style = editor.value.startBlock.data.get("style");
-      let newStyle = {};
-      if (style && style !== {}){
-        for (const [key, value] of Object.entries(style)) {
-          if (key !== "clear") {
-            newStyle[key] = style[key];
-          }
-        }
-      }
+  onKeyDown = (event, editor, next) => { 
+    if (event.key == "Enter" && event.ctrlKey) {
       event.preventDefault();
       editor.insertBlock({
         object: "block",
         type: "align-left",
         data: {
-          style: newStyle
+          style: {
+            fontSize: "17px"
+          }
         }
-      })
-      // Block.create({
-      //   object: "block",
-      //   type: "align-left",
-      //   data: {
-      //     style: style
+      });
+      
+       // let inlines = editor.value.startBlock.getInlines();
+      // inlines.forEach((inline) => {
+      //   console.log("inline: ", inline);
+      //   if (inline.type === "image") {
+      //     event.preventDefault();
+      //     editor.insertBlock({
+      //       object: "block",
+      //       type: "align-left",
+      //       data: {
+      //         style: {
+      //           fontSize: "17px"
+      //         }
+      //       }
+      //     });
       //   }
-      // })
-    } 
-    // if (event.key == "Enter" && event.shiftKey === true) {
-    //   event.preventDefault();
-    //   editor.insertText('\n')
-    // } 
-    else {
-      return next()
+      // });
+
+    }
+
+    if (event.key == "Enter" && event.shiftKey === false) {
+      event.preventDefault();
+      let style = editor.value.startBlock.data.get("style");
+      let newStyle = {};
+      if (style && style !== {}){
+        for (const [key, value] of Object.entries(style)) {
+          if (key === "fontSize" || key === "align") {
+            newStyle[key] = style[key];
+          } else {
+            newStyle.fontSize = "17px"
+          }
+        }
+      }
+      if (editor.value.startBlock.type.includes("heading")) {
+        event.preventDefault();
+          editor.insertBlock({
+          object: "block",
+          type: "default",
+          data: {
+            style: {
+              fontSize: "17px",
+            }
+          },
+          nodes: [{
+            object: "text",
+            marks: [],
+            text: ""
+          }]
+        });
+      } else if (editor.value.startBlock.type.includes("list")) {
+        event.preventDefault();
+        editor.insertBlock({
+          object: "block",
+          type: "list-item",
+          data: {
+            style: {
+              fontSize: "17px",
+            }
+          }
+        });
+      } else {
+        event.preventDefault();
+        editor.insertBlock({
+          object: "block",
+          type: "align-left",
+          data: {
+            style: {
+              fontSize: "17px",
+              clear: "both"
+            }
+          }
+        });
+      }
+    } else if (event.key == "Enter" && event.shiftKey === true) {
+      event.preventDefault();
+      editor.insertText("\n");
+    } else {
+      return next();
     }
   }
 
@@ -2070,7 +2294,7 @@ class App extends React.Component {
     switch (node.type) {
       case 'span':
         return <span {...attributes}>{children}</span>;
-      case 'line-break':
+      case 'linebreak':
         return <br />;
       case 'heading-one': {
         let style = node.data.get('style');
@@ -2124,8 +2348,15 @@ class App extends React.Component {
             );
         }
       }
-      case 'quote':
-        return <q {...attributes}>{children}</q>;
+      case 'quote': {
+        let style = node.data.get('style');
+        if (style) {
+          return <q style={style} {...attributes}>{children}</q>;
+        } else {
+          return <q {...attributes}>{children}</q>;
+        }
+      }
+       
       case 'align-left': {
         let style = node.data.get('style');
         if (style) {
@@ -2246,7 +2477,6 @@ class App extends React.Component {
       }
       case 'table_row': {
         let style = node.data.get('style');
-        console.log(style);
         if (style) {
           return ( 
             <tr
@@ -2268,7 +2498,6 @@ class App extends React.Component {
       }
       case 'table_cell': {
         let style = node.data.get('style');
-        console.log(style);
         if (style) {
           return ( 
             <td
@@ -2294,20 +2523,37 @@ class App extends React.Component {
           let alt = node.data.get('alt');
           if (src) {
             if (style) {
-              return (
-                <img
-                  {...attributes}
-                  src={src}
-                  alt={alt}
-                  style={style}
-                  width={style.width}
-                  height={style.height}
-                  className={css`
-                    display: block;
-                    box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
-                  `}
-                />
-              );
+              if (style.float) {
+                return (
+                  <img
+                    {...attributes}
+                    src={src}
+                    alt={alt}
+                    style={style}
+                    width={style.width}
+                    height={style.height}
+                    className={css`
+                      display: block;
+                      box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
+                    `}
+                  />
+                );
+              } else {
+                return (
+                  <img
+                    {...attributes}
+                    src={src}
+                    alt={alt}
+                    style={style}
+                    width={style.width}
+                    height={style.height}
+                    className={css`
+                      display: block;
+                      box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
+                    `}
+                  />
+                );
+              }
             } 
         }
       }
@@ -2333,29 +2579,12 @@ class App extends React.Component {
       case 'button': {
         let style = node.data.get('style');
         let value = node.data.get('value') ? node.data.get('value') : node.text;
-        let href = node.data.get('href');
      
         if (style && value) {
-          if (href) {
+
             return (
               <button
-              type="submit"
-              className={css`
-                max-height: 20em;
-                box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
-              `}
-              style={style}
-              href={href}
-              {...attributes}
-             
-              >
-                <a href={href} style={{ textDecoration: 'none', color: style.color }} target="_blank">{value}</a>
-              </button>
-            );
-          } else {
-            return (
-              <button
-              type="submit"
+              type="button"
               className={css`
                 max-height: 20em;
                 box-shadow: ${isFocused ? '0 0 0 2px blue;' : 'none'}
@@ -2367,16 +2596,15 @@ class App extends React.Component {
               </button>
             );
           }
-         
-        }
       }
       default: {
         let fontsize = this.state.fontsize;
         let style = {};
-        style['fontSize'] = fontsize
-        if (style['clear']) {
-          delete style.clear;
-        }
+        style['fontSize'] = fontsize ? fontsize : "17px"
+        // style['clear'] = "both";
+        // if (style['clear']) {
+        //   delete style.clear;
+        // }
         return <p align="left" style={style}>{children}</p>;
       } 
        
@@ -2388,20 +2616,25 @@ class App extends React.Component {
   renderInline = (props, editor, next, type) => {
     const { attributes, children, node, isFocused } = props;
     switch (node.type) {
+      case 'linebreak':
+        return <br />;
       // LINK
       case 'link': {
+        const isButton = node.data.get('isButton');
         const href = node.data.get('href');
         const style = node.data.get('style');
+        const buttonStyle = node.data.get('buttonStyle')
         const text = node.data.get('text');
-        if (style) {
+        const value = node.data.get('value');
+        if (isButton) {
           return (
-            <a {...attributes} href={href}>
-              {text}
+            <a style={style && style} {...attributes} href={href} target="_blank">
+              <button style={buttonStyle} type="button">{value}</button>
             </a>
           );
         } else {
           return (
-            <a {...attributes} href={href}>
+            <a style={style && style} {...attributes} href={href} target="_blank">
               {text}
             </a>
           );
@@ -2681,8 +2914,8 @@ class App extends React.Component {
           </div>
           {this.modalChooser(this.state.modalType)}
           <button className="ow-btn-success" 
-            onMouseDown={() => { 
-              this.onModalSubmit(this.state.modalType); 
+            onMouseDown={(event) => { 
+              this.onModalSubmit(this.state.modalType, event); 
               setTimeout(() => {
                 this.toggleModal();
               }, 10); }}
@@ -2721,12 +2954,12 @@ class App extends React.Component {
     );
   }}
 
-  onModalSubmit = (type) => {
+  onModalSubmit = (type, event) => {
     if(type === 'link'){
       this.onClickLink(this.state.linkhref, this.state.linktext);
     }
     if(type === 'image'){
-      return this.onClickImage(this.state.selectedImage);
+      return this.onClickImage(this.state.selectedImage, event);
     }
     if(type === 'table'){
       return this.onClickTable(this.state.cols, this.state.rows, this.state.classname, this.state.buttonname);
@@ -2778,6 +3011,7 @@ class App extends React.Component {
               onClickFontsize: this.onClickFontsize,
               onChangeValue: this.onChangeValue,
               onKeyDown: this.onKeyDown,
+              fontId: props.fontId
             }}
           >
             {children}

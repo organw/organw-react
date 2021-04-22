@@ -6,4 +6,4 @@ export Editor from './Editor';
 export Toolbar from './Toolbar';
 export ToolbarGroup from './ToolbarGroup';
 export ToolbarItem from './ToolbarItem';
-export { serializer } from './App';
+export { serializer, ValueJson } from './App';
