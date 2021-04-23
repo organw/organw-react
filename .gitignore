@@ -1,5 +1,4 @@
 *.log
-/dist
 /node_modules
 .tmp
 /lib
@@ -10,4 +9,3 @@
 /.history
 package-lock.json
 coverage/
-/packages/wysiwyg-editor/dist
