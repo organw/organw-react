@@ -212,15 +212,6 @@ class Default extends React.Component {
           </ToolbarGroup>
         </Toolbar>
         <Editor />
-        <button onClick={() => {
-          let serialized = serializer.serialize(this.state.value);
-          alert(serialized);
-          let deserialized = serializer.deserialize(serialized);
-          let reserialized = serializer.serialize(deserialized)
-          console.log(reserialized);
-        }}>
-          AAAA
-        </button>
         <Statusbar />
       </App>
       </div>
@@ -341,15 +332,6 @@ class Default extends React.Component {
           </ToolbarGroup>
         </Toolbar>
         <Editor />
-        <button onClick={() => {
-          let serialized = serializer.serialize(this.state.valueSecond);
-          alert(serialized);
-          let deserialized = serializer.deserialize(serialized);
-          let reserialized = serializer.serialize(deserialized)
-          console.log(reserialized);
-        }}>
-          AAAA
-        </button>
         <Statusbar />
       </App>
       </div>
