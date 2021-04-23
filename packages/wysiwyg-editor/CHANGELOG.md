@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.48.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.41.0...@organw/wysiwyg-editor@0.48.0) (2021-04-23)
+
+
+### Bug Fixes
+
+* **wysiwyg:** delete tryit buttons ([15d9d95](https://github.com/organw/organw-react/commit/15d9d951b48e24b6bfa6e4587217d9bda1e198fc))
+* **wysiwyg:** fix some problem(OW-1916) ([3eaf122](https://github.com/organw/organw-react/commit/3eaf122fb30cae96fbb36819abddf318d50a7ae8))
+* **wysiwyg:** fix some problem(OW-1916) ([f59dc79](https://github.com/organw/organw-react/commit/f59dc7926b837889d0f860d0875e39845650c22e))
+* **wysiwyg-editor:** fix image ([c098745](https://github.com/organw/organw-react/commit/c09874526d1799b8ba8b0ae0d2c65bf7482c598d))
+* **wysiwyg-editor:** fix image, default ([067730a](https://github.com/organw/organw-react/commit/067730a88053548ffd73ea00f9434b97d300604d))
+
+
+### Features
+
+* **wysiwyg-editor:** add new release ([d6beeb1](https://github.com/organw/organw-react/commit/d6beeb1e0f2111aa102bd018e3802ee6aad89553))
+* **wysiwyg-editor:** optimazition and table border ([a88fca1](https://github.com/organw/organw-react/commit/a88fca1c264398bbc2f2415361d28cecaef56156))
+
+
+
+
+
 # [0.41.0](https://github.com/organw/organw-react/compare/@organw/wysiwyg-editor@0.36.0...@organw/wysiwyg-editor@0.41.0) (2020-10-11)
 
 
